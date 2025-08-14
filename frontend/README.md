@@ -36,12 +36,18 @@ npm install
 
 ### 4. Set Up Stripe
 
+Stripe is used for secure payment processing.
+
 - Go to [Stripe](https://dashboard.stripe.com/register) and get your test public key. Add to `.env`.
 
 ### 5. Set Up Cloudinary
 
+Cloudinary is used for image storage and management.
+
 - Go to [Cloudinary](https://cloudinary.com/) and create a free account.
-- Get your upload preset. Add to `.env`.
+- Create an upload preset in your Cloudinary dashboard.
+- Add your Cloudinary cloud name and upload preset to the `.env` file.
+- Refer to `.env.example` for the required variable names.
 
 ### 6. Add Environment Variables
 
