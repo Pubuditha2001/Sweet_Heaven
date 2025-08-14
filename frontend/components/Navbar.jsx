@@ -1,26 +1,146 @@
 // Navbar.jsx - Main navigation bar
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <nav className="bg-white shadow flex justify-between items-center px-8 py-4">
-      <Link to="/" className="text-pink-600 font-bold text-2xl">
-        Sweet Heaven
-      </Link>
-      <div className="space-x-6">
-        <Link to="/products" className="hover:text-pink-500">
-          Products
-        </Link>
-        <Link to="/custom-cake" className="hover:text-pink-500">
-          Custom Cake
-        </Link>
-        <Link to="/cart" className="hover:text-pink-500">
-          Cart
-        </Link>
-        <Link to="/admin" className="hover:text-pink-500">
-          Admin
-        </Link>
+    <nav className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          {/* Logo section */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex items-center">
+              {/* You can replace this with an actual logo image */}
+              <span className="text-pink-600 font-bold text-2xl">
+                Sweet Heaven
+              </span>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link
+              to="/"
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
+            >
+              Home
+            </Link>
+            <Link
+              to="/products"
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
+            >
+              Products
+            </Link>
+            <Link
+              to="/custom-cake"
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
+            >
+              Custom Cake Creator
+            </Link>
+            <Link
+              to="/cart"
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
+            >
+              Cart
+            </Link>
+            <Link
+              to="/login"
+              className="text-white bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
+            >
+              Login / Register
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-pink-500 hover:bg-pink-50 focus:outline-none"
+              aria-expanded="false"
+            >
+              <span className="sr-only">Open main menu</span>
+              {/* Hamburger icon */}
+              <svg
+                className={`${isMenuOpen ? "hidden" : "block"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              {/* X icon for closing */}
+              <svg
+                className={`${isMenuOpen ? "block" : "hidden"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg">
+          <Link
+            to="/"
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"
+            onClick={toggleMenu}
+          >
+            Home
+          </Link>
+          <Link
+            to="/products"
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"
+            onClick={toggleMenu}
+          >
+            Products
+          </Link>
+          <Link
+            to="/custom-cake"
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"
+            onClick={toggleMenu}
+          >
+            Custom Cake Creator
+          </Link>
+          <Link
+            to="/cart"
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"
+            onClick={toggleMenu}
+          >
+            Cart
+          </Link>
+          <Link
+            to="/login"
+            className="text-white bg-pink-600 hover:bg-pink-700 block px-3 py-2 rounded-md font-medium"
+            onClick={toggleMenu}
+          >
+            Login / Register
+          </Link>
+        </div>
       </div>
     </nav>
   );
