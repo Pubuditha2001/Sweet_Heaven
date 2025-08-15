@@ -47,7 +47,7 @@ const Cake = ({ cake }) => {
           </div>
         </div>
         <div
-          className="pt-2 pb-4 px-4 flex flex-col flex-1 justify-start"
+          className="pt-2 pb-4 px-3 md:px-4 flex flex-col flex-1 justify-start"
           style={{ minHeight: "110px" }}
         >
           <h2

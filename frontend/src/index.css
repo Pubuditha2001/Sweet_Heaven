@@ -42,6 +42,21 @@ h6 {
   line-height: 1.1;
 }
 
+/* Make Handlee bold text appear thicker */
+strong,
+b,
+.font-bold,
+[class*="font-bold"],
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-shadow: 0.03em 0 0 currentColor;
+  letter-spacing: -0.015em;
+}
+
 /* Logo class - use the decorative font only for logos and special text */
 .logo-text {
   font-family: "Paytone One", sans-serif;
@@ -56,9 +71,9 @@ h6 {
 
 /* Special style for lowercase letters */
 .logo-text .lowercase {
-  font-size: 1.34em; /* Increase size for lowercase letters */
+  font-size: 1.35em; /* Increase size for lowercase letters */
   display: inline-block;
-  transform: translateY(-0.25em); /* Adjust vertical position */
+  transform: translateY(-0.22em); /* Adjust vertical position */
   /* line-height: -0.1; */
 }
 
