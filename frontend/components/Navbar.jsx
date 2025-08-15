@@ -15,15 +15,14 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           {/* Logo section */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center">
+            <Link to="../src/assets/logo.png" className="flex items-center">
               {/* You can replace this with an actual logo image */}
               <span className="text-pink-600 font-bold text-2xl">
                 Sweet Heaven
               </span>
             </Link>
           </div>
-
-          {/* Desktop Navigation Links */}
+          Desktop Navigation Links
           <div className="hidden md:flex items-center space-x-6">
             <Link
               to="/"
@@ -56,7 +55,6 @@ export default function Navbar() {
               Login / Register
             </Link>
           </div>
-
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button

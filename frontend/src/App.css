@@ -5,8 +5,38 @@
 
 /* Additional styles for Sweet Heaven cake shop */
 .container {
-  max-width: 1280px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  padding-left: 0; /* No padding on mobile */
+  padding-right: 0; /* No padding on mobile */
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem; /* Restore padding on medium screens */
+    padding-right: 2rem; /* Restore padding on medium screens */
+    max-width: 1280px; /* Restore max width on medium screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 3rem; /* More padding on large screens */
+    padding-right: 3rem; /* More padding on large screens */
+  }
 }
 
 /* You can add more custom styles here as needed */
+.custom-main-padding {
+  padding: 32px 16px; /* Example: 32px top/bottom, 16px left/right */
+}
+
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

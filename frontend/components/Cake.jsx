@@ -31,9 +31,9 @@ const Cake = ({ cake }) => {
         </div>
         <div className="p-4 flex flex-col flex-1 justify-center h-24">
           {/* Fixed height for title and description */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">
             {cake.name}
-          </h3>
+          </h2>
           <p className="text-gray-500 text-base">{cake.description}</p>
         </div>
       </div>

@@ -110,56 +110,56 @@ export default function Products() {
 
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-4 sm:mb-6">
+      <h2 className="p-2 text-2xl sm:text-3xl font-bold text-pink-600 mb-4 sm:mb-6">
         Our Cakes
       </h2>
 
       {/* Category tabs */}
-      <div className="flex overflow-x-auto scrollbar-hide gap-2 mb-6 pb-2">
+      <div className="flex overflow-x-auto whitespace-nowrap pb-2 mb-6 gap-2 no-scrollbar">
         <button
           onClick={() => setActiveCategory("all")}
-          className={`min-w-[120px] px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "all" ? "bg-pink-500 text-white" : "bg-gray-100"
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
+            activeCategory === "all" ? "bg-pink-500 text-white" : "bg-pink-400"
           }`}
         >
           All Cakes
         </button>
         <button
           onClick={() => setActiveCategory("featured")}
-          className={`min-w-[120px] px-4 py-3 text-base rounded-xl transition ${
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
             activeCategory === "featured"
               ? "bg-pink-500 text-white"
-              : "bg-gray-100"
+              : "bg-pink-400"
           }`}
         >
           Featured
         </button>
         <button
           onClick={() => setActiveCategory("birthday")}
-          className={`min-w-[120px] px-4 py-3 text-base rounded-xl transition ${
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
             activeCategory === "birthday"
               ? "bg-pink-500 text-white"
-              : "bg-gray-100"
+              : "bg-pink-400"
           }`}
         >
           Birthday
         </button>
         <button
           onClick={() => setActiveCategory("cupcakes")}
-          className={`min-w-[120px] px-4 py-3 text-base rounded-xl transition ${
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
             activeCategory === "cupcakes"
               ? "bg-pink-500 text-white"
-              : "bg-gray-100"
+              : "bg-pink-400"
           }`}
         >
           Cupcakes
         </button>
         <button
           onClick={() => setActiveCategory("specialty")}
-          className={`min-w-[120px] px-4 py-3 text-base rounded-xl transition ${
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
             activeCategory === "specialty"
               ? "bg-pink-500 text-white"
-              : "bg-gray-100"
+              : "bg-pink-400"
           }`}
         >
           Specialty

@@ -21,7 +21,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links
           <div>
             <h3 className="text-gray-800 font-semibold text-lg mb-4">
               Quick Links
@@ -68,7 +68,7 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Contact & Social */}
           <div>
