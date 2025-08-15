@@ -15,10 +15,19 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           {/* Logo section */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="../src/assets/logo.png" className="flex items-center">
+            <Link to="/" className="flex items-center">
               {/* You can replace this with an actual logo image */}
-              <span className="text-pink-600 font-bold text-2xl">
-                Sweet Heaven
+              <span
+                className="text-pink-600 font-bold text-2xl logo-text"
+                data-content="Sweet Heaven"
+              >
+                S<span className="lowercase">w</span>
+                <span className="lowercase">e</span>
+                <span className="lowercase">e</span>T H
+                <span className="lowercase">e</span>A
+                <span className="lowercase">v</span>
+                <span className="lowercase">e</span>
+                <span className="lowercase">n</span>
               </span>
             </Link>
           </div>
@@ -31,10 +40,10 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              to="/products"
+              to="/menu"
               className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
             >
-              Products
+              Menu
             </Link>
             <Link
               to="/custom-cake"
@@ -111,11 +120,11 @@ export default function Navbar() {
             Home
           </Link>
           <Link
-            to="/products"
+            to="/menu"
             className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"
             onClick={toggleMenu}
           >
-            Products
+            Menu
           </Link>
           <Link
             to="/custom-cake"

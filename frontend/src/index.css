@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Handlee", cursive;
   line-height: 1.5;
   font-weight: 400;
 
@@ -28,11 +28,54 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: "Handlee", cursive;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Handlee", cursive;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* Logo class - use the decorative font only for logos and special text */
+.logo-text {
+  font-family: "Paytone One", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: none; /* Don't transform the text */
+  font-variant: normal;
+  line-height: 1;
+  display: inline-flex;
+  /* align-items: baseline; */
+}
+
+/* Special style for lowercase letters */
+.logo-text .lowercase {
+  font-size: 1.34em; /* Increase size for lowercase letters */
+  display: inline-block;
+  transform: translateY(-0.25em); /* Adjust vertical position */
+  /* line-height: -0.1; */
+}
+
+/* Special style for logo image */
+img[alt="Sweet Heaven"] {
+  /* Add any specific styles for the logo image if needed */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Brand accent text for any decorative text elements */
+.brand-accent {
+  font-family: "Edu NSW ACT Cursive", cursive;
+  font-weight: 700;
 }
 
 h1 {
   font-size: 3.2em;
-  line-height: 1.1;
 }
 
 button {

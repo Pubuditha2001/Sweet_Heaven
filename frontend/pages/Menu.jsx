@@ -1,8 +1,8 @@
-// Products.jsx - Product listing page
+// Menu.jsx - Product listing page
 import React, { useState } from "react";
 import Cake from "../components/Cake";
 
-export default function Products() {
+export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("all");
 
   const cakes = {
@@ -13,6 +13,7 @@ export default function Products() {
         description: "Classic vanilla cake with buttercream",
         img: "cakes/normal-cakes/vanila-cake.jpg",
         category: "featured",
+        price: 350,
       },
       {
         id: 2,
@@ -20,6 +21,7 @@ export default function Products() {
         description: "Rich chocolate cake with ganache",
         img: "cakes/normal-cakes/chocolate-cake.jpeg",
         category: "featured",
+        price: 400,
       },
       {
         id: 3,
@@ -27,6 +29,7 @@ export default function Products() {
         description: "Strawberry cake with cream cheese frosting",
         img: "cakes/normal-cakes/strawberry-cake.jpg",
         category: "featured",
+        price: 380,
       },
       {
         id: 4,
@@ -34,6 +37,7 @@ export default function Products() {
         description: "Tangy lemon cake with glaze",
         img: "cakes/normal-cakes/coffee-cake.jpeg", // Using coffee cake as a substitute
         category: "featured",
+        price: 360,
       },
     ],
     birthday: [
@@ -43,6 +47,7 @@ export default function Products() {
         description: "Festive cake perfect for celebrations",
         img: "cakes/birthday-cakes/Birthday-Cake-1.webp",
         category: "birthday",
+        price: 420,
       },
       {
         id: 6,
@@ -50,6 +55,7 @@ export default function Products() {
         description: "Colorful and fun birthday design",
         img: "cakes/birthday-cakes/Birthday-Cake-2.webp",
         category: "birthday",
+        price: 450,
       },
       {
         id: 7,
@@ -57,6 +63,7 @@ export default function Products() {
         description: "The ultimate birthday treat",
         img: "cakes/birthday-cakes/Birthday-Cake-3.webp",
         category: "birthday",
+        price: 470,
       },
     ],
     cupcakes: [
@@ -66,6 +73,7 @@ export default function Products() {
         description: "Perfect bite-sized treats",
         img: "cakes/cup-cakes/cup-cake-1.jpeg",
         category: "cupcakes",
+        price: 120,
       },
       {
         id: 9,
@@ -73,6 +81,7 @@ export default function Products() {
         description: "Cupcakes with premium frosting",
         img: "cakes/cup-cakes/cup-cake-2.jpeg",
         category: "cupcakes",
+        price: 140,
       },
       {
         id: 10,
@@ -80,6 +89,7 @@ export default function Products() {
         description: "Variety of flavors in one pack",
         img: "cakes/cup-cakes/cup-cake-3.jpeg",
         category: "cupcakes",
+        price: 160,
       },
     ],
     specialty: [
@@ -89,6 +99,7 @@ export default function Products() {
         description: "Light and fluffy chocolate perfection",
         img: "cakes/normal-cakes/chocolate-mousse-cake.jpeg",
         category: "specialty",
+        price: 500,
       },
       {
         id: 12,
@@ -96,6 +107,7 @@ export default function Products() {
         description: "Fresh strawberries and whipped cream",
         img: "cakes/normal-cakes/strawberry-whipped-cream-mousse-cake.jpg",
         category: "specialty",
+        price: 520,
       },
     ],
   };
