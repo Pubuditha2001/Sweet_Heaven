@@ -1,42 +1,42 @@
 #root {
-  max-width: 1280px;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Additional styles for Sweet Heaven cake shop */
+.container {
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding-left: 0; /* No padding on mobile */
+  padding-right: 0; /* No padding on mobile */
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem; /* Restore padding on medium screens */
+    padding-right: 2rem; /* Restore padding on medium screens */
+    max-width: 1280px; /* Restore max width on medium screens */
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 3rem; /* More padding on large screens */
+    padding-right: 3rem; /* More padding on large screens */
   }
 }
 
-.card {
-  padding: 2em;
+/* You can add more custom styles here as needed */
+.custom-main-padding {
+  padding: 32px 16px; /* Example: 32px top/bottom, 16px left/right */
 }
 
-.read-the-docs {
-  color: #888;
+/* No scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
