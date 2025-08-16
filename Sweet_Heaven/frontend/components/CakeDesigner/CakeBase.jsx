@@ -1,6 +1,12 @@
 import React, { useMemo } from "react";
 import { Edges } from "@react-three/drei";
 import * as THREE from "three";
+import Circle from "./shapes/Circle";
+import Oval from "./shapes/Oval";
+import Square from "./shapes/Square";
+import Rectangle from "./shapes/Rectangle";
+import Hexagon from "./shapes/Hexagon";
+import Heart from "./shapes/Heart";
 
 export default function CakeBase({ size, color, shape = "circle" }) {
   const { radius, height } = size;
@@ -141,46 +147,15 @@ export default function CakeBase({ size, color, shape = "circle" }) {
   // Geometry per shape
   const body = (() => {
     switch (shape) {
-      case "oval": {
-        return (
-          <mesh position={[0, baseY, 0]} scale={[1.4, 1, 0.9]}>
-            <cylinderGeometry args={[radius, radius, height, segments]} />
-            <meshBasicMaterial color={color} />
-            <Edges scale={1.002} color="#6b728080" threshold={15} />
-          </mesh>
-        );
-      }
-      case "square": {
-        const side = radius * 2;
-        return (
-          <mesh position={[0, baseY, 0]}>
-            <boxGeometry args={[side, height, side]} />
-            <meshBasicMaterial color={color} />
-            <Edges scale={1.001} color="#6b728080" threshold={15} />
-          </mesh>
-        );
-      }
-      case "rectangle": {
-        const width = radius * 2.4;
-        const depth = radius * 1.6;
-        return (
-          <mesh position={[0, baseY, 0]}>
-            <boxGeometry args={[width, height, depth]} />
-            <meshBasicMaterial color={color} />
-            <Edges scale={1.001} color="#6b728080" threshold={15} />
-          </mesh>
-        );
-      }
-      case "hexagon": {
-        return (
-          <mesh position={[0, baseY, 0]} rotation={[0, 0, 0]}>
-            <cylinderGeometry args={[radius, radius, height, 6]} />
-            <meshBasicMaterial color={color} />
-            <Edges scale={1.002} color="#6b728080" threshold={15} />
-          </mesh>
-        );
-      }
-      case "heart": {
+      case "oval":
+        return <Oval size={size} color={color} baseY={baseY} />;
+      case "square":
+        return <Square size={size} color={color} baseY={baseY} />;
+      case "rectangle":
+        return <Rectangle size={size} color={color} baseY={baseY} />;
+      case "hexagon":
+        return <Hexagon size={size} color={color} baseY={baseY} />;
+      case "heart":
         return (
           <mesh position={[0, baseY, 0]}>
             <primitive object={heartGeom} attach="geometry" />
@@ -188,15 +163,8 @@ export default function CakeBase({ size, color, shape = "circle" }) {
             <Edges scale={1.002} color="#6b728080" threshold={15} />
           </mesh>
         );
-      }
       default:
-        return (
-          <mesh position={[0, baseY, 0]}>
-            <cylinderGeometry args={[radius, radius, height, segments]} />
-            <meshBasicMaterial color={color} />
-            <Edges scale={1.002} color="#6b728080" threshold={15} />
-          </mesh>
-        );
+        return <Circle size={size} color={color} baseY={baseY} />;
     }
   })();
 
