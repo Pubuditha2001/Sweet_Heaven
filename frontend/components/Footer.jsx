@@ -9,8 +9,17 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand section */}
           <div className="flex flex-col">
-            <h2 className="text-pink-600 font-bold text-2xl mb-4">
-              Sweet Heaven
+            <h2
+              className="text-pink-600 font-bold text-2xl mb-4 logo-text"
+              data-content="Sweet Heaven"
+            >
+              S<span className="lowercase">w</span>
+              <span className="lowercase">e</span>
+              <span className="lowercase">e</span>T H
+              <span className="lowercase">e</span>
+              <span className="lowercase">v</span>A
+              <span className="lowercase">e</span>
+              <span className="lowercase">n</span>
             </h2>
             <p className="text-gray-600 mb-4">
               Heavenly cakes for every occasion. Handcrafted with love and
@@ -152,7 +161,17 @@ export default function Footer() {
         {/* Bottom section with additional links */}
         <div className="border-t border-gray-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
           <div className="text-sm text-gray-500 mb-4 md:mb-0">
-            Made with ❤️ by Sweet Heaven Team
+            Made with ❤️ by{" "}
+            <span className="logo-text" data-content="Sweet Heaven">
+              S<span className="lowercase">w</span>
+              <span className="lowercase">e</span>
+              <span className="lowercase">e</span>T H
+              <span className="lowercase">e</span>A
+              <span className="lowercase">v</span>
+              <span className="lowercase">e</span>
+              <span className="lowercase">n</span>
+            </span>{" "}
+            Team
           </div>
           <div className="flex space-x-6 text-sm">
             <Link to="/privacy" className="text-gray-500 hover:text-pink-500">

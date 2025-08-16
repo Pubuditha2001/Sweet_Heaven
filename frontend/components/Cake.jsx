@@ -1,40 +1,81 @@
 import React, { useState, useEffect } from "react";
 
+const fallbackImg = "/fallback.jpg"; // Place a fallback.jpg in public folder
+
 const Cake = ({ cake }) => {
   const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
-    // Import image from assets dynamically
-    const loadImage = async () => {
-      try {
-        // Assuming cake.img contains the relative path or name of the image in assets folder
-        const imageModule = await import(`../src/assets/${cake.img}`);
-        setImgUrl(imageModule.default);
-      } catch (error) {
-        console.error("Failed to load image:", error);
-        // Set a fallback image or handle the error as needed
-      }
-    };
+    // Import images using import.meta.glob (recursive)
+    const images = import.meta.glob("../src/assets/**", { eager: true });
+    const imageKey = `../src/assets/${cake.img}`;
+    // Debug: log all available keys
+    console.log("Available image keys:", Object.keys(images));
+    const imageUrl = images[imageKey]?.default;
 
-    loadImage();
+    if (imageUrl) {
+      setImgUrl(imageUrl);
+    } else {
+      console.error(`Image not found: ${imageKey}`);
+      setImgUrl(fallbackImg); // fallback image
+    }
   }, [cake.img]);
 
   return (
     <div className="flex flex-col h-90">
-      {/* Set constant height */}
       <div className="rounded-2xl overflow-hidden shadow bg-white flex flex-col h-full">
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center p-2">
+          <div className="w-40 h-40 rounded-xl object-cover bg-center block md:hidden">
+            {/* Mobile: keep current size */}
+            <img
+              src={imgUrl}
+              alt={cake.name}
+              className="w-full h-full rounded-xl object-cover bg-center"
+            />
+          </div>
           <div
-            className="w-40 h-40 rounded-xl bg-center bg-cover"
-            style={{ backgroundImage: `url(${imgUrl})` }}
-          ></div>
+            className="hidden md:block w-full"
+            style={{ aspectRatio: "1 / 1" }}
+          >
+            {/* Desktop: image fills card width and keeps 1:1 ratio */}
+            <img
+              src={imgUrl}
+              alt={cake.name}
+              className="w-full h-full rounded-xl object-cover bg-center"
+              style={{ aspectRatio: "1 / 1" }}
+            />
+          </div>
         </div>
-        <div className="p-4 flex flex-col flex-1 justify-center h-24">
-          {/* Fixed height for title and description */}
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">
+        <div
+          className="pt-2 pb-4 px-3 md:px-4 flex flex-col flex-1 justify-start"
+          style={{ minHeight: "110px" }}
+        >
+          <h2
+            className="font-black text-gray-900 mb-1 text-left truncate"
+            style={{
+              minHeight: "22px",
+              maxHeight: "22px",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              fontFamily: '"Handlee", "Edu NSW ACT Cursive", cursive',
+            }}
+          >
             {cake.name}
           </h2>
-          <p className="text-gray-500 text-base">{cake.description}</p>
+          <p
+            className="text-sm text-gray-500 mb-2 text-left"
+            style={{
+              minHeight: "40px",
+              maxHeight: "40px",
+              overflow: "hidden",
+              fontFamily: '"Handlee", "Edu NSW ACT Cursive", cursive',
+            }}
+          >
+            {cake.description}
+          </p>
+          {cake.price && (
+            <p className="text-pink-600 font-bold mt-auto text-left">{`Rs. ${cake.price}`}</p>
+          )}
         </div>
       </div>
     </div>
