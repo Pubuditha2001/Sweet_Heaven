@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Edges } from "@react-three/drei";
 import * as THREE from "three";
+import { adjustColorFor3D } from "../utils/colorUtils";
 
 const HEART_TUNING = {
   curveSegments: 100,
@@ -10,7 +11,24 @@ const HEART_TUNING = {
   straightFrac: 0.12,
 };
 
-export default function Heart({ radius, height, color, baseY }) {
+export default function Heart({
+  radius,
+  height,
+  color,
+  baseY,
+  topIcingColor,
+  sideIcingColor,
+}) {
+  const adjustedColor = adjustColorFor3D(color);
+  const adjustedTopIcing = topIcingColor
+    ? adjustColorFor3D(topIcingColor)
+    : null;
+  const adjustedSideIcing = sideIcingColor
+    ? adjustColorFor3D(sideIcingColor)
+    : null;
+
+  const icingThickness = 0.02;
+
   const heartGeom = useMemo(() => {
     const pts = [];
     const N = Math.max(64, Math.floor(radius * 8));
@@ -106,10 +124,33 @@ export default function Heart({ radius, height, color, baseY }) {
   }, [radius, height]);
 
   return (
-    <mesh position={[0, baseY, 0]}>
-      <primitive object={heartGeom} attach="geometry" />
-      <meshBasicMaterial color={color} />
-      <Edges scale={1.002} color="#6b728080" threshold={15} />
-    </mesh>
+    <group>
+      {/* Base cake */}
+      <mesh position={[0, baseY, 0]}>
+        <primitive object={heartGeom} attach="geometry" />
+        <meshBasicMaterial color={adjustedColor} />
+        <Edges scale={1.002} color="#6b728080" threshold={15} />
+      </mesh>
+
+      {/* Top icing layer - simplified as a heart-shaped disc */}
+      {topIcingColor && (
+        <mesh position={[0, baseY + height / 2 + icingThickness / 2, 0]}>
+          <primitive object={heartGeom} attach="geometry" />
+          <meshBasicMaterial color={adjustedTopIcing} />
+        </mesh>
+      )}
+
+      {/* Side icing layer - slightly larger heart */}
+      {sideIcingColor && (
+        <mesh position={[0, baseY, 0]} scale={[1.05, 1, 1.05]}>
+          <primitive object={heartGeom} attach="geometry" />
+          <meshBasicMaterial
+            color={adjustedSideIcing}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
+      )}
+    </group>
   );
 }

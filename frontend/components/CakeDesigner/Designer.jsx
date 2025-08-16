@@ -3,65 +3,38 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import CakeBase from "./CakeBase";
-import Topping from "./Topping";
 import Controls from "./Controls";
 
-function Scene({ config, clampRadius, toppings, setToppings, onCanvasReady }) {
-  const { gl, scene } = useThree();
+function Scene({ config, onCanvasReady }) {
+  const { gl } = useThree();
 
   // expose canvas for export
   useFrame(() => {
     if (onCanvasReady) onCanvasReady(gl);
   });
 
-  // No shadow setup
-
-  const handleDrag = useCallback(
-    (id, pos) => {
-      setToppings((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, position: pos } : t))
-      );
-    },
-    [setToppings]
-  );
-
-  const handleRemove = useCallback(
-    (id) => setToppings((prev) => prev.filter((t) => t.id !== id)),
-    [setToppings]
-  );
-
   return (
     <>
-      {/* Lights */}
-      <ambientLight intensity={1.0} />
+      {/* Optimized lighting for color accuracy */}
+      <ambientLight intensity={0.8} color="#ffffff" />
+      <directionalLight
+        position={[10, 10, 5]}
+        intensity={0.6}
+        color="#ffffff"
+        castShadow={false}
+      />
+      <pointLight position={[-5, 8, -3]} intensity={0.3} color="#ffffff" />
 
-      {/* Cake base */}
+      {/* Cake base with icing layers */}
       <group position={[0, 0, 0]}>
         <CakeBase
           size={config.size}
           color={config.frosting}
+          topIcingColor={config.topIcing}
+          sideIcingColor={config.sideIcing}
           shape={config.shape}
         />
       </group>
-
-      {/* Toppings */}
-      {toppings.map((t) => (
-        <Topping
-          key={t.id}
-          id={t.id}
-          type={t.type}
-          position={t.position}
-          color={t.color}
-          allowDrag
-          onDrag={handleDrag}
-          onDoubleClick={handleRemove}
-          cakeRadius={config.size.radius}
-          clampRadius={clampRadius}
-          cakeHeight={config.size.height}
-        />
-      ))}
-
-      {/* Shadows removed */}
 
       {/* Controls */}
       <OrbitControls
@@ -80,10 +53,11 @@ function Scene({ config, clampRadius, toppings, setToppings, onCanvasReady }) {
 }
 
 export default function Designer() {
-  const [frosting, setFrosting] = useState("#f5d0e6"); // pink
+  const [frosting, setFrosting] = useState("#f5d0e6"); // base cake color
+  const [topIcing, setTopIcing] = useState("#ffffff"); // top icing color
+  const [sideIcing, setSideIcing] = useState("#ffc0cb"); // side icing color
   const [sizeKey, setSizeKey] = useState("medium");
   const [shapeKey, setShapeKey] = useState("circle");
-  const [toppings, setToppings] = useState([]);
   const glRef = useRef(null);
 
   const sizeMap = useMemo(
@@ -96,82 +70,14 @@ export default function Designer() {
   );
 
   const config = useMemo(
-    () => ({ size: sizeMap[sizeKey], frosting, shape: shapeKey }),
-    [sizeKey, sizeMap, frosting, shapeKey]
-  );
-
-  const clampRadius = useMemo(() => {
-    const { radius } = config.size;
-    const margin = 0.2;
-    switch (shapeKey) {
-      case "circle":
-        return Math.max(0.1, radius - margin);
-      case "oval": {
-        const rx = radius * 1.4;
-        const rz = radius * 0.9;
-        return Math.max(0.1, Math.min(rx, rz) - margin);
-      }
-      case "square": {
-        const side = radius * 2;
-        return Math.max(0.1, side / 2 - margin);
-      }
-      case "rectangle": {
-        const w = radius * 2.4;
-        const d = radius * 1.6;
-        return Math.max(0.1, Math.min(w / 2, d / 2) - margin);
-      }
-      case "hexagon":
-        return Math.max(0.1, radius * 0.866 - margin);
-      case "heart":
-        return Math.max(0.1, radius * 0.75 - margin);
-      default:
-        return Math.max(0.1, radius - margin);
-    }
-  }, [config.size, shapeKey]);
-
-  const addTopping = useCallback(
-    (type) => {
-      // Single-instance layer types: prevent duplicates
-      const singletons = new Set([
-        "chocolateDrip",
-        "topGlaze",
-        "creamRing",
-        "sprinkles",
-      ]);
-      if (singletons.has(type)) {
-        const exists = toppings.some((t) => t.type === type);
-        if (exists) return;
-      }
-      const id = crypto.randomUUID
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2);
-      // Defaults by type
-      let defaultColor = "#ffffff";
-      if (type === "cherry") defaultColor = "#c81e1e";
-      else if (type === "strawberry") defaultColor = "#ef4444";
-      else if (type === "candle") defaultColor = "#ffd166";
-      else if (type === "chocolateDrip") defaultColor = "#5b341a";
-      else if (type === "topGlaze") defaultColor = frosting;
-      else if (type === "creamRing") defaultColor = "#ffffff";
-      else if (type === "sprinkles") defaultColor = "#ffffff";
-
-      const baseY = config.size.height + 0.1;
-      const isLayer = [
-        "chocolateDrip",
-        "topGlaze",
-        "creamRing",
-        "sprinkles",
-      ].includes(type);
-      const newItem = {
-        id,
-        type,
-        color: defaultColor,
-        // Layers compute absolute world Y internally; keep group at origin
-        position: isLayer ? [0, 0, 0] : [0, baseY, 0],
-      };
-      setToppings((prev) => [...prev, newItem]);
-    },
-    [config.size.height, toppings, frosting]
+    () => ({
+      size: sizeMap[sizeKey],
+      frosting,
+      topIcing,
+      sideIcing,
+      shape: shapeKey,
+    }),
+    [sizeKey, sizeMap, frosting, topIcing, sideIcing, shapeKey]
   );
 
   const handleExport = useCallback(() => {
@@ -183,6 +89,18 @@ export default function Designer() {
     a.click();
   }, []);
 
+  // Get cake data for external use
+  const getCakeData = useCallback(() => {
+    return {
+      size: sizeKey,
+      shape: shapeKey,
+      baseColor: frosting,
+      topIcingColor: topIcing,
+      sideIcingColor: sideIcing,
+      dimensions: config.size,
+    };
+  }, [sizeKey, shapeKey, frosting, topIcing, sideIcing, config.size]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* 3D Preview */}
@@ -192,18 +110,23 @@ export default function Designer() {
           <Canvas
             camera={{ position: [6, 6, 6], fov: 45 }}
             onCreated={({ gl }) => {
-              // Ensure correct color space and shadows
+              // Maximum color accuracy settings
               gl.outputColorSpace = THREE.SRGBColorSpace;
-              gl.shadowMap.enabled = false;
               gl.toneMapping = THREE.NoToneMapping;
-              gl.toneMappingExposure = 1;
+              gl.toneMappingExposure = 1.0;
+              gl.shadowMap.enabled = false;
+
+              // Enhanced color accuracy
+              gl.gammaFactor = 2.2;
+              gl.physicallyCorrectLights = false; // Keeps lighting predictable
+              gl.antialias = true;
+
+              // Ensure consistent color rendering
+              gl.setClearColor(0xf8f9fa, 1); // Light background for better color perception
             }}
           >
             <Scene
-              config={{ size: config.size, frosting, shape: config.shape }}
-              clampRadius={clampRadius}
-              toppings={toppings}
-              setToppings={setToppings}
+              config={config}
               onCanvasReady={(gl) => (glRef.current = gl)}
             />
           </Canvas>
@@ -219,12 +142,12 @@ export default function Designer() {
           onShapeChange={setShapeKey}
           frosting={frosting}
           onFrostingChange={setFrosting}
-          onAddTopping={addTopping}
+          topIcing={topIcing}
+          onTopIcingChange={setTopIcing}
+          sideIcing={sideIcing}
+          onSideIcingChange={setSideIcing}
           onExport={handleExport}
-          toppings={toppings}
-          onRemoveTopping={(id) =>
-            setToppings((prev) => prev.filter((t) => t.id !== id))
-          }
+          getCakeData={getCakeData}
         />
       </div>
     </div>
