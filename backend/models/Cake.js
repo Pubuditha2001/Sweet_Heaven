@@ -9,13 +9,23 @@ const cakeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  cakePrice: {
-    type: Number,
-    required: true,
-  },
+  prices: [
+    {
+      size: { type: String, required: true },
+      price: { type: Number, required: true },
+    },
+  ],
   cakeImage: {
     type: String,
     required: true, // Path to image in ../frontend/src/assets/cakes/cakeCategory/cake.jpg
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  isFeatured: {
+    type: Boolean,
+    default: false,
   },
 });
 
