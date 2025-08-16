@@ -24,8 +24,10 @@ export default function CakeBase({ size, color, shape = "circle" }) {
   // Proper extruded heart geometry (unconditional hook usage)
   const heartGeom = useMemo(() => {
     // Parametric heart outline with optional taper near the tip to straighten sides
+    // Build parametric heart outline in normalized units (independent of cake height)
     const pts = [];
-    const N = HEART_TUNING.curveSegments * 2;
+    // resolution scales with radius so small/large cakes keep consistent outline
+    const N = Math.max(64, Math.floor(radius * 8));
     for (let i = 0; i <= N; i++) {
       const t = (i / N) * Math.PI * 2; // 0..2PI
       const x = 16 * Math.pow(Math.sin(t), 3);
@@ -61,53 +63,78 @@ export default function CakeBase({ size, color, shape = "circle" }) {
       if (p.y > maxY2) maxY2 = p.y;
     }
     const yTh = minY2 + (maxY2 - minY2) * HEART_TUNING.straightFrac;
-    // Find indices where we enter bottom zone on left and exit on right
-    let iLeft = -1,
-      iRight = -1;
+    // Build a deterministic outline: smooth top arc (left -> right), then
+    // two straight lines from right-bottom -> tip -> left-bottom.
+    // Collect topPoints in contour order by walking outwards from the global top
+    let topIdx = 0;
+    let maxYVal = -Infinity;
     for (let i = 0; i < spts.length; i++) {
-      const p = spts[i];
-      if (p.y <= yTh && p.x < 0) {
-        iLeft = i;
-        break;
+      if (spts[i].y > maxYVal) {
+        maxYVal = spts[i].y;
+        topIdx = i;
       }
     }
-    for (let i = spts.length - 1; i >= 0; i--) {
-      const p = spts[i];
-      if (p.y <= yTh && p.x > 0) {
-        iRight = i;
-        break;
-      }
+    const topPoints = [];
+    // walk right from topIdx
+    for (let i = topIdx; ; i = (i + 1) % spts.length) {
+      if (spts[i].y <= yTh) break;
+      topPoints.push(spts[i]);
+      if (i === (topIdx - 1 + spts.length) % spts.length) break; // safety
     }
+    // walk left from topIdx-1 backwards and prepend
+    const leftArc = [];
+    for (
+      let i = (topIdx - 1 + spts.length) % spts.length;
+      ;
+      i = (i - 1 + spts.length) % spts.length
+    ) {
+      if (spts[i].y <= yTh) break;
+      leftArc.push(spts[i]);
+      if (i === topIdx) break; // safety
+    }
+    topPoints.unshift(...leftArc.reverse());
+    // Lowest point among left-side and right-side for straight connection
+    const leftBottom = spts
+      .filter((p) => p.x < 0)
+      .reduce((acc, p) => (p.y < acc.y ? p : acc), spts[0]);
+    const rightBottom = spts
+      .filter((p) => p.x > 0)
+      .reduce((acc, p) => (p.y < acc.y ? p : acc), spts[0]);
+    const tip = new THREE.Vector2(0, minY2);
+
     const shape = new THREE.Shape();
-    if (iLeft !== -1 && iRight !== -1 && iLeft < iRight) {
-      const tip = new THREE.Vector2(0, minY2);
-      // Start from top
-      shape.moveTo(spts[0].x, spts[0].y);
-      for (let i = 1; i <= iLeft; i++) shape.lineTo(spts[i].x, spts[i].y);
-      // Straight to tip and then to right side start
+    if (topPoints.length >= 2) {
+      // Smooth top arc
+      shape.moveTo(topPoints[0].x, topPoints[0].y);
+      if (topPoints.length > 2) shape.splineThru(topPoints.slice(1));
+      else shape.lineTo(topPoints[1].x, topPoints[1].y);
+
+      // Straight down to right-bottom, to tip, then to left-bottom, and close
+      shape.lineTo(rightBottom.x, rightBottom.y);
       shape.lineTo(tip.x, tip.y);
-      shape.lineTo(spts[iRight].x, spts[iRight].y);
-      for (let i = iRight + 1; i < spts.length; i++)
-        shape.lineTo(spts[i].x, spts[i].y);
+      shape.lineTo(leftBottom.x, leftBottom.y);
       shape.closePath();
     } else {
-      // Fallback: original path
+      // fallback: smooth whole boundary
       shape.moveTo(spts[0].x, spts[0].y);
-      for (let i = 1; i < spts.length; i++) shape.lineTo(spts[i].x, spts[i].y);
+      if (spts.length > 1) shape.splineThru(spts.slice(1));
       shape.closePath();
     }
 
     const extrudeSettings = {
-      depth: height,
+      depth: height, // keep extrusion (thickness) tied to cake height only
       bevelEnabled: false,
-      curveSegments: HEART_TUNING.curveSegments,
+      curveSegments: Math.max(8, Math.floor(radius * 2)),
     };
     const geom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     // Align, center, and scale to width = 2*radius
     geom.rotateX(-Math.PI / 2);
     geom.center();
-    const s = (radius * 2) / 32; // original parametric width ~[-16,16]
-    geom.scale(s, s, HEART_TUNING.lengthScale);
+  const s = (radius * 2) / 32; // original parametric width ~[-16,16]
+    // scale X to match width, keep Y (vertical) at extrude depth (height), scale Z for length
+    geom.scale(s, 1, HEART_TUNING.lengthScale);
+    // recompute normals after non-uniform scale to avoid shading artifacts
+  if (geom.computeVertexNormals) geom.computeVertexNormals();
     return geom;
   }, [radius, height]);
 
