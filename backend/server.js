@@ -26,6 +26,9 @@ mongoose
 // ...existing code for importing routes...
 
 // Example route
+const cakeRoutes = require("./routes/cakeRoutes");
+app.use("/api/cakes", cakeRoutes);
+
 app.get("/", (req, res) => {
   res.send("Welcome to Sweet Heaven API!");
 });
