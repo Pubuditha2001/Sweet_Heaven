@@ -22,7 +22,21 @@ async function createAccessory(req, res) {
   }
 }
 
+async function getAccessoriesById(req, res) {
+  try {
+    const { id } = req.params;
+    const accessory = await Accessory.findById(id);
+    if (!accessory) {
+      return res.status(404).json({ error: "Accessory not found" });
+    }
+    res.json(accessory);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getAccessories,
   createAccessory,
+  getAccessoriesById,
 };
