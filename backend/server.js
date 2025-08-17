@@ -23,11 +23,17 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Import routes
-// ...existing code for importing routes...
 
-// Example route
+const toppingRoutes = require("./routes/toppingRoutes");
+
 const cakeRoutes = require("./routes/cakeRoutes");
+const accessoryRoutes = require("./routes/accessoryRoutes");
+const otherProductRoutes = require("./routes/otherProductRoutes");
+
 app.use("/api/cakes", cakeRoutes);
+app.use("/api/toppings", toppingRoutes);
+app.use("/api/accessories", accessoryRoutes);
+app.use("/api/other-products", otherProductRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Sweet Heaven API!");

@@ -6,18 +6,22 @@ async function createCake(req, res) {
     const {
       cakeName,
       cakeDescription,
+      detailedDescription,
       prices,
       cakeImage,
       category,
       isFeatured,
+      toppingRef,
     } = req.body;
     const cake = new Cake({
       cakeName,
       cakeDescription,
+      detailedDescription,
       prices,
       cakeImage,
       category,
       isFeatured,
+      toppingRef,
     });
     await cake.save();
     res.status(201).json(cake);
@@ -53,14 +57,25 @@ async function updateCake(req, res) {
     const {
       cakeName,
       cakeDescription,
+      detailedDescription,
       prices,
       cakeImage,
       category,
       isFeatured,
+      toppingRef,
     } = req.body;
     const cake = await Cake.findByIdAndUpdate(
       req.params.id,
-      { cakeName, cakeDescription, prices, cakeImage, category, isFeatured },
+      {
+        cakeName,
+        cakeDescription,
+        detailedDescription,
+        prices,
+        cakeImage,
+        category,
+        isFeatured,
+        toppingRef,
+      },
       { new: true }
     );
     if (!cake) return res.status(404).json({ error: "Cake not found" });

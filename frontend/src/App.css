@@ -40,3 +40,96 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.mobile-menu-animate {
+  animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth transitions for interactive elements */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global focus and interaction styles - Remove default blue outlines */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom focus styles for buttons and interactive elements */
+button:focus,
+a:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5) !important; /* Pink focus ring */
+}
+
+/* Remove default browser button styles */
+button {
+  border: none;
+  background: none;
+  outline: none;
+}
+
+button:focus {
+  outline: none !important;
+}
+
+/* Remove blue highlight on mobile tap */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection where needed */
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+input,
+textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
