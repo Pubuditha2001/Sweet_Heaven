@@ -1,72 +1,198 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Cake from "../components/Cake";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
-const cakes = [
-  {
-    name: "Vanilla Dream",
-    description: "Classic vanilla cake with buttercream",
-    img: "cakes/normal-cakes/vanila-cake.jpg",
-    price: 350,
-  },
-  {
-    name: "Chocolate Decadence",
-    description: "Rich chocolate cake with ganache",
-    img: "cakes/normal-cakes/chocolate-cake.jpeg",
-    price: 400,
-  },
-  {
-    name: "Strawberry Bliss",
-    description: "Strawberry cake with cream cheese frosting",
-    img: "cakes/normal-cakes/strawberry-cake.jpg",
-    price: 380,
-  },
-  {
-    name: "Lemon Zest",
-    description: "Tangy lemon cake with glaze",
-    img: "cakes/normal-cakes/coffee-cake.jpeg",
-    price: 360,
-  },
-  {
-    name: "Vanilla Dream",
-    description: "Classic vanilla cake with buttercream",
-    img: "cakes/normal-cakes/vanila-cake.jpg",
-    price: 350,
-  },
-  {
-    name: "Chocolate Decadence",
-    description: "Rich chocolate cake with ganache",
-    img: "cakes/normal-cakes/chocolate-cake.jpeg",
-    price: 400,
-  },
-  {
-    name: "Strawberry Bliss",
-    description: "Strawberry cake with cream cheese frosting",
-    img: "cakes/normal-cakes/strawberry-cake.jpg",
-    price: 380,
-  },
-  {
-    name: "Lemon Zest",
-    description: "Tangy lemon cake with glaze",
-    img: "cakes/normal-cakes/coffee-cake.jpeg",
-    price: 360,
-  },
-];
-
 const Home = () => {
   const scrollRef = useRef(null);
+  const [cakes, setCakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [autoSlide, setAutoSlide] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
+  useEffect(() => {
+    async function fetchCakes() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch("/api/cakes");
+        if (!res.ok) throw new Error("Failed to fetch cakes");
+        const data = await res.json();
+        setCakes(data);
+      } catch (err) {
+        setError(err.message);
+      }
+      setLoading(false);
+    }
+    fetchCakes();
+  }, []);
+
+  const featuredCakes = cakes.filter((cake) => cake.isFeatured);
+
+  // Check if cake list is scrollable
+  useEffect(() => {
+    function checkScrollable() {
+      const el = scrollRef.current;
+      if (el) {
+        setIsScrollable(el.scrollWidth > el.clientWidth + 2); // +2 for rounding
+      }
+    }
+    checkScrollable();
+    window.addEventListener("resize", checkScrollable);
+    return () => window.removeEventListener("resize", checkScrollable);
+  }, [featuredCakes, loading]);
+
+  // Handle scroll events to track position
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      setScrollPosition(el.scrollLeft);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Improved infinite scroll implementation
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || featuredCakes.length === 0) return;
+
+    // Calculate the threshold based on item width
+    const cakeItem = el.querySelector('div[class*="flex-shrink-0"]');
+    const itemWidth = cakeItem
+      ? cakeItem.offsetWidth + (isMobile ? 16 : 24)
+      : 220;
+
+    // Calculate viewport width and total content width
+    const viewportWidth = el.clientWidth;
+    const contentWidth = el.scrollWidth;
+
+    const handleScroll = () => {
+      setScrollPosition(el.scrollLeft);
+
+      // If we scroll to the end, jump to the beginning
+      if (el.scrollLeft + viewportWidth >= contentWidth - itemWidth / 2) {
+        // Immediately jump to the start without animation
+        el.scrollTo({ left: 0, behavior: "auto" });
+      }
+
+      // If we scroll to the beginning (backward), jump to the end
+      if (el.scrollLeft === 0 && scrollPosition > itemWidth) {
+        // Immediately jump to near the end without animation
+        el.scrollTo({
+          left: contentWidth - viewportWidth - itemWidth,
+          behavior: "auto",
+        });
+      }
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [scrollPosition, featuredCakes.length, isMobile]);
+
+  // Enhanced auto-slide logic for smoother infinite scrolling
+  useEffect(() => {
+    if (!isScrollable || !autoSlide) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // Get width of single item for smoother scrolling
+    const cakeItem = el.querySelector('div[class*="flex-shrink-0"]');
+    const itemWidth = cakeItem
+      ? cakeItem.offsetWidth + (isMobile ? 16 : 24)
+      : 220;
+
+    const viewportWidth = el.clientWidth;
+    const contentWidth = el.scrollWidth;
+
+    const interval = setInterval(() => {
+      // Current scroll position
+      const currentPos = el.scrollLeft;
+
+      // Check if we're near the end
+      const isNearEnd = currentPos + viewportWidth >= contentWidth - itemWidth;
+
+      if (isNearEnd) {
+        // Jump to beginning without animation
+        el.scrollTo({ left: 0, behavior: "auto" });
+        // After a small delay, scroll smoothly to show movement
+        setTimeout(() => {
+          el.scrollBy({ left: itemWidth / 2, behavior: "smooth" });
+        }, 50);
+      } else {
+        // Normal scrolling
+        el.scrollBy({ left: itemWidth, behavior: "smooth" });
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isScrollable, autoSlide, featuredCakes, loading, isMobile]);
+
+  // Improved scroll function for manual navigation
   const scroll = (direction) => {
+    stopAutoSlide();
     if (scrollRef.current) {
-      const scrollAmount = 200;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
+      const el = scrollRef.current;
+      // Calculate the width of a single cake item including gap
+      const cakeItem = el.querySelector('div[class*="flex-shrink-0"]');
+      const itemWidth = cakeItem
+        ? cakeItem.offsetWidth + (isMobile ? 16 : 24)
+        : 220;
+
+      // Get total width and current position
+      const totalWidth = el.scrollWidth;
+      const currentPos = el.scrollLeft;
+      const viewportWidth = el.clientWidth;
+
+      if (direction === "right") {
+        // Check if we're at the end
+        if (currentPos + viewportWidth >= totalWidth - itemWidth / 2) {
+          // Jump to beginning instantly
+          el.scrollTo({ left: 0, behavior: "auto" });
+          // Then after a tiny delay, start scrolling smoothly
+          setTimeout(() => {
+            el.scrollBy({ left: itemWidth / 2, behavior: "smooth" });
+          }, 50);
+        } else {
+          // Normal scrolling
+          el.scrollBy({ left: itemWidth, behavior: "smooth" });
+        }
+      } else if (direction === "left") {
+        // Check if we're at the beginning
+        if (currentPos < itemWidth / 2) {
+          // Jump to end instantly
+          el.scrollTo({
+            left: totalWidth - viewportWidth,
+            behavior: "auto",
+          });
+          // Then after a tiny delay, start scrolling smoothly
+          setTimeout(() => {
+            el.scrollBy({ left: -itemWidth / 2, behavior: "smooth" });
+          }, 50);
+        } else {
+          // Normal scrolling
+          el.scrollBy({ left: -itemWidth, behavior: "smooth" });
+        }
+      }
     }
   };
+
+  // Update isMobile state on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div
@@ -87,7 +213,7 @@ const Home = () => {
           sweetness to your celebrations.
         </p>
       </div>
-      /* Call to Action */
+      {/* Call to Action */}
       <div className="flex px-8 py-3 justify-center mt-2 gap-5 md:gap-20">
         <button
           onClick={() => (window.location.href = "/custom-cake")}
@@ -109,60 +235,81 @@ const Home = () => {
         <h2 className="text-2xl sm:text-3xl font-bold text-pink-600 mb-4 sm:mb-6 text-center">
           Featured Cakes
         </h2>
-        <div className="relative flex items-center">
-          {/* Left arrow */}
-          <button
-            className="hidden md:flex items-center justify-center mr-3 w-10 h-10 rounded-full bg-white border border-pink-300 shadow-md hover:bg-pink-50 transition-all"
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-            type="button"
-            style={{ borderRadius: "50%" }}
-          >
-            <FontAwesomeIcon
-              icon={faAngleLeft}
-              className="w-5 h-5 text-pink-600"
-            />
-          </button>
-
-          {/* Cake list */}
-          <div
-            className="flex overflow-x-auto gap-4 md:gap-6 lg:gap-8 pb-2 no-scrollbar pl-4 sm:pl-6"
-            ref={scrollRef}
-            style={{
-              scrollPaddingLeft: "16px",
-              scrollPaddingRight: "16px",
-              paddingRight: "16px",
-            }}
-          >
-            {cakes.map((cake, index) => (
-              <div
-                style={{
-                  width: "180px",
-                  minWidth: "180px",
-                  maxWidth: "180px",
-                }}
-                className="flex-shrink-0 md:w-[220px] md:min-w-[220px] md:max-w-[220px] lg:w-[250px] lg:min-w-[250px] lg:max-w-[250px]"
-                key={index}
+        {loading && <div>Loading cakes...</div>}
+        {error && <div className="text-red-500">{error}</div>}
+        {!loading && !error && (
+          <div className="relative flex items-center">
+            {/* Left arrow */}
+            {isScrollable && (
+              <button
+                className="hidden md:flex items-center justify-center mr-3 w-10 h-10 rounded-full bg-white border border-pink-300 shadow-md hover:bg-pink-50 transition-all"
+                onClick={() => scroll("left")}
+                aria-label="Scroll left"
+                type="button"
+                style={{ borderRadius: "50%" }}
               >
-                <Cake cake={cake} />
-              </div>
-            ))}
-          </div>
+                <FontAwesomeIcon
+                  icon={faAngleLeft}
+                  className="w-5 h-5 text-pink-600"
+                />
+              </button>
+            )}
 
-          {/* Right arrow */}
-          <button
-            className="hidden md:flex items-center justify-center ml-3 w-10 h-10 rounded-full bg-white border border-pink-300 shadow-md hover:bg-pink-50 transition-all"
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-            type="button"
-            style={{ borderRadius: "50%" }}
-          >
-            <FontAwesomeIcon
-              icon={faAngleRight}
-              className="w-5 h-5 text-pink-600"
-            />
-          </button>
-        </div>
+            {/* Cake list */}
+            <div
+              className="flex overflow-x-auto gap-4 md:gap-6 lg:gap-8 pb-2 no-scrollbar px-4 sm:pl-6"
+              ref={scrollRef}
+              style={{
+                scrollPaddingLeft: "16px",
+                scrollPaddingRight: "16px",
+                scrollSnapType: isMobile ? "none" : "x mandatory",
+                scrollBehavior: "smooth",
+              }}
+              onMouseEnter={() => setAutoSlide(false)}
+              onMouseLeave={() => setAutoSlide(true)}
+            >
+              {featuredCakes.map((cake, index) => (
+                <div
+                  style={
+                    isMobile
+                      ? {
+                          width: "calc(50% - 8px)",
+                          minWidth: "calc(50% - 8px)",
+                          maxWidth: "calc(50% - 8px)",
+                        }
+                      : {
+                          width: "calc(25% - 24px)",
+                          minWidth: "220px",
+                          maxWidth: "220px",
+                          scrollSnapAlign: "center",
+                          flex: "1 0 auto",
+                        }
+                  }
+                  className="flex-shrink-0"
+                  key={cake._id || cake.id || index}
+                >
+                  <Cake cake={cake} />
+                </div>
+              ))}
+            </div>
+
+            {/* Right arrow */}
+            {isScrollable && (
+              <button
+                className="hidden md:flex items-center justify-center ml-3 w-10 h-10 rounded-full bg-white border border-pink-300 shadow-md hover:bg-pink-50 transition-all"
+                onClick={() => scroll("right")}
+                aria-label="Scroll right"
+                type="button"
+                style={{ borderRadius: "50%" }}
+              >
+                <FontAwesomeIcon
+                  icon={faAngleRight}
+                  className="w-5 h-5 text-pink-600"
+                />
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

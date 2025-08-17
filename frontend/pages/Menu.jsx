@@ -1,123 +1,44 @@
 // Menu.jsx - Product listing page
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cake from "../components/Cake";
 
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [cakes, setCakes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const cakes = {
-    featured: [
-      {
-        id: 1,
-        name: "Vanilla Dream",
-        description: "Classic vanilla cake with buttercream",
-        img: "cakes/normal-cakes/vanila-cake.jpg",
-        category: "featured",
-        price: 350,
-      },
-      {
-        id: 2,
-        name: "Chocolate Decadence",
-        description: "Rich chocolate cake with ganache",
-        img: "cakes/normal-cakes/chocolate-cake.jpeg",
-        category: "featured",
-        price: 400,
-      },
-      {
-        id: 3,
-        name: "Strawberry Bliss",
-        description: "Strawberry cake with cream cheese frosting",
-        img: "cakes/normal-cakes/strawberry-cake.jpg",
-        category: "featured",
-        price: 380,
-      },
-      {
-        id: 4,
-        name: "Lemon Zest",
-        description: "Tangy lemon cake with glaze",
-        img: "cakes/normal-cakes/coffee-cake.jpeg", // Using coffee cake as a substitute
-        category: "featured",
-        price: 360,
-      },
-    ],
-    birthday: [
-      {
-        id: 5,
-        name: "Birthday Special",
-        description: "Festive cake perfect for celebrations",
-        img: "cakes/birthday-cakes/Birthday-Cake-1.webp",
-        category: "birthday",
-        price: 420,
-      },
-      {
-        id: 6,
-        name: "Celebration Cake",
-        description: "Colorful and fun birthday design",
-        img: "cakes/birthday-cakes/Birthday-Cake-2.webp",
-        category: "birthday",
-        price: 450,
-      },
-      {
-        id: 7,
-        name: "Party Perfect",
-        description: "The ultimate birthday treat",
-        img: "cakes/birthday-cakes/Birthday-Cake-3.webp",
-        category: "birthday",
-        price: 470,
-      },
-    ],
-    cupcakes: [
-      {
-        id: 8,
-        name: "Mini Delight",
-        description: "Perfect bite-sized treats",
-        img: "cakes/cup-cakes/cup-cake-1.jpeg",
-        category: "cupcakes",
-        price: 120,
-      },
-      {
-        id: 9,
-        name: "Frosting Heaven",
-        description: "Cupcakes with premium frosting",
-        img: "cakes/cup-cakes/cup-cake-2.jpeg",
-        category: "cupcakes",
-        price: 140,
-      },
-      {
-        id: 10,
-        name: "Assorted Cupcakes",
-        description: "Variety of flavors in one pack",
-        img: "cakes/cup-cakes/cup-cake-3.jpeg",
-        category: "cupcakes",
-        price: 160,
-      },
-    ],
-    specialty: [
-      {
-        id: 11,
-        name: "Chocolate Mousse",
-        description: "Light and fluffy chocolate perfection",
-        img: "cakes/normal-cakes/chocolate-mousse-cake.jpeg",
-        category: "specialty",
-        price: 500,
-      },
-      {
-        id: 12,
-        name: "Strawberry Cream",
-        description: "Fresh strawberries and whipped cream",
-        img: "cakes/normal-cakes/strawberry-whipped-cream-mousse-cake.jpg",
-        category: "specialty",
-        price: 520,
-      },
-    ],
+  useEffect(() => {
+    async function fetchCakes() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch("/api/cakes"); // Adjust path if needed
+        if (!res.ok) throw new Error("Failed to fetch cakes");
+        const data = await res.json();
+        setCakes(data);
+      } catch (err) {
+        setError(err.message);
+      }
+      setLoading(false);
+    }
+    fetchCakes();
+  }, []);
+
+  // Group cakes by category
+  const cakesByCategory = {
+    featured: cakes.filter((c) => c.isFeatured),
+    birthday: cakes.filter((c) => c.category === "birthday"),
+    cupcakes: cakes.filter((c) => c.category === "cupcakes"),
+    specialty: cakes.filter((c) => c.category === "specialty"),
+    normal: cakes.filter((c) => c.category === "normal"),
   };
 
-  // Filter cakes based on the active category
   const getCakesToDisplay = () => {
     if (activeCategory === "all") {
-      return Object.values(cakes).flat();
+      return cakes;
     }
-    return cakes[activeCategory] || [];
+    return cakesByCategory[activeCategory] || [];
   };
 
   return (
@@ -176,12 +97,26 @@ export default function Menu() {
         >
           Specialty
         </button>
+        <button
+          onClick={() => setActiveCategory("normal")}
+          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
+            activeCategory === "normal"
+              ? "bg-pink-500 text-white"
+              : "bg-pink-400"
+          }`}
+        >
+          Normal
+        </button>
       </div>
+
+      {/* Loading/Error */}
+      {loading && <div>Loading cakes...</div>}
+      {error && <div className="text-red-500">{error}</div>}
 
       {/* Cake grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
         {getCakesToDisplay().map((cake) => (
-          <Cake key={cake.id} cake={cake} />
+          <Cake key={cake._id || cake.id} cake={cake} />
         ))}
       </div>
     </div>

@@ -3,47 +3,56 @@ import React, { useState, useEffect } from "react";
 const fallbackImg = "/fallback.jpg"; // Place a fallback.jpg in public folder
 
 const Cake = ({ cake }) => {
-  const [imgUrl, setImgUrl] = useState("");
+  const [imgUrl, setImgUrl] = useState(null); // Initialize with null instead of empty string
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    // Import images using import.meta.glob (recursive)
-    const images = import.meta.glob("../src/assets/**", { eager: true });
-    const imageKey = `../src/assets/${cake.img}`;
-    // Debug: log all available keys
-    console.log("Available image keys:", Object.keys(images));
-    const imageUrl = images[imageKey]?.default;
-
-    if (imageUrl) {
-      setImgUrl(imageUrl);
-    } else {
-      console.error(`Image not found: ${imageKey}`);
-      setImgUrl(fallbackImg); // fallback image
+    // Images are in public folder, so use direct path
+    let imageUrl = cake.cakeImage;
+    if (!imageUrl || typeof imageUrl !== "string") {
+      setImgUrl(fallbackImg);
+      return;
     }
-  }, [cake.img]);
+    // Ensure path starts with "/"
+    if (!imageUrl.startsWith("/")) {
+      imageUrl = "/" + imageUrl.replace(/^(\.\/|\.{2}\/)+/, "");
+    }
+    setImgUrl(imageUrl);
+  }, [cake.cakeImage]);
+
+  const handleImageError = () => {
+    setImgUrl(fallbackImg);
+  };
 
   return (
     <div className="flex flex-col h-90">
       <div className="rounded-2xl overflow-hidden shadow bg-white flex flex-col h-full">
         <div className="flex justify-center items-center p-2">
           <div className="w-40 h-40 rounded-xl object-cover bg-center block md:hidden">
-            {/* Mobile: keep current size */}
-            <img
-              src={imgUrl}
-              alt={cake.name}
-              className="w-full h-full rounded-xl object-cover bg-center"
-            />
+            {/* Mobile: Only render image when imgUrl is not null */}
+            {imgUrl && (
+              <img
+                src={imgUrl}
+                alt={cake.cakeName}
+                className="w-full h-full rounded-xl object-cover bg-center"
+                onError={handleImageError}
+              />
+            )}
           </div>
           <div
             className="hidden md:block w-full"
             style={{ aspectRatio: "1 / 1" }}
           >
-            {/* Desktop: image fills card width and keeps 1:1 ratio */}
-            <img
-              src={imgUrl}
-              alt={cake.name}
-              className="w-full h-full rounded-xl object-cover bg-center"
-              style={{ aspectRatio: "1 / 1" }}
-            />
+            {/* Desktop: Only render image when imgUrl is not null */}
+            {imgUrl && (
+              <img
+                src={imgUrl}
+                alt={cake.cakeName}
+                className="w-full h-full rounded-xl object-cover bg-center"
+                style={{ aspectRatio: "1 / 1" }}
+                onError={handleImageError}
+              />
+            )}
           </div>
         </div>
         <div
@@ -60,7 +69,7 @@ const Cake = ({ cake }) => {
               fontFamily: '"Handlee", "Edu NSW ACT Cursive", cursive',
             }}
           >
-            {cake.name}
+            {cake.cakeName}
           </h2>
           <p
             className="text-sm text-gray-500 mb-2 text-left"
@@ -71,10 +80,14 @@ const Cake = ({ cake }) => {
               fontFamily: '"Handlee", "Edu NSW ACT Cursive", cursive',
             }}
           >
-            {cake.description}
+            {cake.cakeDescription}
           </p>
-          {cake.price && (
-            <p className="text-pink-600 font-bold mt-auto text-left">{`Rs. ${cake.price}`}</p>
+          {Array.isArray(cake.prices) && cake.prices.length > 0 && (
+            <div className="mt-auto text-left">
+              <p className="text-pink-600 font-bold">
+                From Rs. {Math.min(...cake.prices.map((p) => p.price))}
+              </p>
+            </div>
           )}
         </div>
       </div>
