@@ -1,8 +1,8 @@
 import React from "react";
 import { Edges } from "@react-three/drei";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
-export default function Circle({
+export default function Oval({
   radius,
   height,
   color,
@@ -24,7 +24,7 @@ export default function Circle({
   return (
     <group>
       {/* Base cake */}
-      <mesh position={[0, baseY, 0]}>
+      <mesh position={[0, baseY, 0]} scale={[1.4, 1, 0.9]}>
         <cylinderGeometry args={[radius, radius, height, segments]} />
         <meshBasicMaterial color={adjustedColor} />
         <Edges scale={1.002} color="#6b728080" threshold={15} />
@@ -32,7 +32,10 @@ export default function Circle({
 
       {/* Top icing layer */}
       {topIcingColor && (
-        <mesh position={[0, baseY + height / 2 + icingThickness / 2, 0]}>
+        <mesh
+          position={[0, baseY + height / 2 + icingThickness / 2, 0]}
+          scale={[1.4, 1, 0.9]}
+        >
           <cylinderGeometry
             args={[
               radius + icingThickness,
@@ -47,7 +50,7 @@ export default function Circle({
 
       {/* Side icing layer */}
       {sideIcingColor && (
-        <mesh position={[0, baseY, 0]}>
+        <mesh position={[0, baseY, 0]} scale={[1.4, 1, 0.9]}>
           <cylinderGeometry
             args={[
               radius + icingThickness,

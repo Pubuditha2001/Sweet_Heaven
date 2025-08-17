@@ -11,7 +11,7 @@ import { faAngleRight, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import Contact from "../Contact/Contact"; // Import the Contact component
 import FAQ from "../FAQ/FAQ"; // Import the FAQ component
-import { fetchCakes } from "../../src/api/cake";
+import { fetchCakes } from "../../api/cake";
 
 const Home = forwardRef((props, ref) => {
   const scrollRef = useRef(null);

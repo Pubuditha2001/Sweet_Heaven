@@ -1,16 +1,16 @@
 import React from "react";
 import { Edges } from "@react-three/drei";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
-export default function Square({
+export default function Circle({
   radius,
   height,
   color,
   baseY,
+  segments,
   topIcingColor,
   sideIcingColor,
 }) {
-  const side = radius * 2;
   const adjustedColor = adjustColorFor3D(color);
   const adjustedTopIcing = topIcingColor
     ? adjustColorFor3D(topIcingColor)
@@ -25,19 +25,20 @@ export default function Square({
     <group>
       {/* Base cake */}
       <mesh position={[0, baseY, 0]}>
-        <boxGeometry args={[side, height, side]} />
+        <cylinderGeometry args={[radius, radius, height, segments]} />
         <meshBasicMaterial color={adjustedColor} />
-        <Edges scale={1.001} color="#6b728080" threshold={15} />
+        <Edges scale={1.002} color="#6b728080" threshold={15} />
       </mesh>
 
       {/* Top icing layer */}
       {topIcingColor && (
         <mesh position={[0, baseY + height / 2 + icingThickness / 2, 0]}>
-          <boxGeometry
+          <cylinderGeometry
             args={[
-              side + icingThickness * 2,
+              radius + icingThickness,
+              radius + icingThickness,
               icingThickness,
-              side + icingThickness * 2,
+              segments,
             ]}
           />
           <meshBasicMaterial color={adjustedTopIcing} />
@@ -47,11 +48,12 @@ export default function Square({
       {/* Side icing layer */}
       {sideIcingColor && (
         <mesh position={[0, baseY, 0]}>
-          <boxGeometry
+          <cylinderGeometry
             args={[
-              side + icingThickness * 2,
+              radius + icingThickness,
+              radius + icingThickness,
               height,
-              side + icingThickness * 2,
+              segments,
             ]}
           />
           <meshBasicMaterial

@@ -1,16 +1,17 @@
 import React from "react";
 import { Edges } from "@react-three/drei";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
-export default function Oval({
+export default function Rectangle({
   radius,
   height,
   color,
   baseY,
-  segments,
   topIcingColor,
   sideIcingColor,
 }) {
+  const width = radius * 2.4;
+  const depth = radius * 1.6;
   const adjustedColor = adjustColorFor3D(color);
   const adjustedTopIcing = topIcingColor
     ? adjustColorFor3D(topIcingColor)
@@ -24,24 +25,20 @@ export default function Oval({
   return (
     <group>
       {/* Base cake */}
-      <mesh position={[0, baseY, 0]} scale={[1.4, 1, 0.9]}>
-        <cylinderGeometry args={[radius, radius, height, segments]} />
+      <mesh position={[0, baseY, 0]}>
+        <boxGeometry args={[width, height, depth]} />
         <meshBasicMaterial color={adjustedColor} />
-        <Edges scale={1.002} color="#6b728080" threshold={15} />
+        <Edges scale={1.001} color="#6b728080" threshold={15} />
       </mesh>
 
       {/* Top icing layer */}
       {topIcingColor && (
-        <mesh
-          position={[0, baseY + height / 2 + icingThickness / 2, 0]}
-          scale={[1.4, 1, 0.9]}
-        >
-          <cylinderGeometry
+        <mesh position={[0, baseY + height / 2 + icingThickness / 2, 0]}>
+          <boxGeometry
             args={[
-              radius + icingThickness,
-              radius + icingThickness,
+              width + icingThickness * 2,
               icingThickness,
-              segments,
+              depth + icingThickness * 2,
             ]}
           />
           <meshBasicMaterial color={adjustedTopIcing} />
@@ -50,13 +47,12 @@ export default function Oval({
 
       {/* Side icing layer */}
       {sideIcingColor && (
-        <mesh position={[0, baseY, 0]} scale={[1.4, 1, 0.9]}>
-          <cylinderGeometry
+        <mesh position={[0, baseY, 0]}>
+          <boxGeometry
             args={[
-              radius + icingThickness,
-              radius + icingThickness,
+              width + icingThickness * 2,
               height,
-              segments,
+              depth + icingThickness * 2,
             ]}
           />
           <meshBasicMaterial

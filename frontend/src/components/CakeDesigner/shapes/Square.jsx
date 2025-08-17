@@ -1,8 +1,8 @@
 import React from "react";
 import { Edges } from "@react-three/drei";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
-export default function Rectangle({
+export default function Square({
   radius,
   height,
   color,
@@ -10,8 +10,7 @@ export default function Rectangle({
   topIcingColor,
   sideIcingColor,
 }) {
-  const width = radius * 2.4;
-  const depth = radius * 1.6;
+  const side = radius * 2;
   const adjustedColor = adjustColorFor3D(color);
   const adjustedTopIcing = topIcingColor
     ? adjustColorFor3D(topIcingColor)
@@ -26,7 +25,7 @@ export default function Rectangle({
     <group>
       {/* Base cake */}
       <mesh position={[0, baseY, 0]}>
-        <boxGeometry args={[width, height, depth]} />
+        <boxGeometry args={[side, height, side]} />
         <meshBasicMaterial color={adjustedColor} />
         <Edges scale={1.001} color="#6b728080" threshold={15} />
       </mesh>
@@ -36,9 +35,9 @@ export default function Rectangle({
         <mesh position={[0, baseY + height / 2 + icingThickness / 2, 0]}>
           <boxGeometry
             args={[
-              width + icingThickness * 2,
+              side + icingThickness * 2,
               icingThickness,
-              depth + icingThickness * 2,
+              side + icingThickness * 2,
             ]}
           />
           <meshBasicMaterial color={adjustedTopIcing} />
@@ -50,9 +49,9 @@ export default function Rectangle({
         <mesh position={[0, baseY, 0]}>
           <boxGeometry
             args={[
-              width + icingThickness * 2,
+              side + icingThickness * 2,
               height,
-              depth + icingThickness * 2,
+              side + icingThickness * 2,
             ]}
           />
           <meshBasicMaterial

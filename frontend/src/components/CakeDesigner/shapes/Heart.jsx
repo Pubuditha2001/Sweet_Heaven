@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Edges } from "@react-three/drei";
 import * as THREE from "three";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
 const HEART_TUNING = {
   curveSegments: 100,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
@@ -10,9 +10,10 @@ import {
 } from "react-icons/fa";
 import ToppingsOptions from "../../components/ToppingsOptions";
 import CakeSizesOptions from "../../components/CakeSizesOptions";
-import { fetchCakeById } from "../../src/api/cake";
-import { fetchToppingsByRef } from "../../src/api/topping";
-import { fetchAccessories } from "../../src/api/accessory";
+import AccessoriesPicker from "../../components/AccessoriesPicker";
+import { fetchCakeById } from "../../api/cake";
+import { fetchToppingsByRef } from "../../api/topping";
+import { fetchAccessories } from "../../api/accessory";
 
 const fallbackImg = "/fallback.jpg";
 
@@ -30,6 +31,7 @@ export default function ProductView() {
   const [availableToppings, setAvailableToppings] = useState([]);
   const [accessories, setAccessories] = useState([]);
   const [selectedAccessories, setSelectedAccessories] = useState([]);
+  const [orderHover, setOrderHover] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -66,7 +68,7 @@ export default function ProductView() {
       setLoading(false);
     }
 
-    async function fetchAccessories() {
+    async function loadAccessories() {
       try {
         const data = await fetchAccessories();
         setAccessories(data);
@@ -77,7 +79,7 @@ export default function ProductView() {
 
     if (id) {
       fetchProduct();
-      fetchAccessories();
+      loadAccessories();
     }
   }, [id]);
 
@@ -85,11 +87,30 @@ export default function ProductView() {
     setImgUrl(fallbackImg);
   };
 
-  // Calculate topping price for selected size
-  const getToppingPrice = (topping) => {
+  // Calculate topping price for a given size (defaults to current selectedSize)
+  // Normalize size strings (case/whitespace) to make matching robust across sources
+  const getToppingPrice = (topping, sizeIndex = selectedSize) => {
     if (!topping || !topping.prices) return 0;
-    const selectedSizeName = product?.prices?.[selectedSize]?.size;
-    const priceObj = topping.prices.find((p) => p.size === selectedSizeName);
+    const selectedSizeName = product?.prices?.[sizeIndex]?.size;
+
+    const normalize = (s) =>
+      (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
+
+    const target = normalize(selectedSizeName);
+    let priceObj = topping.prices.find((p) => normalize(p.size) === target);
+
+    // Fallback: match by numeric portion (e.g. '1kg' vs '1Kg' or '500g')
+    if (!priceObj) {
+      const numeric = (str) => {
+        const m = (str || "").toString().match(/([\d.]+)/);
+        return m ? m[1] : null;
+      };
+      const targetNum = numeric(selectedSizeName);
+      if (targetNum) {
+        priceObj = topping.prices.find((p) => numeric(p.size) === targetNum);
+      }
+    }
+
     return priceObj ? priceObj.price : 0;
   };
 
@@ -143,6 +164,20 @@ export default function ProductView() {
       price: getTotalPrice(),
     });
     // You can implement actual cart functionality here
+  };
+
+  const handleOrderNow = () => {
+    const order = {
+      product: product._id,
+      size: selectedSize,
+      quantity,
+      toppings: selectedToppings.map((t) => t.name),
+      accessories: selectedAccessories.map((a) => a.name),
+      price: getTotalPrice(),
+    };
+
+    // Navigate to checkout page with the prepared order
+    navigate("/checkout", { state: { order } });
   };
 
   const handleShare = () => {
@@ -266,7 +301,7 @@ export default function ProductView() {
             {product.detailedDescription && (
               <div className="bg-white p-4 rounded-xl shadow-md border border-pink-100">
                 <h3 className="text-lg font-semibold text-pink-600 mb-2">
-                  Detailed Description
+                  Description
                 </h3>
                 <p className="text-gray-700 text-base whitespace-pre-line">
                   {product.detailedDescription}
@@ -286,56 +321,30 @@ export default function ProductView() {
               prices={product.prices}
               selectedSize={selectedSize}
               setSelectedSize={setSelectedSize}
+              onReset={() => setSelectedSize(0)}
             />
 
             {/* Topping Options */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Toppings</h3>
               <ToppingsOptions
                 availableToppings={availableToppings}
                 selectedToppings={selectedToppings}
                 handleToppingToggle={handleToppingToggle}
                 getToppingPrice={getToppingPrice}
+                selectedSize={selectedSize}
+                onReset={() => setSelectedToppings([])}
               />
             </div>
 
-            {/* Accessories Options */}
+            {/* Accessories Options (compact popup to match other selectors) */}
             {accessories && accessories.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Accessories
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {accessories.map((acc, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => handleAccessoryToggle(acc)}
-                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 flex flex-col ${
-                        selectedAccessories.includes(acc)
-                          ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-md"
-                          : "border-gray-200 hover:border-purple-300 bg-white hover:shadow-md"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium text-gray-900">
-                          {acc.name}
-                        </span>
-                        <span className="text-lg font-bold text-purple-600">
-                          +Rs. {getAccessoryPrice(acc).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-600 mt-2">
-                        {acc.description}
-                      </div>
-                      {selectedAccessories.includes(acc) && (
-                        <div className="mt-2 text-sm text-purple-600">
-                          ✓ Added
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <AccessoriesPicker
+                accessories={accessories}
+                selectedAccessories={selectedAccessories}
+                handleAccessoryToggle={handleAccessoryToggle}
+                getAccessoryPrice={getAccessoryPrice}
+                onReset={() => setSelectedAccessories([])}
+              />
             )}
 
             {/* Quantity Selection */}
@@ -378,18 +387,31 @@ export default function ProductView() {
             </div>
 
             {/* Add to Cart Button */}
-            <div className="space-y-3">
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Add to Cart */}
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-pink-600 hover:to-purple-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg"
+                className="flex-1 w-full md:w-auto bg-pink-500 hover:bg-pink-600 text-white h-14 rounded-lg font-semibold text-lg transition duration-300 flex items-center justify-center space-x-3 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
               >
                 <FaShoppingCart />
                 <span>Add to Cart</span>
               </button>
 
+              {/* Order Now */}
+              <button
+                onClick={handleOrderNow}
+                onMouseEnter={() => setOrderHover(true)}
+                onMouseLeave={() => setOrderHover(false)}
+                style={{ backgroundColor: orderHover ? "#27a88f" : "#2ebfa5" }}
+                className="flex-1 w-full md:w-auto text-white h-14 rounded-lg font-semibold text-lg transition duration-300 flex items-center justify-center space-x-3 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
+              >
+                <span>Order Now</span>
+              </button>
+
+              {/* Customize */}
               <button
                 onClick={() => navigate("/custom-cake")}
-                className="w-full border-2 border-pink-500 text-pink-500 py-4 px-6 rounded-lg font-semibold text-lg hover:bg-pink-50 transition duration-300"
+                className="flex-1 w-full md:w-auto border-2 border-pink-500 text-pink-500 h-14 rounded-lg font-semibold text-lg hover:bg-pink-50 transition duration-300 flex items-center justify-center"
               >
                 Customize This Cake
               </button>

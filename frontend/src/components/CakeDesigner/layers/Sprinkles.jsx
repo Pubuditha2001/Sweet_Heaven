@@ -1,5 +1,5 @@
 import React from "react";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../../components/CakeDesigner/utils/colorUtils";
 
 export default function Sprinkles({ id, color, cakeRadius, cakeHeight }) {
   const y = cakeHeight + 0.13;

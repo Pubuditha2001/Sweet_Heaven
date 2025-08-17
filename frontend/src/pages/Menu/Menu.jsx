@@ -1,7 +1,7 @@
 // Menu.jsx - Product listing page
 import React, { useState, useEffect } from "react";
 import Cake from "../../components/Cake";
-import { fetchCakes } from "../../src/api/cake";
+import { fetchCakes } from "../../api/cake";
 
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("all");

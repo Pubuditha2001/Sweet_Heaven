@@ -1,6 +1,6 @@
 import React from "react";
 import { Edges } from "@react-three/drei";
-import { adjustColorFor3D } from "../utils/colorUtils";
+import { adjustColorFor3D } from "../../../components/CakeDesigner/utils/colorUtils";
 
 export default function Hexagon({
   radius,
