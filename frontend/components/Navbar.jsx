@@ -1,10 +1,11 @@
 // Navbar.jsx - Main navigation bar
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar({ homeRef }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
+  const [activeSection, setActiveSection] = useState("home");
   const location = useLocation();
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -74,14 +75,48 @@ export default function Navbar({ homeRef }) {
 
   // Helper to check if hash is empty or just "#"
   const isContactActive =
-    location.pathname === "/" && location.hash === "#contact-section";
-  const isFAQActive =
-    location.pathname === "/" && location.hash === "#faq-section";
-  const isHomeActive =
-    location.pathname === "/" &&
-    !isContactActive &&
-    !isFAQActive &&
-    (!location.hash || location.hash === "#");
+    location.pathname === "/" && activeSection === "contact";
+  const isFAQActive = location.pathname === "/" && activeSection === "faq";
+  const isHomeActive = location.pathname === "/" && activeSection === "home";
+
+  // Observe scroll position to highlight correct tab
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
+    const contactEl = document.querySelector("[data-section='contact']");
+    const faqEl = document.querySelector("[data-section='faq']");
+    const homeEl = document.querySelector("[data-section='home']");
+    const options = {
+      root: null,
+      rootMargin: "-50px 0px 0px 0px", // account for navbar height
+      threshold: 0.3,
+    };
+    const callback = (entries) => {
+      let found = false;
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target === contactEl) {
+            setActiveSection("contact");
+            found = true;
+          } else if (entry.target === faqEl) {
+            setActiveSection("faq");
+            found = true;
+          } else if (entry.target === homeEl) {
+            setActiveSection("home");
+            found = true;
+          }
+        }
+      });
+      if (!found) setActiveSection("home");
+    };
+    const observer = new window.IntersectionObserver(callback, options);
+    if (contactEl) observer.observe(contactEl);
+    if (faqEl) observer.observe(faqEl);
+    if (homeEl) observer.observe(homeEl);
+    return () => observer.disconnect();
+  }, [location.pathname]);
 
   return (
     <nav

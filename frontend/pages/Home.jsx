@@ -258,7 +258,7 @@ const Home = forwardRef((props, ref) => {
   return (
     <div className="flex flex-col bg-white overflow-x-hidden">
       {/* Business Description */}
-      <div className="pt-4 px-4 text-center mb-2">
+      <div className="pt-4 px-4 text-center mb-2" data-section="home">
         <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
           Welcome to Sweet Heaven! We craft delicious cakes and cupcakes for
           every occasion, using only the finest ingredients. Whether you want a
@@ -383,12 +383,12 @@ const Home = forwardRef((props, ref) => {
       </div>
 
       {/* Contact Section - Using ref instead of ID */}
-      <div ref={contactRef} className="scroll-mt-20">
+      <div ref={contactRef} className="scroll-mt-20" data-section="contact">
         <Contact />
       </div>
 
       {/* FAQ Section - Using ref instead of ID */}
-      <div ref={faqRef} className="scroll-mt-20">
+      <div ref={faqRef} className="scroll-mt-20" data-section="faq">
         <FAQ />
       </div>
     </div>
