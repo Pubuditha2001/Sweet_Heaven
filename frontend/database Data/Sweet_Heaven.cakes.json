@@ -1,0 +1,696 @@
+[{
+  "cakeName": "Vanilla Dream",
+  "cakeDescription": "Classic vanilla cake with buttercream",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 250,
+      "_id": {
+        "$oid": "68a0c13226f12110bc581006"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 450,
+      "_id": {
+        "$oid": "68a0c13226f12110bc581007"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 650,
+      "_id": {
+        "$oid": "68a0c13226f12110bc581008"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 800,
+      "_id": {
+        "$oid": "68a0c13226f12110bc581009"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 950,
+      "_id": {
+        "$oid": "68a0c13226f12110bc58100a"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1100,
+      "_id": {
+        "$oid": "68a0c13226f12110bc58100b"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 1700,
+      "_id": {
+        "$oid": "68a0c13226f12110bc58100c"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+  "category": "normal",
+  "isFeatured": true
+},
+{
+  "cakeName": "Chocolate Decadence",
+  "cakeDescription": "Rich chocolate cake with ganache",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 300,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc58100f"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 400,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581010"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 600,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581011"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 800,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581012"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1000,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581013"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1200,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581014"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 1800,
+      "_id": {
+        "$oid": "68a0c13f26f12110bc581015"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/chocolate-cake.jpeg",
+  "category": "featured",
+  "isFeatured": true
+},
+{
+  "cakeName": "Strawberry Bliss",
+  "cakeDescription": "Strawberry cake with cream cheese frosting",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 220,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc581018"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 380,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc581019"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 570,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc58101a"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 760,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc58101b"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 950,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc58101c"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1140,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc58101d"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 1710,
+      "_id": {
+        "$oid": "68a0c14b26f12110bc58101e"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/strawberry-cake.jpg",
+  "category": "featured",
+  "isFeatured": true
+},
+{
+  "cakeName": "Lemon Zest",
+  "cakeDescription": "Tangy lemon cake with glaze",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 210,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581021"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 360,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581022"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 540,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581023"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 720,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581024"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 900,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581025"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1080,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581026"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 1620,
+      "_id": {
+        "$oid": "68a0c15326f12110bc581027"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/coffee-cake.jpeg",
+  "category": "featured",
+  "isFeatured": true
+},
+{
+  "cakeName": "Birthday Special",
+  "cakeDescription": "Festive cake perfect for celebrations",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 230,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102a"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 420,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102b"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 630,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102c"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 840,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102d"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1050,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102e"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1260,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc58102f"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 1890,
+      "_id": {
+        "$oid": "68a0c15a26f12110bc581030"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/birthday-cakes/Birthday-Cake-1.webp",
+  "category": "birthday",
+  "isFeatured": false
+},
+{
+  "cakeName": "Celebration Cake",
+  "cakeDescription": "Colorful and fun birthday design",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 250,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581033"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 450,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581034"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 675,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581035"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 900,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581036"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1125,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581037"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1350,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581038"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 2025,
+      "_id": {
+        "$oid": "68a0c16e26f12110bc581039"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/birthday-cakes/Birthday-Cake-2.webp",
+  "category": "birthday",
+  "isFeatured": true
+},
+{
+  "cakeName": "Party Perfect",
+  "cakeDescription": "The ultimate birthday treat",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 260,
+      "_id": {
+        "$oid": "68a0c18026f12110bc58103c"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 470,
+      "_id": {
+        "$oid": "68a0c18026f12110bc58103d"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 705,
+      "_id": {
+        "$oid": "68a0c18026f12110bc58103e"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 940,
+      "_id": {
+        "$oid": "68a0c18026f12110bc58103f"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1175,
+      "_id": {
+        "$oid": "68a0c18026f12110bc581040"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1410,
+      "_id": {
+        "$oid": "68a0c18026f12110bc581041"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 2115,
+      "_id": {
+        "$oid": "68a0c18026f12110bc581042"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/birthday-cakes/Birthday-Cake-3.webp",
+  "category": "birthday",
+  "isFeatured": true
+},
+{
+  "cakeName": "Mini Delight",
+  "cakeDescription": "Perfect bite-sized treats",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 70,
+      "_id": {
+        "$oid": "68a0c18926f12110bc581045"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 120,
+      "_id": {
+        "$oid": "68a0c18926f12110bc581046"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 180,
+      "_id": {
+        "$oid": "68a0c18926f12110bc581047"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 240,
+      "_id": {
+        "$oid": "68a0c18926f12110bc581048"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 300,
+      "_id": {
+        "$oid": "68a0c18926f12110bc581049"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 360,
+      "_id": {
+        "$oid": "68a0c18926f12110bc58104a"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 600,
+      "_id": {
+        "$oid": "68a0c18926f12110bc58104b"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/cup-cakes/cup-cake-1.jpeg",
+  "category": "cupcakes",
+  "isFeatured": true
+},
+{
+  "cakeName": "Frosting Heaven",
+  "cakeDescription": "Cupcakes with premium frosting",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 80,
+      "_id": {
+        "$oid": "68a0c19126f12110bc58104e"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 140,
+      "_id": {
+        "$oid": "68a0c19126f12110bc58104f"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 210,
+      "_id": {
+        "$oid": "68a0c19126f12110bc581050"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 280,
+      "_id": {
+        "$oid": "68a0c19126f12110bc581051"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 350,
+      "_id": {
+        "$oid": "68a0c19126f12110bc581052"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 420,
+      "_id": {
+        "$oid": "68a0c19126f12110bc581053"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 700,
+      "_id": {
+        "$oid": "68a0c19126f12110bc581054"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/cup-cakes/cup-cake-2.jpeg",
+  "category": "cupcakes",
+  "isFeatured": true
+},
+{
+  "cakeName": "Assorted Cupcakes",
+  "cakeDescription": "Variety of flavors in one pack",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 90,
+      "_id": {
+        "$oid": "68a0c19926f12110bc581057"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 160,
+      "_id": {
+        "$oid": "68a0c19926f12110bc581058"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 240,
+      "_id": {
+        "$oid": "68a0c19926f12110bc581059"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 320,
+      "_id": {
+        "$oid": "68a0c19926f12110bc58105a"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 400,
+      "_id": {
+        "$oid": "68a0c19926f12110bc58105b"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 480,
+      "_id": {
+        "$oid": "68a0c19926f12110bc58105c"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 800,
+      "_id": {
+        "$oid": "68a0c19926f12110bc58105d"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/cup-cakes/cup-cake-3.jpeg",
+  "category": "cupcakes",
+  "isFeatured": true
+},
+{
+  "cakeName": "Chocolate Mousse",
+  "cakeDescription": "Light and fluffy chocolate perfection",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 275,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581060"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 500,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581061"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 750,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581062"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 1000,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581063"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1250,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581064"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1500,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581065"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 2250,
+      "_id": {
+        "$oid": "68a0c1a126f12110bc581066"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/chocolate-mousse-cake.jpeg",
+  "category": "specialty",
+  "isFeatured": true
+},
+{
+  "cakeName": "Strawberry Cream",
+  "cakeDescription": "Fresh strawberries and whipped cream",
+  "prices": [
+    {
+      "size": "500g",
+      "price": 285,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc581069"
+      }
+    },
+    {
+      "size": "1kg",
+      "price": 520,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106a"
+      }
+    },
+    {
+      "size": "1.5kg",
+      "price": 780,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106b"
+      }
+    },
+    {
+      "size": "2kg",
+      "price": 1040,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106c"
+      }
+    },
+    {
+      "size": "2.5kg",
+      "price": 1300,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106d"
+      }
+    },
+    {
+      "size": "3kg",
+      "price": 1560,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106e"
+      }
+    },
+    {
+      "size": "5kg",
+      "price": 2340,
+      "_id": {
+        "$oid": "68a0c1a926f12110bc58106f"
+      }
+    }
+  ],
+  "cakeImage": "./cakes/normal-cakes/strawberry-whipped-cream-mousse-cake.jpg",
+  "category": "specialty",
+  "isFeatured": true
+}]

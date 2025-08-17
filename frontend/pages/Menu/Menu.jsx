@@ -1,6 +1,7 @@
 // Menu.jsx - Product listing page
 import React, { useState, useEffect } from "react";
-import Cake from "../components/Cake";
+import Cake from "../../components/Cake";
+import { fetchCakes } from "../../src/api/cake";
 
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -9,20 +10,18 @@ export default function Menu() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function fetchCakes() {
+    async function loadCakes() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/cakes"); // Adjust path if needed
-        if (!res.ok) throw new Error("Failed to fetch cakes");
-        const data = await res.json();
+        const data = await fetchCakes();
         setCakes(data);
       } catch (err) {
         setError(err.message);
       }
       setLoading(false);
     }
-    fetchCakes();
+    loadCakes();
   }, []);
 
   // Group cakes by category

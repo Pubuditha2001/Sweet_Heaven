@@ -1,6 +1,6 @@
 // CustomCake.jsx - 3D custom cake creator page
 import React from "react";
-import Designer from "../components/CakeDesigner/Designer";
+import Designer from "../../components/CakeDesigner/Designer";
 
 export default function CustomCake() {
   return (

@@ -8,6 +8,11 @@ import {
   FaHeart,
   FaShare,
 } from "react-icons/fa";
+import ToppingsOptions from "../../components/ToppingsOptions";
+import CakeSizesOptions from "../../components/CakeSizesOptions";
+import { fetchCakeById } from "../../src/api/cake";
+import { fetchToppingsByRef } from "../../src/api/topping";
+import { fetchAccessories } from "../../src/api/accessory";
 
 const fallbackImg = "/fallback.jpg";
 
@@ -21,15 +26,17 @@ export default function ProductView() {
   const [quantity, setQuantity] = useState(1);
   const [isFavorited, setIsFavorited] = useState(false);
   const [imgUrl, setImgUrl] = useState(fallbackImg);
+  const [selectedToppings, setSelectedToppings] = useState([]);
+  const [availableToppings, setAvailableToppings] = useState([]);
+  const [accessories, setAccessories] = useState([]);
+  const [selectedAccessories, setSelectedAccessories] = useState([]);
 
   useEffect(() => {
     async function fetchProduct() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`/api/cakes/${id}`);
-        if (!res.ok) throw new Error("Product not found");
-        const data = await res.json();
+        const data = await fetchCakeById(id);
         setProduct(data);
 
         // Set up image URL
@@ -38,23 +45,91 @@ export default function ProductView() {
           setImgUrl(fallbackImg);
         } else {
           if (!imageUrl.startsWith("/")) {
-            imageUrl = "/" + imageUrl.replace(/^(\.\/|\.{2}\/)+/, "");
+            imageUrl = "/" + imageUrl.replace(/^(.\/|..\/)+/, "");
           }
           setImgUrl(imageUrl);
         }
+
+        // Fetch toppings using toppingRef if available
+        if (data && data.toppingRef) {
+          const toppingData = await fetchToppingsByRef(data.toppingRef);
+          setAvailableToppings(toppingData.toppings || []);
+          console.log("Fetched toppings:", toppingData.toppings);
+        } else {
+          setAvailableToppings([]);
+          console.log("No toppingRef found in cake data.");
+        }
+        setSelectedToppings([]);
       } catch (err) {
         setError(err.message);
       }
       setLoading(false);
     }
 
+    async function fetchAccessories() {
+      try {
+        const data = await fetchAccessories();
+        setAccessories(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     if (id) {
       fetchProduct();
+      fetchAccessories();
     }
   }, [id]);
 
   const handleImageError = () => {
     setImgUrl(fallbackImg);
+  };
+
+  // Calculate topping price for selected size
+  const getToppingPrice = (topping) => {
+    if (!topping || !topping.prices) return 0;
+    const selectedSizeName = product?.prices?.[selectedSize]?.size;
+    const priceObj = topping.prices.find((p) => p.size === selectedSizeName);
+    return priceObj ? priceObj.price : 0;
+  };
+
+  // Calculate accessory price
+  const getAccessoryPrice = (accessory) => {
+    return accessory?.price || 0;
+  };
+
+  // Calculate total price
+  const getTotalPrice = () => {
+    const basePrice = product.prices[selectedSize]?.price || 0;
+    const toppingsPrice = selectedToppings.reduce(
+      (sum, topping) => sum + getToppingPrice(topping),
+      0
+    );
+    const accessoriesPrice = selectedAccessories.reduce(
+      (sum, acc) => sum + getAccessoryPrice(acc),
+      0
+    );
+    return (basePrice + toppingsPrice + accessoriesPrice) * quantity;
+  };
+
+  const handleToppingToggle = (topping) => {
+    setSelectedToppings((prev) => {
+      if (prev.includes(topping)) {
+        return prev.filter((t) => t !== topping);
+      } else {
+        return [...prev, topping];
+      }
+    });
+  };
+
+  const handleAccessoryToggle = (accessory) => {
+    setSelectedAccessories((prev) => {
+      if (prev.includes(accessory)) {
+        return prev.filter((a) => a !== accessory);
+      } else {
+        return [...prev, accessory];
+      }
+    });
   };
 
   const handleAddToCart = () => {
@@ -63,7 +138,9 @@ export default function ProductView() {
       product: product._id,
       size: selectedSize,
       quantity: quantity,
-      price: product.prices[selectedSize]?.price || 0,
+      toppings: selectedToppings.map((t) => t.name),
+      accessories: selectedAccessories.map((a) => a.name),
+      price: getTotalPrice(),
     });
     // You can implement actual cart functionality here
   };
@@ -129,7 +206,7 @@ export default function ProductView() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
-      /* Header */
+      {/* Header */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <button
           onClick={() => navigate("/menu")}
@@ -185,6 +262,18 @@ export default function ProductView() {
               </p>
             </div>
 
+            {/* Detailed Description Section */}
+            {product.detailedDescription && (
+              <div className="bg-white p-4 rounded-xl shadow-md border border-pink-100">
+                <h3 className="text-lg font-semibold text-pink-600 mb-2">
+                  Detailed Description
+                </h3>
+                <p className="text-gray-700 text-base whitespace-pre-line">
+                  {product.detailedDescription}
+                </p>
+              </div>
+            )}
+
             {/* Category Badge */}
             <div>
               <span className="inline-block bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm font-medium capitalize">
@@ -193,33 +282,54 @@ export default function ProductView() {
             </div>
 
             {/* Size Selection */}
-            {product.prices && product.prices.length > 0 && (
+            <CakeSizesOptions
+              prices={product.prices}
+              selectedSize={selectedSize}
+              setSelectedSize={setSelectedSize}
+            />
+
+            {/* Topping Options */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Toppings</h3>
+              <ToppingsOptions
+                availableToppings={availableToppings}
+                selectedToppings={selectedToppings}
+                handleToppingToggle={handleToppingToggle}
+                getToppingPrice={getToppingPrice}
+              />
+            </div>
+
+            {/* Accessories Options */}
+            {accessories && accessories.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Choose Size & Price
+                  Accessories
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {product.prices.map((priceOption, index) => (
+                  {accessories.map((acc, idx) => (
                     <div
-                      key={index}
-                      onClick={() => setSelectedSize(index)}
-                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 ${
-                        selectedSize === index
-                          ? "border-pink-500 bg-gradient-to-r from-pink-50 to-purple-50 shadow-md"
-                          : "border-gray-200 hover:border-pink-300 bg-white hover:shadow-md"
+                      key={idx}
+                      onClick={() => handleAccessoryToggle(acc)}
+                      className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 flex flex-col ${
+                        selectedAccessories.includes(acc)
+                          ? "border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-md"
+                          : "border-gray-200 hover:border-purple-300 bg-white hover:shadow-md"
                       }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-900">
-                          {priceOption.size}
+                          {acc.name}
                         </span>
-                        <span className="text-lg font-bold text-pink-600">
-                          Rs. {priceOption.price.toLocaleString()}
+                        <span className="text-lg font-bold text-purple-600">
+                          +Rs. {getAccessoryPrice(acc).toLocaleString()}
                         </span>
                       </div>
-                      {selectedSize === index && (
-                        <div className="mt-2 text-sm text-pink-600">
-                          ✓ Selected
+                      <div className="text-sm text-gray-600 mt-2">
+                        {acc.description}
+                      </div>
+                      {selectedAccessories.includes(acc) && (
+                        <div className="mt-2 text-sm text-purple-600">
+                          ✓ Added
                         </div>
                       )}
                     </div>
@@ -254,21 +364,18 @@ export default function ProductView() {
                 </div>
               </div>
             </div>
-            {product.prices && product.prices[selectedSize] && (
-              <div className="bg-pink-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold text-gray-900">
-                    Total Price:
-                  </span>
-                  <span className="text-2xl font-bold text-pink-600">
-                    Rs.{" "}
-                    {(
-                      product.prices[selectedSize].price * quantity
-                    ).toLocaleString()}
-                  </span>
-                </div>
+
+            {/* Total Price Section */}
+            <div className="bg-pink-50 p-4 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold text-gray-900">
+                  Total Price:
+                </span>
+                <span className="text-2xl font-bold text-pink-600">
+                  Rs. {getTotalPrice().toLocaleString()}
+                </span>
               </div>
-            )}
+            </div>
 
             {/* Add to Cart Button */}
             <div className="space-y-3">

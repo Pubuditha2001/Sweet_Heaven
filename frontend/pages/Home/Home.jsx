@@ -5,12 +5,13 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import Cake from "../components/Cake";
+import Cake from "../../components/Cake";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import Contact from "./Contact"; // Import the Contact component
-import FAQ from "./FAQ"; // Import the FAQ component
+import Contact from "../Contact/Contact"; // Import the Contact component
+import FAQ from "../FAQ/FAQ"; // Import the FAQ component
+import { fetchCakes } from "../../src/api/cake";
 
 const Home = forwardRef((props, ref) => {
   const scrollRef = useRef(null);
@@ -36,20 +37,18 @@ const Home = forwardRef((props, ref) => {
   }));
 
   useEffect(() => {
-    async function fetchCakes() {
+    async function loadCakes() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/cakes");
-        if (!res.ok) throw new Error("Failed to fetch cakes");
-        const data = await res.json();
+        const data = await fetchCakes();
         setCakes(data);
       } catch (err) {
         setError(err.message);
       }
       setLoading(false);
     }
-    fetchCakes();
+    loadCakes();
   }, []);
 
   const featuredCakes = cakes.filter((cake) => cake.isFeatured);

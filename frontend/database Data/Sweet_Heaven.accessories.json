@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Birthday Candle Set",
+    "description": "Colorful candles for birthday cakes (pack of 12)",
+    "price": 100,
+    "image": "./accessories/candles.jpg"
+  },
+  {
+    "name": "Cake Topper - Happy Birthday",
+    "description": "Reusable acrylic topper for birthday cakes",
+    "price": 250,
+    "image": "./accessories/happy-birthday-topper.png"
+  },
+  {
+    "name": "Knife & Server Set",
+    "description": "Elegant stainless steel cake knife and server",
+    "price": 350,
+    "image": "./accessories/knife-server.jpg"
+  },
+  {
+    "name": "Balloon Bouquet",
+    "description": "Set of 5 helium balloons for party decor",
+    "price": 500,
+    "image": "./accessories/balloon-bouquet.jpg"
+  }
+]

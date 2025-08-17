@@ -1,13 +1,13 @@
 import "./App.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Home from "../pages/Home";
-import Menu from "../pages/Menu";
-import ProductView from "../pages/ProductView";
-import CustomCake from "../pages/CustomCake";
-import Cart from "../pages/Cart";
+import Home from "../pages/Home/Home.jsx";
+import Menu from "../pages/Menu/Menu.jsx";
+import ProductView from "../pages/ProductView/ProductView.jsx";
+import CustomCake from "../pages/CustomCake/CustomCake.jsx";
+import Cart from "../pages/Cart/Cart.jsx";
 // import Admin from "../pages/Admin";
-import Contact from "../pages/Contact";
+import Contact from "../pages/Contact/Contact.jsx";
 import Hero from "../components/Hero";
 import {
   BrowserRouter as Router,
