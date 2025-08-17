@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="bg-white shadow-inner pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
           {/* Brand section */}
           <div className="flex flex-col">
             <h2
@@ -21,12 +21,9 @@ export default function Footer() {
               <span className="lowercase">e</span>
               <span className="lowercase">n</span>
             </h2>
-            <p className="text-gray-600 mb-4">
-              Heavenly cakes for every occasion. Handcrafted with love and
-              premium ingredients.
-            </p>
-            <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} Sweet Heaven. All rights reserved.
+            <p className="text-gray-600 ">Heavenly cakes for every occasion.</p>
+            <p className="text-gray-600">
+              Handcrafted with love and premium ingredients.
             </p>
           </div>
           {/* Quick Links
@@ -173,7 +170,7 @@ export default function Footer() {
 
         {/* Bottom section with additional links */}
         <div className="border-t border-gray-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-sm text-gray-500 mb-4 md:mb-0">
+          <div className="text-sm text-gray-500 mb-2 md:mb-0">
             Made with ❤️ by{" "}
             <span className="logo-text" data-content="Sweet Heaven">
               S<span className="lowercase">w</span>
@@ -197,6 +194,9 @@ export default function Footer() {
               FAQ
             </Link>
           </div>
+        </div>
+        <div className="text-sm text-gray-500 mb-4 md:mb-0 text-center">
+          © {new Date().getFullYear()} Sweet Heaven. All rights reserved.
         </div>
       </div>
     </footer>

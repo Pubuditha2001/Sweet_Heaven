@@ -115,8 +115,14 @@ export default function Menu() {
 
       {/* Cake grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-        {getCakesToDisplay().map((cake) => (
-          <Cake key={cake._id || cake.id} cake={cake} />
+        {getCakesToDisplay().map((cake, index) => (
+          <div
+            key={cake._id || cake.id}
+            className="animate-fadeIn"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <Cake cake={cake} />
+          </div>
         ))}
       </div>
     </div>

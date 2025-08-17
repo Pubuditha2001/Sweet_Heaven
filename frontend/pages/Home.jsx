@@ -88,7 +88,7 @@ const Home = forwardRef((props, ref) => {
     // Calculate the threshold based on item width
     const cakeItem = el.querySelector('div[class*="flex-shrink-0"]');
     const itemWidth = cakeItem
-      ? cakeItem.offsetWidth + (isMobile ? 16 : 24)
+      ? cakeItem.offsetWidth + (isMobile ? 50 : 24)
       : 220;
 
     // Calculate viewport width and total content width
@@ -223,18 +223,17 @@ const Home = forwardRef((props, ref) => {
   useEffect(() => {
     if (scrollTarget) {
       const targetRef = scrollTarget === "contact" ? contactRef : faqRef;
-
       if (targetRef.current) {
         const elementPosition = targetRef.current.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset;
-
+        // Get navbar height (fixed or sticky)
+        const navbar = document.querySelector("nav");
+        const navbarHeight = navbar ? navbar.offsetHeight : 0;
         window.scrollTo({
-          top: offsetPosition,
+          top: offsetPosition - navbarHeight,
           behavior: "smooth",
         });
       }
-
-      // Reset scroll target
       setScrollTarget(null);
     }
   }, [scrollTarget, isMobile]);
@@ -246,6 +245,9 @@ const Home = forwardRef((props, ref) => {
       setTimeout(() => setScrollTarget("contact"), 100);
     } else if (hash === "#faq-section") {
       setTimeout(() => setScrollTarget("faq"), 100);
+    } else if (!hash || hash === "#" || window.location.pathname === "/") {
+      // Scroll to top if no hash or just home
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
     }
   }, []);
 

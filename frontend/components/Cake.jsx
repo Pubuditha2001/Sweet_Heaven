@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const fallbackImg = "/fallback.jpg"; // Place a fallback.jpg in public folder
 
 const Cake = ({ cake }) => {
+  const navigate = useNavigate();
   const [imgUrl, setImgUrl] = useState(null); // Initialize with null instead of empty string
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -24,10 +26,25 @@ const Cake = ({ cake }) => {
     setImgUrl(fallbackImg);
   };
 
+  const handleCakeClick = () => {
+    if (cake._id || cake.id) {
+      navigate(`/product/${cake._id || cake.id}`);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-90">
-      <div className="rounded-2xl overflow-hidden shadow bg-white flex flex-col h-full">
-        <div className="flex justify-center items-center p-2">
+    <div
+      className="flex flex-col h-90 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"
+      onClick={handleCakeClick}
+    >
+      <div className="rounded-2xl overflow-hidden shadow-lg bg-white flex flex-col h-full hover:shadow-2xl transition-all duration-300 relative group">
+        <div className="flex justify-center items-center p-2 relative">
+          {/* Overlay with "View Details" text that appears on hover */}
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-xl m-2 flex items-center justify-center">
+            <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-pink-500 px-3 py-1 rounded-full text-sm">
+              View Details
+            </span>
+          </div>
           <div className="w-40 h-40 rounded-xl object-cover bg-center block md:hidden">
             {/* Mobile: Only render image when imgUrl is not null */}
             {imgUrl && (

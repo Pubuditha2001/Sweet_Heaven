@@ -100,16 +100,33 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: transparent;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s ease;
+  outline: none;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: transparent;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5) !important;
+}
+
+/* Remove all default focus ring colors */
+*:focus {
+  outline: none !important;
+  -webkit-focus-ring-color: transparent !important;
+}
+
+/* Custom focus ring for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5) !important;
 }
 
 @media (prefers-color-scheme: light) {
@@ -121,6 +138,6 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: transparent;
   }
 }

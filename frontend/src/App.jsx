@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Home from "../pages/Home";
 import Menu from "../pages/Menu";
+import ProductView from "../pages/ProductView";
 import CustomCake from "../pages/CustomCake";
 import Cart from "../pages/Cart";
 // import Admin from "../pages/Admin";
@@ -43,6 +44,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home ref={homeRef} />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/product/:id" element={<ProductView />} />
           <Route path="/custom-cake" element={<CustomCake />} />
           <Route path="/cart" element={<Cart />} />
           {/* <Route path="/admin" element={<Admin />} /> */}
