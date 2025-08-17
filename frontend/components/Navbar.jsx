@@ -1,12 +1,47 @@
 // Navbar.jsx - Main navigation bar
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-export default function Navbar() {
+export default function Navbar({ homeRef }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  // Function to scroll to contact section on home page
+  const scrollToContact = (e) => {
+    e.preventDefault();
+
+    if (location.pathname === "/" && homeRef?.current) {
+      // Use ref method for direct scrolling
+      homeRef.current.scrollToContact();
+
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    } else {
+      // Navigate to home page with hash
+      window.location.href = "/#contact-section";
+    }
+  };
+
+  // Function to scroll to FAQ section on home page
+  const scrollToFAQ = (e) => {
+    e.preventDefault();
+
+    if (location.pathname === "/" && homeRef?.current) {
+      // Use ref method for direct scrolling
+      homeRef.current.scrollToFAQ();
+
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    } else {
+      // Navigate to home page with hash
+      window.location.href = "/#faq-section";
+    }
   };
 
   return (
@@ -31,7 +66,7 @@ export default function Navbar() {
               </span>
             </Link>
           </div>
-          Desktop Navigation Links
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
               to="/"
@@ -51,6 +86,22 @@ export default function Navbar() {
             >
               Custom Cake Creator
             </Link>
+            {/* Changed to use onClick instead of Link */}
+            <a
+              href="#contact-section"
+              onClick={scrollToContact}
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium cursor-pointer"
+            >
+              Contact Us
+            </a>
+            {/* Added FAQ link */}
+            <a
+              href="#faq-section"
+              onClick={scrollToFAQ}
+              className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium cursor-pointer"
+            >
+              FAQ
+            </a>
             <Link
               to="/cart"
               className="text-gray-700 hover:text-pink-500 px-3 py-2 rounded-md font-medium"
@@ -133,6 +184,22 @@ export default function Navbar() {
           >
             Custom Cake Creator
           </Link>
+          {/* Changed to use onClick instead of Link */}
+          <a
+            href="#contact-section"
+            onClick={scrollToContact}
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium cursor-pointer"
+          >
+            Contact Us
+          </a>
+          {/* Added FAQ link */}
+          <a
+            href="#faq-section"
+            onClick={scrollToFAQ}
+            className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium cursor-pointer"
+          >
+            FAQ
+          </a>
           <Link
             to="/cart"
             className="text-gray-700 hover:text-pink-500 hover:bg-pink-50 block px-3 py-2 rounded-md font-medium"

@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="bg-white shadow-inner pt-10 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Brand section */}
           <div className="flex flex-col">
             <h2

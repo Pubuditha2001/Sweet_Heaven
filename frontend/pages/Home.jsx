@@ -1,10 +1,18 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import Cake from "../components/Cake";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import Contact from "./Contact"; // Import the Contact component
+import FAQ from "./FAQ"; // Import the FAQ component
 
-const Home = () => {
+const Home = forwardRef((props, ref) => {
   const scrollRef = useRef(null);
   const [cakes, setCakes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +21,19 @@ const Home = () => {
   const [autoSlide, setAutoSlide] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [scrollPosition, setScrollPosition] = useState(0);
+
+  // Create refs for scroll targets
+  const contactRef = useRef(null);
+  const faqRef = useRef(null);
+
+  // State to handle scroll requests
+  const [scrollTarget, setScrollTarget] = useState(null);
+
+  // Expose scroll functions to parent components
+  useImperativeHandle(ref, () => ({
+    scrollToContact: () => setScrollTarget("contact"),
+    scrollToFAQ: () => setScrollTarget("faq"),
+  }));
 
   useEffect(() => {
     async function fetchCakes() {
@@ -184,6 +205,10 @@ const Home = () => {
     }
   };
 
+  const stopAutoSlide = () => {
+    setAutoSlide(false);
+  };
+
   // Update isMobile state on window resize
   useEffect(() => {
     const handleResize = () => {
@@ -194,40 +219,83 @@ const Home = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  return (
-    <div
-      className="flex flex-col bg-white overflow-x-hidden"
-      style={
-        {
-          // fontFamily: '"Plus Jakarta Sans", "Noto Sans", sans-serif',
-          // fontSize: "1.15rem",
-        }
+  // Handle scroll when target changes
+  useEffect(() => {
+    if (scrollTarget) {
+      const targetRef = scrollTarget === "contact" ? contactRef : faqRef;
+
+      if (targetRef.current) {
+        const elementPosition = targetRef.current.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
       }
-    >
+
+      // Reset scroll target
+      setScrollTarget(null);
+    }
+  }, [scrollTarget, isMobile]);
+
+  // Handle URL hash on component mount
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#contact-section") {
+      setTimeout(() => setScrollTarget("contact"), 100);
+    } else if (hash === "#faq-section") {
+      setTimeout(() => setScrollTarget("faq"), 100);
+    }
+  }, []);
+
+  // Simplified scroll functions for home page buttons
+  const scrollToContact = () => setScrollTarget("contact");
+  const scrollToFAQ = () => setScrollTarget("faq");
+
+  return (
+    <div className="flex flex-col bg-white overflow-x-hidden">
       {/* Business Description */}
       <div className="pt-4 px-4 text-center mb-2">
-        <p className="text-gray-700 text-base sm:text-lg">
+        <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
           Welcome to Sweet Heaven! We craft delicious cakes and cupcakes for
           every occasion, using only the finest ingredients. Whether you want a
           classic treat or a custom creation, our bakery brings joy and
           sweetness to your celebrations.
         </p>
       </div>
-      {/* Call to Action */}
-      <div className="flex px-8 py-3 justify-center mt-2 gap-5 md:gap-20">
+      {/* Call to Action - Improved mobile styling with FAQ button */}
+      <div className="grid grid-cols-2 gap-2 px-4 sm:px-8 py-3 mt-2 sm:flex sm:justify-center sm:gap-5 md:gap-10 lg:gap-16">
+        <button
+          onClick={() => (window.location.href = "/menu")}
+          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm"
+          type="button"
+        >
+          Menu
+        </button>
+
         <button
           onClick={() => (window.location.href = "/custom-cake")}
-          className="w-full md:w-1/4 lg:w-1/6 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-pink-600 text-white text-base font-bold flex"
+          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm"
           type="button"
         >
           Custom Cakes
         </button>
+
         <button
-          onClick={() => (window.location.href = "/menu")}
-          className="w-full md:w-1/4 lg:w-1/6 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-pink-600 text-white text-base font-bold border border-[#eb477e] flex"
+          onClick={scrollToContact}
+          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm col-span-1"
           type="button"
         >
-          Menu
+          Contact
+        </button>
+
+        <button
+          onClick={scrollToFAQ}
+          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm col-span-1"
+          type="button"
+        >
+          FAQ
         </button>
       </div>
       {/* Featured Cakes */}
@@ -311,8 +379,18 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {/* Contact Section - Using ref instead of ID */}
+      <div ref={contactRef} className="scroll-mt-20">
+        <Contact />
+      </div>
+
+      {/* FAQ Section - Using ref instead of ID */}
+      <div ref={faqRef} className="scroll-mt-20">
+        <FAQ />
+      </div>
     </div>
   );
-};
+});
 
 export default Home;
