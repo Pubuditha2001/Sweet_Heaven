@@ -29,11 +29,13 @@ const toppingRoutes = require("./routes/toppingRoutes");
 const cakeRoutes = require("./routes/cakeRoutes");
 const accessoryRoutes = require("./routes/accessoryRoutes");
 const otherProductRoutes = require("./routes/otherProductRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 app.use("/api/cakes", cakeRoutes);
 app.use("/api/toppings", toppingRoutes);
 app.use("/api/accessories", accessoryRoutes);
 app.use("/api/other-products", otherProductRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Sweet Heaven API!");

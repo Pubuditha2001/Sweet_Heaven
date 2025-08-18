@@ -14,6 +14,7 @@ import AccessoriesPicker from "../../components/AccessoriesPicker";
 import { fetchCakeById } from "../../api/cake";
 import { fetchToppingsByRef } from "../../api/topping";
 import { fetchAccessories } from "../../api/accessory";
+import { addCartItem } from "../../api/cart";
 
 const fallbackImg = "/fallback.jpg";
 
@@ -32,6 +33,7 @@ export default function ProductView() {
   const [accessories, setAccessories] = useState([]);
   const [selectedAccessories, setSelectedAccessories] = useState([]);
   const [orderHover, setOrderHover] = useState(false);
+  const [cartNotice, setCartNotice] = useState(null);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -154,16 +156,121 @@ export default function ProductView() {
   };
 
   const handleAddToCart = () => {
-    // Add to cart logic here
-    console.log("Adding to cart:", {
-      product: product._id,
-      size: selectedSize,
-      quantity: quantity,
-      toppings: selectedToppings.map((t) => t.name),
-      accessories: selectedAccessories.map((a) => a.name),
-      price: getTotalPrice(),
+    // Build a normalized cart item
+    if (!product) return;
+
+    const basePrice = product.prices[selectedSize]?.price || 0;
+    const toppingsPrice = selectedToppings.reduce(
+      (s, t) => s + getToppingPrice(t),
+      0
+    );
+    const accessoriesPrice = selectedAccessories.reduce(
+      (s, a) => s + getAccessoryPrice(a),
+      0
+    );
+
+    // Cake unit price excludes accessories now
+    const cakeUnitPrice = basePrice + toppingsPrice;
+
+    // create deterministic signature for cake (no accessories)
+    const toppingIds = (selectedToppings || [])
+      .map((t) => (t._id || t.id || t.name).toString())
+      .filter(Boolean)
+      .sort()
+      .join(",");
+    const cakeSignature = `${product._id}|size:${selectedSize}|t:${toppingIds}`;
+
+    const cakeItem = {
+      id: cakeSignature,
+      productId: product._id,
+      name: product.cakeName,
+      image: imgUrl || fallbackImg,
+      sizeIndex: selectedSize,
+      sizeLabel: product.prices[selectedSize]?.size || null,
+      qty: quantity,
+      unitPrice: cakeUnitPrice,
+      toppings: (selectedToppings || []).map((t) => ({
+        id: t._id || t.id || t.name,
+        name: t.name,
+      })),
+      accessories: [],
+      addedAt: Date.now(),
+    };
+
+    // accessory items (one entry per selected accessory) — qty equals cake qty
+    const accessoryItems = (selectedAccessories || []).map((a) => {
+      const aid = (a._id || a.id || a.name).toString();
+      return {
+        id: `accessory:${aid}`,
+        productId: aid,
+        name: a.name,
+        image: a.image || null,
+        qty: quantity,
+        unitPrice: getAccessoryPrice(a),
+        toppings: [],
+        accessories: [],
+        addedAt: Date.now(),
+      };
     });
-    // You can implement actual cart functionality here
+
+    // prefer backend API if available. Use a persistent client cartId stored in localStorage
+    const clientCartIdKey = "client_cart_id";
+    let cartId = localStorage.getItem(clientCartIdKey);
+    if (!cartId) {
+      cartId = `anon_${Math.random().toString(36).slice(2, 9)}`;
+      localStorage.setItem(clientCartIdKey, cartId);
+    }
+
+    // add cake item first
+    addCartItem(cartId, cakeItem)
+      .then(() => {
+        setCartNotice(`${cakeItem.qty} × ${cakeItem.name} added to cart`);
+        window.setTimeout(() => setCartNotice(null), 3000);
+      })
+      .catch(() => {
+        // fallback to localStorage when backend unavailable
+        try {
+          const raw = localStorage.getItem("cart");
+          const cart = raw && raw.length ? JSON.parse(raw) : [];
+          const existingIndex = cart.findIndex((c) => c.id === cakeItem.id);
+          if (existingIndex > -1) {
+            cart[existingIndex].qty =
+              (cart[existingIndex].qty || 0) + cakeItem.qty;
+            cart[existingIndex].addedAt = Date.now();
+          } else {
+            cart.push(cakeItem);
+          }
+          localStorage.setItem("cart", JSON.stringify(cart));
+          setCartNotice(
+            `${cakeItem.qty} × ${cakeItem.name} added to cart (offline)`
+          );
+          window.setTimeout(() => setCartNotice(null), 3000);
+        } catch (e) {
+          console.error("Failed to update cart locally:", e);
+          setCartNotice("Failed to add to cart");
+          window.setTimeout(() => setCartNotice(null), 3000);
+        }
+      });
+
+    // add each accessory as separate cart item
+    accessoryItems.forEach((accItem) => {
+      addCartItem(cartId, accItem).catch(() => {
+        try {
+          const raw = localStorage.getItem("cart");
+          const cart = raw && raw.length ? JSON.parse(raw) : [];
+          const existingIndex = cart.findIndex((c) => c.id === accItem.id);
+          if (existingIndex > -1) {
+            cart[existingIndex].qty = (cart[existingIndex].qty || 0) + accItem.qty;
+            cart[existingIndex].addedAt = Date.now();
+          } else {
+            cart.push(accItem);
+          }
+          localStorage.setItem("cart", JSON.stringify(cart));
+        } catch (e) {
+          console.error("Failed to add accessory to local cart:", e);
+        }
+      });
+    });
   };
 
   const handleOrderNow = () => {
@@ -416,6 +523,13 @@ export default function ProductView() {
                 Customize This Cake
               </button>
             </div>
+
+            {/* transient cart notice */}
+            {cartNotice && (
+              <div className="mt-3 max-w-xl px-4 py-2 rounded-md bg-green-50 border border-green-200 text-green-800">
+                {cartNotice}
+              </div>
+            )}
 
             {/* Additional Info */}
             <div className="bg-gradient-to-r from-white to-pink-50 p-6 rounded-2xl shadow-sm border border-pink-100">
