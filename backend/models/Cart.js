@@ -10,7 +10,9 @@ const CartItemSchema = new mongoose.Schema({
   qty: { type: Number, default: 1 },
   unitPrice: { type: Number, default: 0 },
   toppings: [{ id: String, name: String }],
-  accessories: [{ id: String, name: String }],
+  // productCategory indicates what collection this product belongs to
+  // e.g. 'cake', 'accessory', 'other'
+  productCategory: { type: String, required: true, default: "cake" },
   addedAt: { type: Date, default: Date.now },
 });
 

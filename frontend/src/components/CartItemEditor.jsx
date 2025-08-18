@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import CakeSizesOptions from "./CakeSizesOptions";
 import ToppingsOptions from "./ToppingsOptions";
-import AccessoriesPicker from "./AccessoriesPicker";
 import { fetchCakeById } from "../api/cake";
 import { fetchToppingsByRef } from "../api/topping";
-import { fetchAccessories } from "../api/accessory";
 
 export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const wrapRef = useRef(null);
@@ -12,9 +10,7 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const [note, setNote] = useState(item?.note || "");
   const [product, setProduct] = useState(null);
   const [availableToppings, setAvailableToppings] = useState([]);
-  const [availableAccessories, setAvailableAccessories] = useState([]);
   const [selectedToppings, setSelectedToppings] = useState([]);
-  const [selectedAccessories, setSelectedAccessories] = useState([]);
   const [selectedSize, setSelectedSize] = useState(
     item?.sizeIndex != null ? item.sizeIndex : item?.sizeIndex || 0
   );
@@ -43,7 +39,7 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const increase = () => setQty((q) => q + 1);
   const decrease = () => setQty((q) => Math.max(1, q - 1));
 
-  // load product, toppings and accessories and initialize selections
+  // load product, toppings and initialize selections
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -75,16 +71,6 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
             setSelectedToppings(selT);
           }
         }
-        const accs = await fetchAccessories();
-        if (!mounted) return;
-        setAvailableAccessories(accs || []);
-        const selA = (item.accessories || []).map(
-          (a) =>
-            (accs || []).find(
-              (aa) => (aa._id || aa.id || aa.name) === (a.id || a._id || a.name)
-            ) || a
-        );
-        setSelectedAccessories(selA);
       } catch (err) {
         console.error("CartItemEditor load error:", err);
       }
@@ -104,31 +90,16 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     });
   };
 
-  const handleAccessoryToggle = (a) => {
-    setSelectedAccessories((prev) => {
-      const key = (x) => x._id || x.id || x.name;
-      if (prev.some((p) => key(p) === key(a)))
-        return prev.filter((p) => key(p) !== key(a));
-      return [...prev, a];
-    });
-  };
-
   const getToppingPrice = (topping, sizeIndex = selectedSize) => {
     if (!topping || !topping.prices) return 0;
     const sel = topping.prices[sizeIndex] || topping.prices[0];
     return sel ? sel.price : 0;
   };
 
-  const getAccessoryPrice = (a) => a?.price || 0;
-
   const handleSave = () => {
     const toppingsPayload = (selectedToppings || []).map((t) => ({
       id: t._id || t.id || t.name,
       name: t.name,
-    }));
-    const accessoriesPayload = (selectedAccessories || []).map((a) => ({
-      id: a._id || a.id || a.name,
-      name: a.name,
     }));
     const basePrice =
       product?.prices?.[selectedSize]?.price ||
@@ -139,11 +110,7 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
       (s, t) => s + getToppingPrice(t, selectedSize),
       0
     );
-    const accessoriesPrice = (selectedAccessories || []).reduce(
-      (s, a) => s + (a.price || 0),
-      0
-    );
-    const unitPrice = basePrice + toppingsPrice + accessoriesPrice;
+    const unitPrice = basePrice + toppingsPrice;
 
     onSave &&
       onSave({
@@ -153,7 +120,6 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
           product?.prices?.[selectedSize]?.size || freeSizeLabel || undefined,
         note: note || undefined,
         toppings: toppingsPayload,
-        accessories: accessoriesPayload,
         unitPrice,
       });
   };
@@ -270,16 +236,6 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
                   getToppingPrice={getToppingPrice}
                   selectedSize={selectedSize}
                   onReset={() => setSelectedToppings([])}
-                />
-              </div>
-
-              <div className="mt-4">
-                <AccessoriesPicker
-                  accessories={availableAccessories}
-                  selectedAccessories={selectedAccessories}
-                  handleAccessoryToggle={handleAccessoryToggle}
-                  getAccessoryPrice={getAccessoryPrice}
-                  onReset={() => setSelectedAccessories([])}
                 />
               </div>
 

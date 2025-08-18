@@ -193,6 +193,8 @@ export default function ProductView() {
         id: t._id || t.id || t.name,
         name: t.name,
       })),
+      // mark as cake so backend/frontend know which product collection to use
+      productCategory: "cake",
       accessories: [],
       addedAt: Date.now(),
     };
@@ -208,6 +210,8 @@ export default function ProductView() {
         qty: quantity,
         unitPrice: getAccessoryPrice(a),
         toppings: [],
+        // mark accessory so backend saves category correctly and frontend knows how to resolve
+        productCategory: "accessory",
         accessories: [],
         addedAt: Date.now(),
       };
@@ -260,7 +264,8 @@ export default function ProductView() {
           const cart = raw && raw.length ? JSON.parse(raw) : [];
           const existingIndex = cart.findIndex((c) => c.id === accItem.id);
           if (existingIndex > -1) {
-            cart[existingIndex].qty = (cart[existingIndex].qty || 0) + accItem.qty;
+            cart[existingIndex].qty =
+              (cart[existingIndex].qty || 0) + accItem.qty;
             cart[existingIndex].addedAt = Date.now();
           } else {
             cart.push(accItem);

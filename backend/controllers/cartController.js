@@ -30,13 +30,27 @@ async function addItem(req, res) {
       cart = new Cart({ cartId, items: [] });
     }
 
+    // Normalize incoming item to always include productCategory
+    const normalized = {
+      ...item,
+      productCategory: item.productCategory || "cake",
+    };
+
     // If the incoming item contains accessories inline, split them into separate accessory items
-    if (item.accessories && Array.isArray(item.accessories) && item.accessories.length > 0 && !String(item.id).startsWith("accessory:")) {
-      // push/update the parent cake item with accessories cleared
-      const cakeItem = { ...item, accessories: [] };
+    if (
+      item.accessories &&
+      Array.isArray(item.accessories) &&
+      item.accessories.length > 0 &&
+      !String(item.id).startsWith("accessory:")
+    ) {
+      // push/update the parent item but do NOT persist accessories inside it
+      const cakeItem = { ...normalized };
+      // ensure accessories are not stored inline
+      delete cakeItem.accessories;
       const cakeIdx = cart.items.findIndex((i) => i.id === cakeItem.id);
       if (cakeIdx > -1) {
-        cart.items[cakeIdx].qty = (cart.items[cakeIdx].qty || 0) + (cakeItem.qty || 1);
+        cart.items[cakeIdx].qty =
+          (cart.items[cakeIdx].qty || 0) + (cakeItem.qty || 1);
         cart.items[cakeIdx].addedAt = new Date();
       } else {
         cart.items.push(cakeItem);
@@ -53,24 +67,27 @@ async function addItem(req, res) {
           qty: item.qty || 1,
           unitPrice: a.price || 0,
           toppings: [],
-          accessories: [],
+          // mark category explicitly so frontend/lookup knows where to fetch
+          productCategory: "accessory",
           addedAt: new Date(),
         };
         const existingAccIdx = cart.items.findIndex((i) => i.id === accId);
         if (existingAccIdx > -1) {
-          cart.items[existingAccIdx].qty = (cart.items[existingAccIdx].qty || 0) + (accItem.qty || 1);
+          cart.items[existingAccIdx].qty =
+            (cart.items[existingAccIdx].qty || 0) + (accItem.qty || 1);
           cart.items[existingAccIdx].addedAt = new Date();
         } else {
           cart.items.push(accItem);
         }
       }
     } else {
-      const idx = cart.items.findIndex((i) => i.id === item.id);
+      const idx = cart.items.findIndex((i) => i.id === normalized.id);
       if (idx > -1) {
-        cart.items[idx].qty = (cart.items[idx].qty || 0) + (item.qty || 1);
+        cart.items[idx].qty =
+          (cart.items[idx].qty || 0) + (normalized.qty || 1);
         cart.items[idx].addedAt = new Date();
       } else {
-        cart.items.push(item);
+        cart.items.push(normalized);
       }
     }
 
