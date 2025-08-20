@@ -14,6 +14,9 @@ export default function CakesTable() {
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [toppingFilter, setToppingFilter] = useState("");
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState(null);
+  const [modalDeleting, setModalDeleting] = useState(false);
 
   useEffect(() => {
     async function loadCakesAndToppings() {
@@ -103,14 +106,25 @@ export default function CakesTable() {
     navigate(`/admin/cakes/edit/${cake._id}`);
   };
 
-  const handleRemove = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this cake?")) return;
+  // Open the confirmation modal for a specific cake
+  const handleRemove = (cake) => {
+    setRemoveTarget(cake);
+    setShowRemoveModal(true);
+  };
+
+  // Confirm and perform deletion
+  const confirmRemove = async () => {
+    if (!removeTarget) return;
+    setModalDeleting(true);
     try {
-      await deleteCake(id);
-      setCakes((prev) => prev.filter((c) => c._id !== id));
+      await deleteCake(removeTarget._id);
+      setCakes((prev) => prev.filter((c) => c._id !== removeTarget._id));
+      setShowRemoveModal(false);
+      setRemoveTarget(null);
     } catch (err) {
-      alert("Failed to delete cake: " + err.message);
+      alert("Failed to delete cake: " + (err.message || err));
     }
+    setModalDeleting(false);
   };
 
   const handleEditSubmit = async (updatedCake) => {
@@ -253,7 +267,7 @@ export default function CakesTable() {
                         </button>
                         <button
                           className="bg-red-500 text-white px-5 py-2 rounded-full font-semibold shadow hover:bg-gray-200 transition-colors focus:outline-none"
-                          onClick={() => handleRemove(cake._id)}
+                          onClick={() => handleRemove(cake)}
                           style={{
                             boxShadow: "0 2px 8px rgba(233, 30, 99, 0.07)",
                           }}
@@ -270,6 +284,46 @@ export default function CakesTable() {
         </div>
       )}
       {/* Edit Modal removed. Navigation to EditCakePage instead. */}
+      {showRemoveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black opacity-40"
+            onClick={() => setShowRemoveModal(false)}
+          />
+          <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 pt-12 z-10 text-center mx-auto">
+            <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-25">
+              <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
+                <img src="/idea.png" alt="Remove" className="w-16 h-16" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold mt-5 mb-2 text-center text-gray-900">
+              Confirm removal
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This will permanently delete the cake{" "}
+              {removeTarget ? removeTarget.cakeName : ""}. You can hide it
+              instead. Are you sure?
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                disabled={modalDeleting}
+                className="bg-red-400 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
+                onClick={confirmRemove}
+              >
+                {modalDeleting ? "Deleting..." : "Yes, delete"}
+              </button>
+              <button
+                type="button"
+                className="bg-green-400 text-white px-4 py-2 rounded-md"
+                onClick={() => setShowRemoveModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

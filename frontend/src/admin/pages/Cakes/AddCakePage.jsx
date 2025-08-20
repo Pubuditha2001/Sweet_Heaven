@@ -30,6 +30,8 @@ export default function AddCakePage() {
   const [initialCake, setInitialCake] = useState(emptyCake);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [modalSaving, setModalSaving] = useState(false);
 
   // whether the form has unsaved changes compared to the initial loaded cake
   const hasChanges = useMemo(() => {
@@ -352,6 +354,19 @@ export default function AddCakePage() {
           value={cake.toppingRef || ""}
           onChange={(e) => {
             const v = e.target.value;
+            // manage option similar to EditCakePage: show modal if unsaved
+            if (v === "__manage__") {
+              const hasUnsaved =
+                initialCake &&
+                JSON.stringify(initialCake) !== JSON.stringify(cake);
+              if (hasUnsaved) {
+                setShowUnsavedModal(true);
+              } else {
+                navigate("/admin/toppings");
+              }
+              return;
+            }
+
             if (!v) {
               setCake({
                 ...cake,
@@ -374,6 +389,7 @@ export default function AddCakePage() {
           }}
         >
           <option value="">None</option>
+          <option value="__manage__">Manage topping categories...</option>
           {toppingOptions
             .filter((t) => t && t.id)
             .map((t) => (
@@ -382,6 +398,73 @@ export default function AddCakePage() {
               </option>
             ))}
         </select>
+
+        {/* Unsaved changes modal (same style as EditCakePage) */}
+        {showUnsavedModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black opacity-40"
+              onClick={() => setShowUnsavedModal(false)}
+            />
+            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 pt-12 z-10 text-center mx-auto">
+              <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-25">
+                <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
+                  <img
+                    src="/idea.png"
+                    alt="Unsaved changes"
+                    className="w-16 h-16"
+                  />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mt-5 mb-2 text-center text-gray-900">
+                You're being redirected to Toppings
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Would you like to save your changes before leaving? You can edit
+                the cake afterwards.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={modalSaving}
+                  className="bg-green-400 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
+                  onClick={async () => {
+                    setModalSaving(true);
+                    try {
+                      await createCake(cake);
+                      setModalSaving(false);
+                      setShowUnsavedModal(false);
+                      navigate("/admin/toppings");
+                    } catch (err) {
+                      setModalSaving(false);
+                      alert("Failed to save changes: " + (err.message || err));
+                    }
+                  }}
+                >
+                  {modalSaving ? "Saving..." : "Save and Leave"}
+                </button>
+                <button
+                  type="button"
+                  className="bg-red-500 text-white px-4 py-2 rounded-md"
+                  onClick={() => {
+                    // discard and go to toppings
+                    setShowUnsavedModal(false);
+                    navigate("/admin/toppings");
+                  }}
+                >
+                  Discard and Leave
+                </button>
+                <button
+                  type="button"
+                  className="bg-pink-100 text-gray-700 px-4 py-2 rounded-md border"
+                  onClick={() => setShowUnsavedModal(false)}
+                >
+                  Stay on this page
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <label className="font-medium text-pink-700">Prices:</label>
         {showCustomCategory && !cake.priceBasedPricing ? (

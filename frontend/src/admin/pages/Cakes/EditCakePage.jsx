@@ -448,7 +448,8 @@ export default function EditCakePage() {
                 You're being redirected to Toppings
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                Would you like to save your changes before leaving?
+                Would you like to save your changes before leaving? You can edit
+                the cake afterwards.
               </p>
               <div className="flex justify-end gap-2">
                 <button
