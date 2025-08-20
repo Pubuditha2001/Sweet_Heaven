@@ -1,24 +1,108 @@
 import React, { useRef, useState, useEffect } from "react";
 
-export default function ImageUploader({ value, onChange }) {
+export default function ImageUploader({ value, onChange, multiple = false }) {
   const fileInputRef = useRef();
-  const [preview, setPreview] = useState("");
+  // multiple: if false, single-image mode; if true, multi-image mode
 
-  // Always show the value as preview unless a new file is uploaded
+  const normalizeSrc = (s) => {
+    if (!s || typeof s !== "string") return s;
+    const trimmed = s.trim();
+    if (trimmed.startsWith("data:")) return trimmed;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (trimmed.startsWith("./")) return trimmed.replace(/^\.\//, "/");
+    if (trimmed.startsWith("/")) return trimmed;
+    // otherwise assume relative to site root
+    return "/" + trimmed;
+  };
+
+  if (multiple) {
+    const images = Array.isArray(value) ? value : value ? [value] : [];
+    const [previews, setPreviews] = useState(images.map(normalizeSrc));
+
+    useEffect(() => {
+      const next = Array.isArray(value) ? value : value ? [value] : [];
+      setPreviews(next.map(normalizeSrc));
+    }, [value]);
+
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result;
+          const next = [...previews, result];
+          setPreviews(next);
+          onChange(next, file);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const removeAt = (idx) => {
+      const next = previews.filter((_, i) => i !== idx);
+      setPreviews(next);
+      onChange(next);
+    };
+
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {previews.map((p, idx) => (
+            <div key={idx} className="relative">
+              <img
+                src={normalizeSrc(p)}
+                alt={`Preview ${idx + 1}`}
+                className="w-24 h-24 object-cover rounded-lg border border-pink-200 shadow"
+              />
+              <button
+                type="button"
+                onClick={() => removeAt(idx)}
+                className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow text-sm"
+                aria-label={`Remove image ${idx + 1}`}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          className="bg-pink-500 text-white px-4 py-2 rounded-full font-medium shadow hover:bg-pink-600 transition-colors"
+          onClick={() => fileInputRef.current.click()}
+        >
+          Add Images
+        </button>
+      </div>
+    );
+  }
+
+  // single-image mode
+  const initial =
+    typeof value === "string"
+      ? value
+      : Array.isArray(value) && value.length
+      ? value[0]
+      : "";
+  const [preview, setPreview] = useState(initial);
+
   useEffect(() => {
-    if (!value) {
-      setPreview("");
-      return;
-    }
-    // If value is a relative path, convert to public URL
-    if (typeof value === "string" && value.startsWith("./")) {
-      setPreview(value.replace(/^\.\//, "/"));
-    } else {
-      setPreview(value);
-    }
+    const next =
+      typeof value === "string"
+        ? value
+        : Array.isArray(value) && value.length
+        ? value[0]
+        : "";
+    setPreview(next);
   }, [value]);
 
-  const handleFileChange = (e) => {
+  const handleSingleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -30,21 +114,36 @@ export default function ImageUploader({ value, onChange }) {
     }
   };
 
+  const removeSingle = () => {
+    setPreview("");
+    onChange("");
+  };
+
   return (
     <div className="flex flex-col items-center gap-2">
-      {preview && (
-        <img
-          src={preview}
-          alt="Cake Preview"
-          className="w-40 h-40 object-cover rounded-lg border border-pink-200 shadow"
-        />
-      )}
+      {preview ? (
+        <div className="relative">
+          <img
+            src={normalizeSrc(preview)}
+            alt="Preview"
+            className="w-40 h-40 object-cover rounded-lg border border-pink-200 shadow"
+          />
+          <button
+            type="button"
+            onClick={removeSingle}
+            className="px-2 absolute -top-2 -right-2 bg-pink-100 rounded-full p-1 shadow text-sm text-red-600"
+            aria-label="Remove image"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
       <input
         type="file"
         accept="image/*"
         ref={fileInputRef}
         className="hidden"
-        onChange={handleFileChange}
+        onChange={handleSingleFileChange}
       />
       <button
         type="button"

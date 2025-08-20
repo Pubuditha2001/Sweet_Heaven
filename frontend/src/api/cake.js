@@ -21,6 +21,16 @@ export async function updateCake(id, cakeData) {
   return res.json();
 }
 
+export async function createCake(cakeData) {
+  const res = await fetch(`/api/cakes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(cakeData),
+  });
+  if (!res.ok) throw new Error("Failed to create cake");
+  return res.json();
+}
+
 export async function deleteCake(id) {
   const res = await fetch(`/api/cakes/${id}`, {
     method: "DELETE",

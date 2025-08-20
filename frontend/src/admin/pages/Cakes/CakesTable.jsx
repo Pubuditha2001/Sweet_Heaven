@@ -20,12 +20,45 @@ export default function CakesTable() {
       setLoading(true);
       setError("");
       try {
+        // Fetch all topping collections first so we can detect which toppingRef ids exist.
+        const allToppingsDoc = await fetchAllToppings();
+        let allToppings = [];
+        if (Array.isArray(allToppingsDoc)) {
+          allToppings = allToppingsDoc
+            .map((t) => {
+              if (!t) return null;
+              if (t.collectionName)
+                return {
+                  id: t.id || t._id || (t._id ? t._id.toString() : undefined),
+                  collectionName: t.collectionName,
+                };
+              return {
+                id: t.id || t._id,
+                collectionName: t.name || t.collectionName,
+              };
+            })
+            .filter(Boolean);
+        } else if (allToppingsDoc && Array.isArray(allToppingsDoc.toppings)) {
+          allToppings = allToppingsDoc.toppings
+            .map((t) => ({
+              id: t.id || t._id,
+              collectionName: t.collectionName || t.name,
+            }))
+            .filter(Boolean);
+        }
+        setToppings(allToppings);
+
+        const validToppingIds = new Set(allToppings.map((t) => String(t.id)));
+
         const cakesData = await fetchCakes();
-        // Fetch topping names for each cake
+        // Fetch topping names only for cakes that reference an existing topping doc
         const cakesWithTopping = await Promise.all(
           cakesData.map(async (cake) => {
             let toppingCollectionName = "";
-            if (cake.toppingRef) {
+            if (
+              cake.toppingRef &&
+              validToppingIds.has(String(cake.toppingRef))
+            ) {
               try {
                 const toppingDoc = await fetchToppingsByRef(cake.toppingRef);
                 if (toppingDoc && toppingDoc.collectionName) {
@@ -37,15 +70,6 @@ export default function CakesTable() {
           })
         );
         setCakes(cakesWithTopping);
-        // Fetch all toppings for filter dropdown
-        const allToppingsDoc = await fetchAllToppings();
-        let allToppings = [];
-        if (allToppingsDoc && allToppingsDoc.toppings) {
-          allToppings = allToppingsDoc.toppings;
-        } else if (Array.isArray(allToppingsDoc)) {
-          allToppings = allToppingsDoc;
-        }
-        setToppings(allToppings);
       } catch (err) {
         setError(err.message);
       }
@@ -69,8 +93,9 @@ export default function CakesTable() {
       return false;
     if (priceMax && (minPrice === null || minPrice > Number(priceMax)))
       return false;
-    // Topping filter
-    if (toppingFilter && cake.toppingName !== toppingFilter) return false;
+    // Topping filter (compare against toppingCollectionName produced earlier)
+    if (toppingFilter && cake.toppingCollectionName !== toppingFilter)
+      return false;
     return true;
   });
 
@@ -104,6 +129,15 @@ export default function CakesTable() {
       <h2 className="text-2xl md:text-3xl font-bold text-pink-600 mb-6 text-center">
         All Cakes
       </h2>
+      <div className="flex justify-between items-center mb-4">
+        <button
+          className="bg-pink-600 text-white px-4 py-2 rounded-full font-semibold shadow hover:bg-pink-700 transition-colors focus:outline-none"
+          onClick={() => navigate("/admin/cakes/new")}
+          style={{ boxShadow: "0 2px 8px rgba(233, 30, 99, 0.10)" }}
+        >
+          Add Cake
+        </button>
+      </div>
       <div className="flex flex-col md:flex-row gap-2 md:gap-4 justify-between items-center mb-4">
         <input
           type="text"
@@ -143,10 +177,10 @@ export default function CakesTable() {
           onChange={(e) => setToppingFilter(e.target.value)}
           className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         >
-          <option value="">All Toppings</option>
+          <option value="">All Topping Types</option>
           {toppings.map((t) => (
-            <option key={t._id} value={t.name}>
-              {t.name}
+            <option key={t.id} value={t.collectionName}>
+              {t.collectionName}
             </option>
           ))}
         </select>
@@ -173,7 +207,7 @@ export default function CakesTable() {
                   Price (Min)
                 </th>
                 <th className="px-4 py-2 text-left text-pink-600 font-semibold">
-                  Topping
+                  Toppin Type
                 </th>
                 <th className="px-4 py-2 text-left text-pink-600 font-semibold">
                   Actions

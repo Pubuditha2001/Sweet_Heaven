@@ -8,21 +8,41 @@ async function createCake(req, res) {
       cakeDescription,
       detailedDescription,
       prices,
+      priceBasedPricing,
+      price,
       cakeImage,
+      images,
       category,
       isFeatured,
       toppingRef,
     } = req.body;
-    const cake = new Cake({
+    // prefer images array, but keep cakeImage for backward compatibility
+    const normalizedCakeImage =
+      (Array.isArray(images) && images.length > 0 && images[0]) || cakeImage;
+
+    const cakeData = {
       cakeName,
       cakeDescription,
       detailedDescription,
-      prices,
-      cakeImage,
+      cakeImage: normalizedCakeImage,
+      images: Array.isArray(images) ? images : images ? [images] : undefined,
       category,
       isFeatured,
       toppingRef,
-    });
+    };
+
+    if (priceBasedPricing) {
+      cakeData.priceBasedPricing = true;
+      cakeData.prices = Array.isArray(prices) ? prices : [];
+      cakeData.price = undefined;
+    } else {
+      cakeData.priceBasedPricing = false;
+      cakeData.price =
+        typeof price === "number" ? price : price ? Number(price) : undefined;
+      cakeData.prices = undefined;
+    }
+
+    const cake = new Cake(cakeData);
     await cake.save();
     res.status(201).json(cake);
   } catch (error) {
@@ -59,25 +79,42 @@ async function updateCake(req, res) {
       cakeDescription,
       detailedDescription,
       prices,
+      priceBasedPricing,
+      price,
       cakeImage,
+      images,
       category,
       isFeatured,
       toppingRef,
     } = req.body;
-    const cake = await Cake.findByIdAndUpdate(
-      req.params.id,
-      {
-        cakeName,
-        cakeDescription,
-        detailedDescription,
-        prices,
-        cakeImage,
-        category,
-        isFeatured,
-        toppingRef,
-      },
-      { new: true }
-    );
+    const normalizedCakeImage =
+      (Array.isArray(images) && images.length > 0 && images[0]) || cakeImage;
+
+    const cakeData = {
+      cakeName,
+      cakeDescription,
+      detailedDescription,
+      cakeImage: normalizedCakeImage,
+      images: Array.isArray(images) ? images : images ? [images] : undefined,
+      category,
+      isFeatured,
+      toppingRef,
+    };
+
+    if (priceBasedPricing) {
+      cakeData.priceBasedPricing = true;
+      cakeData.prices = Array.isArray(prices) ? prices : [];
+      cakeData.price = undefined;
+    } else {
+      cakeData.priceBasedPricing = false;
+      cakeData.price =
+        typeof price === "number" ? price : price ? Number(price) : undefined;
+      cakeData.prices = undefined;
+    }
+
+    const cake = await Cake.findByIdAndUpdate(req.params.id, cakeData, {
+      new: true,
+    });
     if (!cake) return res.status(404).json({ error: "Cake not found" });
     res.json(cake);
   } catch (error) {

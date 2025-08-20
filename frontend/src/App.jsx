@@ -13,6 +13,7 @@ import Login from "./pages/Auth/Login.jsx";
 import AdminNavbar from "./admin/components/AdminNavbar.jsx";
 import AdminFooter from "./admin/components/AdminFooter.jsx";
 import CakesTable from "./admin/pages/Cakes/CakesTable.jsx";
+import AddCakePage from "./admin/pages/Cakes/AddCakePage.jsx";
 import EditCakePage from "./admin/pages/Cakes/EditCakePage.jsx";
 import {
   BrowserRouter as Router,
@@ -50,6 +51,7 @@ function AppContent() {
           <Routes>
             <Route path="/admin" element={<Dashboard />} />
             <Route path="/admin/cakes" element={<CakesTable />} />
+            <Route path="/admin/cakes/new" element={<AddCakePage />} />
             <Route path="/admin/cakes/edit/:id" element={<EditCakePage />} />
             <Route path="/admin/login" element={<Login />} />
           </Routes>

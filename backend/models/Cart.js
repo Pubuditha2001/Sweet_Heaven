@@ -9,7 +9,8 @@ const CartItemSchema = new mongoose.Schema({
   },
   // Generic item id used by frontend/controller (unified across product types)
   itemId: { type: mongoose.Schema.Types.ObjectId },
-  sizeId: { type: mongoose.Schema.Types.ObjectId }, // _id of cake price
+  // sizeId stores the price subdocument _id — now a lowercase string (e.g. 'small')
+  sizeId: { type: String }, // _id of cake price
   qty: { type: Number, default: 1 },
   toppings: {
     type: [

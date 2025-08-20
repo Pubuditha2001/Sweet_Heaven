@@ -74,7 +74,15 @@ async function addItem(req, res) {
     // Check if same item exists, then increase qty
     // Use unified itemId (frontend should supply this)
     const incomingItemId = item.itemId;
-    const incomingSizeId = item.sizeId || undefined;
+    // normalize incoming sizeId to lowercase string if present
+    let incomingSizeId = item.sizeId || undefined;
+    if (incomingSizeId) {
+      try {
+        incomingSizeId = String(incomingSizeId).toLowerCase();
+      } catch (e) {
+        incomingSizeId = undefined;
+      }
+    }
     // incoming toppings may be array of ids; normalize to array of strings
     const incomingToppings = Array.isArray(item.toppings)
       ? item.toppings.map((t) => String(t))
@@ -95,7 +103,10 @@ async function addItem(req, res) {
       if (String(i.itemId) !== String(incomingItemId)) return false;
       // for cakes, also match sizeId and toppings
       if (item.productType === "cake") {
-        const existingSizeId = i.sizeId ? String(i.sizeId) : undefined;
+        // compare normalized lowercase strings for sizeId
+        const existingSizeId = i.sizeId
+          ? String(i.sizeId).toLowerCase()
+          : undefined;
         if ((existingSizeId || undefined) !== (incomingSizeId || undefined))
           return false;
         const existingToppings = Array.isArray(i.toppings)
@@ -113,11 +124,13 @@ async function addItem(req, res) {
       const toppingsToStore = incomingToppings
         ? incomingToppings.map((t) => ({ toppingId: t }))
         : undefined;
+      // store normalized sizeId
+      const sizeIdToStore = incomingSizeId || undefined;
       cart.items.push({
         productType: item.productType,
         // persist only unified itemId
         itemId: incomingItemId,
-        sizeId: incomingSizeId,
+        sizeId: sizeIdToStore,
         toppings: toppingsToStore,
         qty: item.qty || 1,
         addedAt: new Date(),
