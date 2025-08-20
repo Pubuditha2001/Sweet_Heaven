@@ -1,0 +1,582 @@
+[
+  {
+    "collectionName": "toppings for square shaped cakes",
+    "toppings": [
+      {
+        "name": "Strawberry Slices",
+        "description": "Slices of fresh strawberries",
+        "image": "./toppings/strawberry-slices.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 100
+          },
+          {
+            "size": "1Kg",
+            "price": 200
+          },
+          {
+            "size": "1.5Kg",
+            "price": 290
+          },
+          {
+            "size": "2Kg",
+            "price": 380
+          },
+          {
+            "size": "2.5Kg",
+            "price": 470
+          },
+          {
+            "size": "3Kg",
+            "price": 560
+          },
+          {
+            "size": "5Kg",
+            "price": 900
+          }
+        ]
+      },
+      {
+        "name": "Chocolate Chips",
+        "description": "Premium dark chocolate chips",
+        "image": "/images/toppings/chocolate-chips.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 100
+          },
+          {
+            "size": "1Kg",
+            "price": 200
+          },
+          {
+            "size": "1.5Kg",
+            "price": 290
+          },
+          {
+            "size": "2Kg",
+            "price": 380
+          },
+          {
+            "size": "2.5Kg",
+            "price": 470
+          },
+          {
+            "size": "3Kg",
+            "price": 560
+          },
+          {
+            "size": "5Kg",
+            "price": 900
+          }
+        ]
+      },
+      {
+        "name": "Almond Flakes",
+        "description": "Crunchy roasted almond flakes",
+        "image": "/images/toppings/almond-flakes.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 120
+          },
+          {
+            "size": "1Kg",
+            "price": 230
+          },
+          {
+            "size": "1.5Kg",
+            "price": 340
+          },
+          {
+            "size": "2Kg",
+            "price": 450
+          },
+          {
+            "size": "2.5Kg",
+            "price": 560
+          },
+          {
+            "size": "3Kg",
+            "price": 670
+          },
+          {
+            "size": "5Kg",
+            "price": 1100
+          }
+        ]
+      },
+      {
+        "name": "Blueberry Compote",
+        "description": "Sweet blueberry sauce",
+        "image": "/images/toppings/blueberry-compote.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 150
+          },
+          {
+            "size": "1Kg",
+            "price": 280
+          },
+          {
+            "size": "1.5Kg",
+            "price": 410
+          },
+          {
+            "size": "2Kg",
+            "price": 540
+          },
+          {
+            "size": "2.5Kg",
+            "price": 670
+          },
+          {
+            "size": "3Kg",
+            "price": 800
+          },
+          {
+            "size": "5Kg",
+            "price": 1300
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "collectionName": "toppings for round shaped cakes",
+    "toppings": [
+      {
+        "name": "Caramel Drizzle",
+        "description": "Rich caramel sauce",
+        "image": "/images/toppings/caramel-drizzle.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 110
+          },
+          {
+            "size": "1Kg",
+            "price": 210
+          },
+          {
+            "size": "1.5Kg",
+            "price": 310
+          },
+          {
+            "size": "2Kg",
+            "price": 410
+          },
+          {
+            "size": "2.5Kg",
+            "price": 510
+          },
+          {
+            "size": "3Kg",
+            "price": 610
+          },
+          {
+            "size": "5Kg",
+            "price": 1000
+          }
+        ]
+      },
+      {
+        "name": "Hazelnut Crunch",
+        "description": "Roasted hazelnut pieces",
+        "image": "/images/toppings/hazelnut-crunch.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 130
+          },
+          {
+            "size": "1Kg",
+            "price": 250
+          },
+          {
+            "size": "1.5Kg",
+            "price": 370
+          },
+          {
+            "size": "2Kg",
+            "price": 490
+          },
+          {
+            "size": "2.5Kg",
+            "price": 610
+          },
+          {
+            "size": "3Kg",
+            "price": 730
+          },
+          {
+            "size": "5Kg",
+            "price": 1200
+          }
+        ]
+      },
+      {
+        "name": "White Chocolate Shavings",
+        "description": "Fine white chocolate shavings",
+        "image": "/images/toppings/white-chocolate-shavings.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 120
+          },
+          {
+            "size": "1Kg",
+            "price": 220
+          },
+          {
+            "size": "1.5Kg",
+            "price": 320
+          },
+          {
+            "size": "2Kg",
+            "price": 420
+          },
+          {
+            "size": "2.5Kg",
+            "price": 520
+          },
+          {
+            "size": "3Kg",
+            "price": 620
+          },
+          {
+            "size": "5Kg",
+            "price": 1050
+          }
+        ]
+      },
+      {
+        "name": "Raspberry Coulis",
+        "description": "Tangy raspberry sauce",
+        "image": "/images/toppings/raspberry-coulis.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 140
+          },
+          {
+            "size": "1Kg",
+            "price": 260
+          },
+          {
+            "size": "1.5Kg",
+            "price": 380
+          },
+          {
+            "size": "2Kg",
+            "price": 500
+          },
+          {
+            "size": "2.5Kg",
+            "price": 620
+          },
+          {
+            "size": "3Kg",
+            "price": 740
+          },
+          {
+            "size": "5Kg",
+            "price": 1250
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "collectionName": "toppings for heart shaped cakes",
+    "toppings": [
+      {
+        "name": "Rose Petals",
+        "description": "Edible rose petals",
+        "image": "/images/toppings/rose-petals.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 160
+          },
+          {
+            "size": "1Kg",
+            "price": 300
+          },
+          {
+            "size": "1.5Kg",
+            "price": 440
+          },
+          {
+            "size": "2Kg",
+            "price": 580
+          },
+          {
+            "size": "2.5Kg",
+            "price": 720
+          },
+          {
+            "size": "3Kg",
+            "price": 860
+          },
+          {
+            "size": "5Kg",
+            "price": 1450
+          }
+        ]
+      },
+      {
+        "name": "Pistachio Dust",
+        "description": "Finely ground pistachios",
+        "image": "/images/toppings/pistachio-dust.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 170
+          },
+          {
+            "size": "1Kg",
+            "price": 320
+          },
+          {
+            "size": "1.5Kg",
+            "price": 470
+          },
+          {
+            "size": "2Kg",
+            "price": 620
+          },
+          {
+            "size": "2.5Kg",
+            "price": 770
+          },
+          {
+            "size": "3Kg",
+            "price": 920
+          },
+          {
+            "size": "5Kg",
+            "price": 1550
+          }
+        ]
+      },
+      {
+        "name": "Mango Cubes",
+        "description": "Fresh mango cubes",
+        "image": "/images/toppings/mango-cubes.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 140
+          },
+          {
+            "size": "1Kg",
+            "price": 270
+          },
+          {
+            "size": "1.5Kg",
+            "price": 400
+          },
+          {
+            "size": "2Kg",
+            "price": 530
+          },
+          {
+            "size": "2.5Kg",
+            "price": 660
+          },
+          {
+            "size": "3Kg",
+            "price": 790
+          },
+          {
+            "size": "5Kg",
+            "price": 1300
+          }
+        ]
+      },
+      {
+        "name": "Coconut Flakes",
+        "description": "Sweet coconut flakes",
+        "image": "/images/toppings/coconut-flakes.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 110
+          },
+          {
+            "size": "1Kg",
+            "price": 210
+          },
+          {
+            "size": "1.5Kg",
+            "price": 310
+          },
+          {
+            "size": "2Kg",
+            "price": 410
+          },
+          {
+            "size": "2.5Kg",
+            "price": 510
+          },
+          {
+            "size": "3Kg",
+            "price": 610
+          },
+          {
+            "size": "5Kg",
+            "price": 1000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "collectionName": "toppings for rectangle shaped cakes",
+    "toppings": [
+      {
+        "name": "Oreo Crumbs",
+        "description": "Crushed Oreo cookies",
+        "image": "/images/toppings/oreo-crumbs.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 130
+          },
+          {
+            "size": "1Kg",
+            "price": 250
+          },
+          {
+            "size": "1.5Kg",
+            "price": 370
+          },
+          {
+            "size": "2Kg",
+            "price": 490
+          },
+          {
+            "size": "2.5Kg",
+            "price": 610
+          },
+          {
+            "size": "3Kg",
+            "price": 730
+          },
+          {
+            "size": "5Kg",
+            "price": 1200
+          }
+        ]
+      },
+      {
+        "name": "Peanut Butter Swirl",
+        "description": "Creamy peanut butter swirl",
+        "image": "/images/toppings/peanut-butter-swirl.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 120
+          },
+          {
+            "size": "1Kg",
+            "price": 230
+          },
+          {
+            "size": "1.5Kg",
+            "price": 340
+          },
+          {
+            "size": "2Kg",
+            "price": 450
+          },
+          {
+            "size": "2.5Kg",
+            "price": 560
+          },
+          {
+            "size": "3Kg",
+            "price": 670
+          },
+          {
+            "size": "5Kg",
+            "price": 1100
+          }
+        ]
+      },
+      {
+        "name": "Banana Slices",
+        "description": "Fresh banana slices",
+        "image": "/images/toppings/banana-slices.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 100
+          },
+          {
+            "size": "1Kg",
+            "price": 200
+          },
+          {
+            "size": "1.5Kg",
+            "price": 290
+          },
+          {
+            "size": "2Kg",
+            "price": 380
+          },
+          {
+            "size": "2.5Kg",
+            "price": 470
+          },
+          {
+            "size": "3Kg",
+            "price": 560
+          },
+          {
+            "size": "5Kg",
+            "price": 900
+          }
+        ]
+      },
+      {
+        "name": "Walnut Pieces",
+        "description": "Chopped walnuts",
+        "image": "/images/toppings/walnut-pieces.png",
+        "prices": [
+          {
+            "size": "500g",
+            "price": 140
+          },
+          {
+            "size": "1Kg",
+            "price": 270
+          },
+          {
+            "size": "1.5Kg",
+            "price": 400
+          },
+          {
+            "size": "2Kg",
+            "price": 530
+          },
+          {
+            "size": "2.5Kg",
+            "price": 660
+          },
+          {
+            "size": "3Kg",
+            "price": 790
+          },
+          {
+            "size": "5Kg",
+            "price": 1300
+          }
+        ]
+      }
+    ]
+  }
+]

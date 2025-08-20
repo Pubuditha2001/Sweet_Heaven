@@ -32,6 +32,7 @@ export default function ProductView() {
   const [availableToppings, setAvailableToppings] = useState([]);
   const [accessories, setAccessories] = useState([]);
   const [selectedAccessories, setSelectedAccessories] = useState([]);
+  const [accessoryQuantities, setAccessoryQuantities] = useState({});
   const [orderHover, setOrderHover] = useState(false);
   const [cartNotice, setCartNotice] = useState(null);
 
@@ -54,11 +55,13 @@ export default function ProductView() {
           setImgUrl(imageUrl);
         }
 
-        // Fetch toppings using toppingRef if available
+        // Fetch toppings using toppingRef (ObjectId of toppings list)
+        let toppingsList = [];
         if (data && data.toppingRef) {
           const toppingData = await fetchToppingsByRef(data.toppingRef);
-          setAvailableToppings(toppingData.toppings || []);
-          console.log("Fetched toppings:", toppingData.toppings);
+          toppingsList = toppingData.toppings || [];
+          setAvailableToppings(toppingsList);
+          console.log("Fetched toppings:", toppingsList);
         } else {
           setAvailableToppings([]);
           console.log("No toppingRef found in cake data.");
@@ -91,16 +94,16 @@ export default function ProductView() {
 
   // Calculate topping price for a given size (defaults to current selectedSize)
   // Normalize size strings (case/whitespace) to make matching robust across sources
+  // availableToppings is the toppings array from the Topping document referenced by cake.toppingRef
+  // selectedToppings are objects from availableToppings
+  // getToppingPrice finds the price for the selected cake size
   const getToppingPrice = (topping, sizeIndex = selectedSize) => {
-    if (!topping || !topping.prices) return 0;
+    if (!topping || !Array.isArray(topping.prices)) return 0;
     const selectedSizeName = product?.prices?.[sizeIndex]?.size;
-
     const normalize = (s) =>
       (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
-
     const target = normalize(selectedSizeName);
     let priceObj = topping.prices.find((p) => normalize(p.size) === target);
-
     // Fallback: match by numeric portion (e.g. '1kg' vs '1Kg' or '500g')
     if (!priceObj) {
       const numeric = (str) => {
@@ -112,7 +115,6 @@ export default function ProductView() {
         priceObj = topping.prices.find((p) => numeric(p.size) === targetNum);
       }
     }
-
     return priceObj ? priceObj.price : 0;
   };
 
@@ -128,10 +130,11 @@ export default function ProductView() {
       (sum, topping) => sum + getToppingPrice(topping),
       0
     );
-    const accessoriesPrice = selectedAccessories.reduce(
-      (sum, acc) => sum + getAccessoryPrice(acc),
-      0
-    );
+    const accessoriesPrice = selectedAccessories.reduce((sum, acc) => {
+      const accId = acc._id;
+      const accQty = accessoryQuantities[accId] || 1;
+      return sum + getAccessoryPrice(acc) * accQty;
+    }, 0);
     return (basePrice + toppingsPrice + accessoriesPrice) * quantity;
   };
 
@@ -148,76 +151,80 @@ export default function ProductView() {
   const handleAccessoryToggle = (accessory) => {
     setSelectedAccessories((prev) => {
       if (prev.includes(accessory)) {
+        // remove accessory and its quantity mapping
+        setAccessoryQuantities((q) => {
+          const id = accessory._id;
+          if (!id) return q;
+          const copy = { ...q };
+          delete copy[id];
+          return copy;
+        });
         return prev.filter((a) => a !== accessory);
       } else {
+        // set default qty 1 for newly added accessory
+        setAccessoryQuantities((q) => {
+          const id = accessory._id;
+          if (!id) return q;
+          return { ...q, [id]: 1 };
+        });
         return [...prev, accessory];
       }
     });
   };
 
+  const setAccessoryQuantity = (accessoryId, qty) => {
+    setAccessoryQuantities((q) => ({ ...q, [accessoryId]: Math.max(1, qty) }));
+  };
+
   const handleAddToCart = () => {
-    // Build a normalized cart item
+    // Build a normalized cart item using only IDs
     if (!product) return;
 
-    const basePrice = product.prices[selectedSize]?.price || 0;
-    const toppingsPrice = selectedToppings.reduce(
-      (s, t) => s + getToppingPrice(t),
-      0
-    );
-    const accessoriesPrice = selectedAccessories.reduce(
-      (s, a) => s + getAccessoryPrice(a),
-      0
-    );
-
-    // Cake unit price excludes accessories now
-    const cakeUnitPrice = basePrice + toppingsPrice;
-
-    // create deterministic signature for cake (no accessories)
-    const toppingIds = (selectedToppings || [])
-      .map((t) => (t._id || t.id || t.name).toString())
-      .filter(Boolean)
-      .sort()
-      .join(",");
-    const cakeSignature = `${product._id}|size:${selectedSize}|t:${toppingIds}`;
-
-    const cakeItem = {
-      id: cakeSignature,
-      productId: product._id,
-      name: product.cakeName,
-      image: imgUrl || fallbackImg,
-      sizeIndex: selectedSize,
-      sizeLabel: product.prices[selectedSize]?.size || null,
-      qty: quantity,
-      unitPrice: cakeUnitPrice,
-      toppings: (selectedToppings || []).map((t) => ({
-        id: t._id || t.id || t.name,
-        name: t.name,
-      })),
-      // mark as cake so backend/frontend know which product collection to use
-      productCategory: "cake",
-      accessories: [],
-      addedAt: Date.now(),
-    };
-
-    // accessory items (one entry per selected accessory) — qty equals cake qty
-    const accessoryItems = (selectedAccessories || []).map((a) => {
-      const aid = (a._id || a.id || a.name).toString();
+    // Prepare toppings payload: [{ toppingId, priceId }]
+    // toppingId is the _id of the topping in the toppings array of the Topping document
+    // priceId is the _id of the price object for the selected cake size
+    const toppingsPayload = (selectedToppings || []).map((topping) => {
+      let priceObj = null;
+      if (Array.isArray(topping.prices)) {
+        const selectedSizeName = product?.prices?.[selectedSize]?.size;
+        const normalize = (s) =>
+          (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
+        const target = normalize(selectedSizeName);
+        priceObj =
+          topping.prices.find((p) => normalize(p.size) === target) ||
+          topping.prices[selectedSize] ||
+          topping.prices[0];
+      }
       return {
-        id: `accessory:${aid}`,
-        productId: aid,
-        name: a.name,
-        image: a.image || null,
-        qty: quantity,
-        unitPrice: getAccessoryPrice(a),
-        toppings: [],
-        // mark accessory so backend saves category correctly and frontend knows how to resolve
-        productCategory: "accessory",
-        accessories: [],
-        addedAt: Date.now(),
+        toppingId: topping._id,
+        priceId: priceObj?._id,
       };
     });
 
-    // prefer backend API if available. Use a persistent client cartId stored in localStorage
+    // Prepare cake item for cart
+    const cakeItem = {
+      productType: "cake",
+      itemId: product._id,
+      sizeId: product.prices[selectedSize]?._id,
+      qty: quantity,
+      toppings: toppingsPayload,
+    };
+
+    // Prepare accessory items for cart
+    const accessoryItems = (selectedAccessories || []).map((a) => {
+      const accQty = accessoryQuantities[a._id] || 1;
+      return {
+        productType: "accessory",
+        accessoryId: a._id,
+        itemId: a._id,
+        qty: accQty,
+        price: a.price,
+        name: a.name,
+        image: a.image,
+      };
+    });
+
+    // Use persistent client cartId stored in localStorage
     const clientCartIdKey = "client_cart_id";
     let cartId = localStorage.getItem(clientCartIdKey);
     if (!cartId) {
@@ -225,56 +232,20 @@ export default function ProductView() {
       localStorage.setItem(clientCartIdKey, cartId);
     }
 
-    // add cake item first
+    // Add cake item to cart
     addCartItem(cartId, cakeItem)
       .then(() => {
-        setCartNotice(`${cakeItem.qty} × ${cakeItem.name} added to cart`);
+        setCartNotice(`${cakeItem.qty} × ${product.cakeName} added to cart`);
         window.setTimeout(() => setCartNotice(null), 3000);
       })
       .catch(() => {
-        // fallback to localStorage when backend unavailable
-        try {
-          const raw = localStorage.getItem("cart");
-          const cart = raw && raw.length ? JSON.parse(raw) : [];
-          const existingIndex = cart.findIndex((c) => c.id === cakeItem.id);
-          if (existingIndex > -1) {
-            cart[existingIndex].qty =
-              (cart[existingIndex].qty || 0) + cakeItem.qty;
-            cart[existingIndex].addedAt = Date.now();
-          } else {
-            cart.push(cakeItem);
-          }
-          localStorage.setItem("cart", JSON.stringify(cart));
-          setCartNotice(
-            `${cakeItem.qty} × ${cakeItem.name} added to cart (offline)`
-          );
-          window.setTimeout(() => setCartNotice(null), 3000);
-        } catch (e) {
-          console.error("Failed to update cart locally:", e);
-          setCartNotice("Failed to add to cart");
-          window.setTimeout(() => setCartNotice(null), 3000);
-        }
+        setCartNotice("Failed to add to cart");
+        window.setTimeout(() => setCartNotice(null), 3000);
       });
 
-    // add each accessory as separate cart item
+    // Add accessory items to cart
     accessoryItems.forEach((accItem) => {
-      addCartItem(cartId, accItem).catch(() => {
-        try {
-          const raw = localStorage.getItem("cart");
-          const cart = raw && raw.length ? JSON.parse(raw) : [];
-          const existingIndex = cart.findIndex((c) => c.id === accItem.id);
-          if (existingIndex > -1) {
-            cart[existingIndex].qty =
-              (cart[existingIndex].qty || 0) + accItem.qty;
-            cart[existingIndex].addedAt = Date.now();
-          } else {
-            cart.push(accItem);
-          }
-          localStorage.setItem("cart", JSON.stringify(cart));
-        } catch (e) {
-          console.error("Failed to add accessory to local cart:", e);
-        }
-      });
+      addCartItem(cartId, accItem).catch(() => {});
     });
   };
 
@@ -455,7 +426,12 @@ export default function ProductView() {
                 selectedAccessories={selectedAccessories}
                 handleAccessoryToggle={handleAccessoryToggle}
                 getAccessoryPrice={getAccessoryPrice}
-                onReset={() => setSelectedAccessories([])}
+                onReset={() => {
+                  setSelectedAccessories([]);
+                  setAccessoryQuantities({});
+                }}
+                accessoryQuantities={accessoryQuantities}
+                setAccessoryQuantity={setAccessoryQuantity}
               />
             )}
 

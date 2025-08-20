@@ -14,6 +14,7 @@ const cakeSchema = new mongoose.Schema({
   },
   prices: [
     {
+      _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
       size: { type: String, required: true },
       price: { type: Number, required: true },
     },
@@ -22,7 +23,6 @@ const cakeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Topping",
     required: false,
-    description: "Reference to toppings collection document for this cake",
   },
   cakeImage: {
     type: String,

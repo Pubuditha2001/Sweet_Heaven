@@ -1,18 +1,28 @@
 const mongoose = require("mongoose");
 
 const CartItemSchema = new mongoose.Schema({
-  id: { type: String, required: true }, // deterministic signature from client
-  productId: String,
-  name: String,
-  image: String,
-  sizeIndex: Number,
-  sizeLabel: String,
+  productType: {
+    type: String,
+    required: true,
+    enum: ["cake", "accessory"],
+    default: "cake",
+  },
+  // Generic item id used by frontend/controller (unified across product types)
+  itemId: { type: mongoose.Schema.Types.ObjectId },
+  sizeId: { type: mongoose.Schema.Types.ObjectId }, // _id of cake price
   qty: { type: Number, default: 1 },
-  unitPrice: { type: Number, default: 0 },
-  toppings: [{ id: String, name: String }],
-  // productCategory indicates what collection this product belongs to
-  // e.g. 'cake', 'accessory', 'other'
-  productCategory: { type: String, required: true, default: "cake" },
+  toppings: {
+    type: [
+      {
+        toppingId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Topping",
+        },
+      },
+    ],
+    required: false,
+    default: undefined,
+  },
   addedAt: { type: Date, default: Date.now },
 });
 

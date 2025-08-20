@@ -97,30 +97,26 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   };
 
   const handleSave = () => {
-    const toppingsPayload = (selectedToppings || []).map((t) => ({
-      id: t._id || t.id || t.name,
-      name: t.name,
-    }));
-    const basePrice =
-      product?.prices?.[selectedSize]?.price ||
-      item.unitPrice ||
-      item.price ||
-      0;
-    const toppingsPrice = (selectedToppings || []).reduce(
-      (s, t) => s + getToppingPrice(t, selectedSize),
-      0
-    );
-    const unitPrice = basePrice + toppingsPrice;
-
+    // Save only IDs for cake, size, toppings, and topping prices
+    const toppingsPayload = (selectedToppings || []).map((t) => {
+      // Find selected price for this topping and size
+      let priceObj = null;
+      if (t.prices && Array.isArray(t.prices)) {
+        priceObj = t.prices[selectedSize] || t.prices[0];
+      }
+      return {
+        toppingId: t._id,
+        priceId: priceObj?._id,
+      };
+    });
+    // Use unified itemId and productType
     onSave &&
       onSave({
+        itemId: product?._id,
+        productType: "cake",
         qty,
-        sizeIndex: selectedSize,
-        sizeLabel:
-          product?.prices?.[selectedSize]?.size || freeSizeLabel || undefined,
-        note: note || undefined,
+        sizeId: product?.prices?.[selectedSize]?._id,
         toppings: toppingsPayload,
-        unitPrice,
       });
   };
 
@@ -164,10 +160,21 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
         <div className="px-6 py-4" style={{ flex: 1, overflowY: "auto" }}>
           <div className="flex items-start gap-4">
             <img
-              src={item.image || "/fallback.jpg"}
+              src={
+                item.productCategory === "accessory" ||
+                item.productType === "accessory"
+                  ? item.image || "/accessoryFallback.png"
+                  : item.image || "/fallback.jpg"
+              }
               alt={item.name}
               className="w-24 h-24 rounded-md object-cover border"
-              onError={(e) => (e.target.src = "/fallback.jpg")}
+              onError={(e) =>
+                (e.target.src =
+                  item.productCategory === "accessory" ||
+                  item.productType === "accessory"
+                    ? "/accessoryFallback.png"
+                    : "/fallback.jpg")
+              }
             />
 
             <div className="flex-1">

@@ -10,7 +10,40 @@ async function getCart(req, res) {
       cart = new Cart({ cartId, items: [] });
       await cart.save();
     }
-    res.json(cart);
+    // Populate cart items with latest cake/topping/price data
+    const populatedItems = await Promise.all(
+      cart.items.map(async (item) => {
+        const resolvedItemId = item.itemId;
+        let details = null;
+        if (item.productType === "cake") {
+          const Cake = require("../models/Cake");
+          details = resolvedItemId
+            ? await Cake.findById(resolvedItemId).lean()
+            : null;
+        } else if (item.productType === "accessory") {
+          const Accessory = require("../models/Accessory");
+          details = resolvedItemId
+            ? await Accessory.findById(resolvedItemId).lean()
+            : null;
+        }
+        // normalize toppings for response: array of toppingId strings
+        const toppings = Array.isArray(item.toppings)
+          ? item.toppings.map((t) => String(t.toppingId || t))
+          : undefined;
+
+        return {
+          _id: item._id,
+          productType: item.productType,
+          itemId: item.itemId,
+          sizeId: item.sizeId,
+          toppings,
+          qty: item.qty,
+          details,
+          addedAt: item.addedAt,
+        };
+      })
+    );
+    res.json({ cartId: cart.cartId, items: populatedItems });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -22,77 +55,77 @@ async function addItem(req, res) {
     const { cartId } = req.params;
     const item = req.body;
     if (!cartId) return res.status(400).json({ error: "cartId required" });
-    if (!item || !item.id)
-      return res.status(400).json({ error: "item with id required" });
+    if (!item || !item.productType || !item.itemId)
+      return res.status(400).json({ error: "productType and itemId required" });
 
     let cart = await Cart.findOne({ cartId });
     if (!cart) {
-      cart = new Cart({ cartId, items: [] });
-    }
-
-    // Normalize incoming item to always include productCategory
-    const normalized = {
-      ...item,
-      productCategory: item.productCategory || "cake",
-    };
-
-    // If the incoming item contains accessories inline, split them into separate accessory items
-    if (
-      item.accessories &&
-      Array.isArray(item.accessories) &&
-      item.accessories.length > 0 &&
-      !String(item.id).startsWith("accessory:")
-    ) {
-      // push/update the parent item but do NOT persist accessories inside it
-      const cakeItem = { ...normalized };
-      // ensure accessories are not stored inline
-      delete cakeItem.accessories;
-      const cakeIdx = cart.items.findIndex((i) => i.id === cakeItem.id);
-      if (cakeIdx > -1) {
-        cart.items[cakeIdx].qty =
-          (cart.items[cakeIdx].qty || 0) + (cakeItem.qty || 1);
-        cart.items[cakeIdx].addedAt = new Date();
-      } else {
-        cart.items.push(cakeItem);
-      }
-
-      // for each accessory, add as its own cart item (id prefix 'accessory:')
-      for (const a of item.accessories) {
-        const aid = (a.id || a._id || a.name).toString();
-        const accId = `accessory:${aid}`;
-        const accItem = {
-          id: accId,
-          productId: aid,
-          name: a.name || aid,
-          qty: item.qty || 1,
-          unitPrice: a.price || 0,
-          toppings: [],
-          // mark category explicitly so frontend/lookup knows where to fetch
-          productCategory: "accessory",
-          addedAt: new Date(),
-        };
-        const existingAccIdx = cart.items.findIndex((i) => i.id === accId);
-        if (existingAccIdx > -1) {
-          cart.items[existingAccIdx].qty =
-            (cart.items[existingAccIdx].qty || 0) + (accItem.qty || 1);
-          cart.items[existingAccIdx].addedAt = new Date();
+      try {
+        cart = await Cart.create({ cartId, items: [] });
+      } catch (err) {
+        if (err.code === 11000) {
+          cart = await Cart.findOne({ cartId });
         } else {
-          cart.items.push(accItem);
+          throw err;
         }
       }
-    } else {
-      const idx = cart.items.findIndex((i) => i.id === normalized.id);
-      if (idx > -1) {
-        cart.items[idx].qty =
-          (cart.items[idx].qty || 0) + (normalized.qty || 1);
-        cart.items[idx].addedAt = new Date();
-      } else {
-        cart.items.push(normalized);
+    }
+
+    // Check if same item exists, then increase qty
+    // Use unified itemId (frontend should supply this)
+    const incomingItemId = item.itemId;
+    const incomingSizeId = item.sizeId || undefined;
+    // incoming toppings may be array of ids; normalize to array of strings
+    const incomingToppings = Array.isArray(item.toppings)
+      ? item.toppings.map((t) => String(t))
+      : undefined;
+
+    // helper to compare toppings arrays (order-insensitive)
+    function toppingsEqual(a, b) {
+      if (!a && !b) return true;
+      if ((!a && b) || (a && !b)) return false;
+      if (a.length !== b.length) return false;
+      const sa = [...a].map(String).sort();
+      const sb = [...b].map(String).sort();
+      return sa.every((val, idx) => val === sb[idx]);
+    }
+
+    const idx = cart.items.findIndex((i) => {
+      if (i.productType !== item.productType) return false;
+      if (String(i.itemId) !== String(incomingItemId)) return false;
+      // for cakes, also match sizeId and toppings
+      if (item.productType === "cake") {
+        const existingSizeId = i.sizeId ? String(i.sizeId) : undefined;
+        if ((existingSizeId || undefined) !== (incomingSizeId || undefined))
+          return false;
+        const existingToppings = Array.isArray(i.toppings)
+          ? i.toppings.map((t) => String(t.toppingId || t))
+          : undefined;
+        if (!toppingsEqual(existingToppings, incomingToppings)) return false;
       }
+      return true;
+    });
+
+    if (idx > -1) {
+      cart.items[idx].qty = (cart.items[idx].qty || 0) + (item.qty || 1);
+      cart.items[idx].addedAt = new Date();
+    } else {
+      const toppingsToStore = incomingToppings
+        ? incomingToppings.map((t) => ({ toppingId: t }))
+        : undefined;
+      cart.items.push({
+        productType: item.productType,
+        // persist only unified itemId
+        itemId: incomingItemId,
+        sizeId: incomingSizeId,
+        toppings: toppingsToStore,
+        qty: item.qty || 1,
+        addedAt: new Date(),
+      });
     }
 
     await cart.save();
-    res.json(cart);
+    return await getCart(req, res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -108,11 +141,12 @@ async function updateItem(req, res) {
     const cart = await Cart.findOne({ cartId });
     if (!cart) return res.status(404).json({ error: "cart not found" });
 
-    const idx = cart.items.findIndex((i) => i.id === itemId);
+    const idx = cart.items.findIndex((i) => i._id.toString() === itemId);
     if (idx === -1) return res.status(404).json({ error: "item not found" });
     if (typeof qty === "number") cart.items[idx].qty = Math.max(1, qty);
     await cart.save();
-    res.json(cart);
+    // Return populated cart
+    return await getCart(req, res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -125,9 +159,10 @@ async function removeItem(req, res) {
     if (!cartId) return res.status(400).json({ error: "cartId required" });
     const cart = await Cart.findOne({ cartId });
     if (!cart) return res.status(404).json({ error: "cart not found" });
-    cart.items = cart.items.filter((i) => i.id !== itemId);
+    cart.items = cart.items.filter((i) => i._id.toString() !== itemId);
     await cart.save();
-    res.json(cart);
+    // Return populated cart
+    return await getCart(req, res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -142,7 +177,8 @@ async function clearCart(req, res) {
     if (!cart) return res.status(404).json({ error: "cart not found" });
     cart.items = [];
     await cart.save();
-    res.json(cart);
+    // Return populated cart
+    return await getCart(req, res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

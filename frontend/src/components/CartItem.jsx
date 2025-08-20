@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { fetchCakeById } from "../api/cake";
-import { fetchAccessoryById } from "../api/accessory";
-import { fetchToppingsByRef } from "../api/topping";
-
 function formatRs(n) {
   return `Rs. ${Number(n || 0).toLocaleString("en-IN")}`;
+}
+
+function formatNumber(n) {
+  return Number(n || 0).toLocaleString("en-IN");
 }
 
 export default function CartItem({
@@ -15,106 +14,43 @@ export default function CartItem({
   onEdit,
   onRemoveAccessory,
 }) {
-  const [product, setProduct] = useState(null);
-  const [availableToppings, setAvailableToppings] = useState([]);
-  const [localToppingsDb, setLocalToppingsDb] = useState([]);
+  // New backend format: item.cake, item.size, item.toppings
+  const cake = item.cake;
+  const size = item.size;
+  const toppings = item.toppings || [];
 
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        if (item?.productId) {
-          // Determine source by explicit productCategory or legacy id prefix
-          const isAccessory =
-            item.productCategory === "accessory" ||
-            String(item.id || "").startsWith("accessory:");
-          if (isAccessory) {
-            const p = await fetchAccessoryById(item.productId);
-            if (!mounted) return;
-            setProduct(p);
-            // accessories don't have toppings
-            setAvailableToppings([]);
-          } else {
-            const p = await fetchCakeById(item.productId);
-            if (!mounted) return;
-            setProduct(p);
-            if (p?.toppingRef) {
-              const tr = await fetchToppingsByRef(p.toppingRef);
-              if (!mounted) return;
-              setAvailableToppings(tr.toppings || []);
-            } else {
-              setAvailableToppings([]);
-            }
-          }
-        }
-      } catch (err) {
-        // ignore
-      }
-    }
-    load();
-    return () => (mounted = false);
-  }, [item.productId, item.productCategory, item.id]);
+  const isAccessory =
+    item.productCategory === "accessory" ||
+    String(item.id || "").startsWith("accessory:");
 
-  // load local toppings JSON as fallback (served from public folder)
-  useEffect(() => {
-    let mounted = true;
-    async function loadLocal() {
-      try {
-        const res = await fetch("/database%20Data/toppings.json");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!mounted) return;
-        setLocalToppingsDb(data || []);
-      } catch (e) {}
-    }
-    loadLocal();
-    return () => (mounted = false);
-  }, []);
-
-  const normalize = (s) =>
-    (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
-
-  function getToppingPriceFromObj(toppingObj, sizeIndex = item.sizeIndex || 0) {
-    if (!toppingObj) return 0;
-    const prices = toppingObj.prices || [];
-    let selectedSizeName = product?.prices?.[sizeIndex]?.size;
-    if (!selectedSizeName)
-      selectedSizeName = item.sizeLabel || item.size || undefined;
-    if (!prices.length) return 0;
-    const target = normalize(selectedSizeName);
-    let priceObj = prices.find((p) => normalize(p.size) === target);
-    if (!priceObj) {
-      const numeric = (str) => {
-        const m = (str || "").toString().match(/([\d.]+)/);
-        return m ? m[1] : null;
-      };
-      const targetNum = numeric(selectedSizeName);
-      if (targetNum)
-        priceObj = prices.find((p) => numeric(p.size) === targetNum);
-    }
-    return priceObj ? priceObj.price : 0;
-  }
-
-  // fallback: try to lookup topping by name in local toppings DB
-  function findToppingInLocalDB(toppingName) {
-    if (!toppingName) return null;
-    const key = (toppingName || "").toString().toLowerCase().trim();
-    for (const col of localToppingsDb || []) {
-      for (const t of col.toppings || []) {
-        if ((t.name || "").toString().toLowerCase().trim() === key) return t;
-      }
-    }
-    return null;
-  }
+  const basePrice = size?.price || 0;
+  const toppingsTotal = toppings.reduce(
+    (sum, t) => sum + (t.price?.price || 0),
+    0
+  );
+  const subtotal = basePrice + toppingsTotal;
 
   return (
     <div className="flex gap-4 items-start p-3 sm:p-4 border rounded-lg bg-white w-full">
-      <img
-        src={item.image || "/fallback.jpg"}
-        alt={item.name}
-        className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
-        onError={(e) => (e.target.src = "/fallback.jpg")}
-      />
+      {isAccessory ? (
+        item.image ? (
+          <img
+            src={item.image}
+            alt={item.name}
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
+            onError={(e) => (e.target.src = "/accessoryFallback.png")}
+          />
+        ) : (
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md flex-shrink-0 border bg-gray-50" />
+        )
+      ) : (
+        <img
+          src={cake?.cakeImage ? cake.cakeImage : "/fallback.jpg"}
+          alt={item.name}
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
+          onError={(e) => (e.target.src = "/fallback.jpg")}
+        />
+      )}
 
       <div className="flex-1">
         {/* Header: name left, total and per-unit on right (reference layout) */}
@@ -124,7 +60,9 @@ export default function CartItem({
               {item.name}
             </div>
             {item.size && (
-              <div className="text-sm text-gray-500">Size: {item.size}</div>
+              <div className="text-sm text-gray-500">
+                Size: {item.size.size}
+              </div>
             )}
             {item.note && (
               <div className="text-sm text-gray-500">{item.note}</div>
@@ -132,54 +70,62 @@ export default function CartItem({
           </div>
           <div className="text-right mt-0 ml-3 whitespace-nowrap">
             <div className="font-semibold text-pink-600">
-              {formatRs((item.unitPrice || item.price || 0) * item.qty)}
+              {isAccessory
+                ? formatRs((item.unitPrice || item.price || 0) * item.qty)
+                : formatRs(subtotal * item.qty)}
             </div>
           </div>
         </div>
 
         {/* Price breakdown: labels left, prices right */}
-        <div className="mt-2 grid grid-cols-[1fr_auto] gap-1 text-sm text-gray-600">
-          {/* Base cake price */}
-          <div className="flex justify-between items-center text-sm">
-            <div>Base cake</div>
-            <div className="text-gray-600">
-              {product
-                ? formatRs(
-                    product.prices?.[item.sizeIndex || 0]?.price ||
-                      item.price ||
-                      0
-                  )
-                : formatRs(item.price || 0)}
-            </div>
-          </div>
-
-          {/* Toppings */}
-          {(item.toppings || []).map((t, idx) => {
-            let toppingObj = (availableToppings || []).find(
-              (at) => (at._id || at.id || at.name) === (t.id || t._id || t.name)
-            );
-            if (!toppingObj) toppingObj = findToppingInLocalDB(t.name) || null;
-            const tPrice = toppingObj
-              ? getToppingPriceFromObj(toppingObj, item.sizeIndex)
-              : 0;
-
-            return (
-              <div
-                key={idx}
-                className="flex justify-between items-center mt-1 text-sm"
-              >
-                <div className="truncate text-gray-700">{t.name}</div>
-                <div className="text-gray-600">+{formatRs(tPrice)}</div>
+        <div className="mt-2 grid grid-cols-[1fr_auto] gap-0 text-sm text-gray-600">
+          {/* Base cake price: only for cake items */}
+          {!(
+            item.productCategory === "accessory" ||
+            String(item.id || "").startsWith("accessory:")
+          ) && (
+            <div className="flex justify-between items-center text-sm">
+              <div className="text-gray-400">Base cake</div>
+              <div className="text-gray-400">
+                {cake
+                  ? formatNumber(
+                      cake.prices?.[item.sizeIndex || 0]?.price ||
+                        item.price ||
+                        0
+                    )
+                  : formatNumber(item.price || 0)}
               </div>
-            );
-          })}
+            </div>
+          )}
+
+          {/* Add-ons: always show row for cake items; show '- 0' when none */}
+          {!isAccessory && (
+            <div className="flex justify-between items-center mt-0 text-sm">
+              <div className="truncate text-gray-400">Add-ons</div>
+              <div className="text-gray-400">{formatNumber(toppingsTotal)}</div>
+            </div>
+          )}
         </div>
 
         <div className="text-sm text-gray-500 mt-2">
-          {formatRs(item.unitPrice || item.price || 0)} each
+          {isAccessory ? (
+            <>{formatRs(item.unitPrice || item.price || 0)} each</>
+          ) : (
+            // Cake: show subtotal × qty = total (avoid duplicating base+toppings)
+            <div className="flex justify-between items-center text-sm">
+              <div className="text-gray-400 font-bold">Total</div>
+              <div className="text-gray-400">
+                <span className="font-medium font-bold">{item.qty}</span>
+                <span className="px-3">X</span>
+                <span className="text-gray-400 font-bold">
+                  {formatNumber(subtotal)}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               onClick={() => onDecrease(item.id)}

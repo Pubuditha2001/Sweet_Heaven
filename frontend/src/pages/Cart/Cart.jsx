@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import CartItemEditor from "../../components/CartItemEditor";
 import CartItem from "../../components/CartItem";
-import AccessoryRow from "../../components/AccessoryRow";
+import { fetchAccessoryById } from "../../api/accessory";
 import {
   getCart,
   addCartItem,
@@ -20,6 +20,7 @@ function formatRs(n) {
 export default function Cart() {
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
+  const [accessoryDetails, setAccessoryDetails] = useState({});
 
   // fetch from backend cart API using client cartId; fallback to localStorage
   useEffect(() => {
@@ -31,15 +32,74 @@ export default function Cart() {
     }
 
     getCart(cartId)
-      .then((data) => setItems((data.items || []).map((it) => ({ ...it }))))
+      .then(async (data) => {
+        const rawItems = data.items || [];
+
+        // Fetch missing accessory details for items where backend didn't return details
+        const details = { ...accessoryDetails };
+        await Promise.all(
+          rawItems.map(async (it) => {
+            if (it.productType === "accessory" && it.itemId) {
+              if (!it.details && !details[it.itemId]) {
+                const acc = await fetchAccessoryById(it.itemId).catch(
+                  () => null
+                );
+                if (acc) details[it.itemId] = acc;
+              }
+            }
+          })
+        );
+
+        // Normalize items to the shape expected by CartItem.jsx
+        const normalized = rawItems.map((it) => {
+          const det = it.details || details[it.itemId] || {};
+          const isAccessory = it.productType === "accessory";
+
+          const name = isAccessory
+            ? det.name || det.title || "Accessory"
+            : det.cakeName || det.name || "Cake";
+          const image = isAccessory ? det.image : det.cakeImage || det.image;
+
+          // For cake items, try to populate size using any sizeId stored (fallback to first price)
+          let cake = null;
+          let size = undefined;
+          if (!isAccessory) {
+            cake = det || null;
+            if (det && Array.isArray(det.prices) && det.prices.length > 0) {
+              size = det.prices[0];
+            }
+          }
+
+          const unitPrice = isAccessory
+            ? det.price || det.unitPrice || 0
+            : size?.price || det?.price || 0;
+
+          return {
+            // keep both _id and id aliases (components use item.id)
+            _id: it._id,
+            id: it._id,
+            itemId: it.itemId,
+            productType: it.productType,
+            productCategory: isAccessory ? "accessory" : "cake",
+            qty: it.qty || 1,
+            name,
+            image,
+            unitPrice,
+            price: unitPrice,
+            cake,
+            size,
+            sizeIndex: 0,
+            toppings: it.toppings || [],
+            accessories: it.accessories || [],
+            addedAt: it.addedAt,
+          };
+        });
+
+        setItems(normalized);
+        setAccessoryDetails(details);
+      })
       .catch(() => {
-        try {
-          const raw = localStorage.getItem("cart");
-          if (raw) setItems(JSON.parse(raw));
-          else setItems([]);
-        } catch (e) {
-          setItems([]);
-        }
+        setItems([]);
       });
   }, []);
 
@@ -130,7 +190,7 @@ export default function Cart() {
     if (!editingItem) return;
     const oldId = editingItem.id;
 
-    // Build normalized signature same as ProductView
+    // Build normalized signature using unified itemId
     const norm = (arr) =>
       (arr || [])
         .map((x) => (x.id || x._id || x.name || "").toString())
@@ -139,7 +199,7 @@ export default function Cart() {
         .join(",");
     const toppingIds = norm(payload.toppings);
     const accessoryIds = norm(payload.accessories);
-    const newId = `${editingItem.productId}|size:${
+    const newId = `${editingItem.itemId}|type:${editingItem.productType}|size:${
       payload.sizeIndex ?? editingItem.sizeIndex
     }|t:${toppingIds}|a:${accessoryIds}`;
 
@@ -178,7 +238,15 @@ export default function Cart() {
           // attempt to add updated item on backend
           // use api helper addCartItem
           try {
-            addCartItem(cartId, updated).catch(() => {});
+            // Ensure updated uses itemId/productType when adding back to server
+            const addPayload = {
+              productType: updated.productType || editingItem.productType,
+              itemId: updated.itemId || editingItem.itemId,
+              qty: updated.qty || 1,
+              sizeId: updated.sizeId,
+              toppings: updated.toppings,
+            };
+            addCartItem(cartId, addPayload).catch(() => {});
           } catch (e) {}
         });
 
@@ -264,7 +332,7 @@ export default function Cart() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
               {items.map((it) => (
-                <div key={it.id}>
+                <div key={it._id || it.id}>
                   <CartItem
                     item={it}
                     onIncrease={increase}
@@ -272,15 +340,6 @@ export default function Cart() {
                     onRemove={remove}
                     onEdit={openEditor}
                   />
-                  {(it.accessories || []).map((acc) => (
-                    <AccessoryRow
-                      key={acc.id || acc._id || acc.name}
-                      accessory={acc}
-                      parentItemId={it.id}
-                      parentQty={it.qty}
-                      onRemove={removeAccessory}
-                    />
-                  ))}
                 </div>
               ))}
 

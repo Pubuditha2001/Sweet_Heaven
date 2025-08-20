@@ -6,6 +6,8 @@ export default function AccessoriesPicker({
   handleAccessoryToggle,
   getAccessoryPrice,
   onReset,
+  accessoryQuantities = {},
+  setAccessoryQuantity = () => {},
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -195,47 +197,88 @@ export default function AccessoriesPicker({
                 }}
               >
                 <div className="grid grid-cols-1 gap-4">
-                  {accessories.map((acc, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleAccessoryToggle(acc)}
-                      className={`w-full min-w-0 p-3 md:p-2 border-2 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-start gap-4 text-left ${
-                        selectedAccessories.includes(acc)
-                          ? "border-pink-500 bg-gradient-to-r from-pink-50 to-purple-50 shadow-md"
-                          : "border-gray-200 hover:border-pink-300 bg-white"
-                      }`}
-                    >
-                      {normalizeImagePath(acc.image) && (
-                        <img
-                          src={normalizeImagePath(acc.image)}
-                          alt={acc.name}
-                          className="w-16 h-16 object-cover rounded-md flex-shrink-0"
-                          onError={handleAccessoryImgError}
-                          data-alt-index="0"
-                        />
-                      )}
+                  {accessories.map((acc, idx) => {
+                    const isSelected = selectedAccessories.includes(acc);
+                    const accId = acc._id;
+                    const qty = accessoryQuantities[accId] || 1;
+                    return (
+                      <div
+                        key={idx}
+                        className={`w-full min-w-0 p-0 border rounded-xl transition-all duration-200 transform hover:scale-105 hover:shadow-lg flex items-start gap-4 text-left relative overflow-hidden ${
+                          isSelected
+                            ? "border-pink-500 bg-gradient-to-r from-pink-50 to-purple-50 shadow-md"
+                            : "border-gray-200 hover:border-pink-300 bg-white"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleAccessoryToggle(acc)}
+                          className="flex items-start gap-4 flex-1 text-left bg-transparent border-0 p-3 md:p-2"
+                        >
+                          {normalizeImagePath(acc.image) && (
+                            <img
+                              src={normalizeImagePath(acc.image)}
+                              alt={acc.name}
+                              className="w-16 h-16 object-cover rounded-md flex-shrink-0"
+                              onError={handleAccessoryImgError}
+                              data-alt-index="0"
+                            />
+                          )}
 
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-gray-900 text-base md:text-sm">
-                            {acc.name}
-                          </span>
-                          <span className="text-sm font-semibold text-pink-600">
-                            +Rs. {getAccessoryPrice(acc).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600 mt-2 md:mt-1 md:text-sm">
-                          {acc.description}
-                        </div>
-                        {selectedAccessories.includes(acc) && (
-                          <div className="mt-2 text-sm text-pink-600">
-                            ✓ Added
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-gray-900 text-base md:text-sm">
+                                {acc.name}
+                              </span>
+                              <span className="text-sm font-semibold text-pink-600">
+                                +Rs. {getAccessoryPrice(acc).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600 mt-2 md:mt-1 md:text-sm">
+                              {acc.description}
+                            </div>
+                            {isSelected && (
+                              <div className="mt-2 text-sm text-pink-600">
+                                ✓ Added
+                              </div>
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Compact quantity control anchored bottom-right when selected */}
+                        {isSelected && (
+                          <div className="absolute right-2 bottom-2 flex items-center space-x-1 rounded px-1 py-0.5 text-xs">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setAccessoryQuantity(
+                                  accId,
+                                  Math.max(1, qty - 1)
+                                )
+                              }
+                              aria-label={`Decrease quantity for ${acc.name}`}
+                              className="w-5 h-5 flex items-center justify-center text-xs bg-gray-300 hover:bg-gray-200 rounded p-0 leading-none box-border"
+                            >
+                              -
+                            </button>
+                            <div className="w-5 text-center text-xs font-medium text-gray-900">
+                              {qty}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setAccessoryQuantity(accId, qty + 1)
+                              }
+                              aria-label={`Increase quantity for ${acc.name}`}
+                              className="w-5 h-5 flex items-center justify-center text-xs bg-gray-300 hover:bg-gray-200 rounded p-0 leading-none box-border"
+                            >
+                              +
+                            </button>
                           </div>
                         )}
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

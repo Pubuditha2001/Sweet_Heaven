@@ -8,6 +8,12 @@ import CustomCake from "./pages/CustomCake/CustomCake.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import Hero from "./components/Hero";
+import Dashboard from "./admin/pages/Dashboard.jsx";
+import Login from "./pages/Auth/Login.jsx";
+import AdminNavbar from "./admin/components/AdminNavbar.jsx";
+import AdminFooter from "./admin/components/AdminFooter.jsx";
+import CakesTable from "./admin/pages/Cakes/CakesTable.jsx";
+import EditCakePage from "./admin/pages/Cakes/EditCakePage.jsx";
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,6 +26,7 @@ import { useEffect, useRef } from "react";
 function AppContent() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const isAdminRoute = location.pathname.startsWith("/admin");
   const homeRef = useRef(null);
 
   // Handle scroll to element if URL has hash
@@ -35,6 +42,23 @@ function AppContent() {
     }
   }, [location, isHomePage]);
 
+  if (isAdminRoute) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <AdminNavbar />
+        <main className="w-full flex-grow">
+          <Routes>
+            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin/cakes" element={<CakesTable />} />
+            <Route path="/admin/cakes/edit/:id" element={<EditCakePage />} />
+            <Route path="/admin/login" element={<Login />} />
+          </Routes>
+        </main>
+        <AdminFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar homeRef={homeRef} />
@@ -46,7 +70,6 @@ function AppContent() {
           <Route path="/product/:id" element={<ProductView />} />
           <Route path="/custom-cake" element={<CustomCake />} />
           <Route path="/cart" element={<Cart />} />
-          {/* <Route path="/admin" element={<Admin />} /> */}
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
