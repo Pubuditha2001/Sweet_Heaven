@@ -54,9 +54,18 @@ export default function CartItem({
 
       <div className="flex-1">
         {/* Header: name left, total and per-unit on right (reference layout) */}
-        <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-row justify-between items-start gap-4">
           <div className="flex-1 min-w-0">
-            <div className="font-semibold text-gray-900 truncate">
+            <div
+              className="font-semibold text-gray-900"
+              style={{
+                overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+              }}
+              title={item.name}
+            >
               {item.name}
             </div>
             {item.size && (

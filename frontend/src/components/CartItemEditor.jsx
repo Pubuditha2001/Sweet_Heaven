@@ -7,7 +7,6 @@ import { fetchToppingsByRef } from "../api/topping";
 export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const wrapRef = useRef(null);
   const [qty, setQty] = useState(item?.qty || 1);
-  const [note, setNote] = useState(item?.note || "");
   const [product, setProduct] = useState(null);
   const [availableToppings, setAvailableToppings] = useState([]);
   const [selectedToppings, setSelectedToppings] = useState([]);
@@ -17,6 +16,8 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const [freeSizeLabel, setFreeSizeLabel] = useState(
     item?.sizeLabel || item?.size || ""
   );
+  const isAccessory =
+    item?.productType === "accessory" || item?.productCategory === "accessory";
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -44,8 +45,9 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     let mounted = true;
     async function load() {
       try {
-        if (item?.productId) {
-          const p = await fetchCakeById(item.productId);
+        const productId = item.productId || item.itemId;
+        if (!isAccessory && productId) {
+          const p = await fetchCakeById(productId);
           if (!mounted) return;
           setProduct(p);
           // determine selected size index
@@ -97,6 +99,17 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   };
 
   const handleSave = () => {
+    // If accessory, save only qty and keep productType accessory
+    if (isAccessory) {
+      onSave &&
+        onSave({
+          itemId: item.itemId || item._id,
+          productType: "accessory",
+          qty,
+        });
+      return;
+    }
+
     // Save only IDs for cake, size, toppings, and topping prices
     const toppingsPayload = (selectedToppings || []).map((t) => {
       // Find selected price for this topping and size
@@ -112,10 +125,10 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     // Use unified itemId and productType
     onSave &&
       onSave({
-        itemId: product?._id,
+        itemId: product?._id || item.itemId || item._id,
         productType: "cake",
         qty,
-        sizeId: product?.prices?.[selectedSize]?._id,
+        sizeId: product?.prices?.[selectedSize]?._id || freeSizeLabel,
         toppings: toppingsPayload,
       });
   };
@@ -214,48 +227,43 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
                 </div>
               </div>
 
-              <div className="mt-4">
-                <label className="block text-sm text-gray-700 mb-1">
-                  Size / Variant
-                </label>
-                {product ? (
-                  <CakeSizesOptions
-                    prices={product.prices}
-                    selectedSize={selectedSize}
-                    setSelectedSize={setSelectedSize}
-                    onReset={() => setSelectedSize(0)}
-                  />
-                ) : (
-                  <input
-                    value={freeSizeLabel}
-                    onChange={(e) => setFreeSizeLabel(e.target.value)}
-                    placeholder="e.g. Small / 6 inch"
-                    className="w-full border rounded-md px-3 py-2 text-sm"
-                  />
-                )}
-              </div>
+              {!isAccessory && (
+                <>
+                  <div className="mt-4">
+                    <label className="block text-sm text-gray-700 mb-1">
+                      Size / Variant
+                    </label>
+                    {product ? (
+                      <CakeSizesOptions
+                        prices={product.prices}
+                        selectedSize={selectedSize}
+                        setSelectedSize={setSelectedSize}
+                        onReset={() => setSelectedSize(0)}
+                      />
+                    ) : (
+                      <input
+                        value={freeSizeLabel}
+                        onChange={(e) => setFreeSizeLabel(e.target.value)}
+                        placeholder="e.g. Small / 6 inch"
+                        className="w-full border rounded-md px-3 py-2 text-sm"
+                      />
+                    )}
+                  </div>
 
-              <div className="mt-4">
-                <ToppingsOptions
-                  availableToppings={availableToppings}
-                  selectedToppings={selectedToppings}
-                  handleToppingToggle={handleToppingToggle}
-                  getToppingPrice={getToppingPrice}
-                  selectedSize={selectedSize}
-                  onReset={() => setSelectedToppings([])}
-                />
-              </div>
+                  <div className="mt-4">
+                    <ToppingsOptions
+                      availableToppings={availableToppings}
+                      selectedToppings={selectedToppings}
+                      handleToppingToggle={handleToppingToggle}
+                      getToppingPrice={getToppingPrice}
+                      selectedSize={selectedSize}
+                      onReset={() => setSelectedToppings([])}
+                    />
+                  </div>
+                </>
+              )}
 
-              <div className="mt-4">
-                <label className="block text-sm text-gray-700 mb-1">Note</label>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  rows={3}
-                  className="w-full border rounded-md px-3 py-2 text-sm"
-                  placeholder="Add a note for the baker (optional)"
-                />
-              </div>
+              {/* Note removed - no longer editable in cart editor */}
             </div>
           </div>
         </div>

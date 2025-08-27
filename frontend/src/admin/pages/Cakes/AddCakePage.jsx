@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createCake, fetchCakes } from "../../../api/cake";
 import ImageUploader from "../../../components/ImageUploader";
 import { fetchAllToppings } from "../../../api/topping";
+import UnsavedChangesModal from "../../components/UnsavedChangesModal";
 
 export default function AddCakePage() {
   const [toppingOptions, setToppingOptions] = useState([]);
@@ -399,72 +400,32 @@ export default function AddCakePage() {
             ))}
         </select>
 
-        {/* Unsaved changes modal (same style as EditCakePage) */}
-        {showUnsavedModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div
-              className="absolute inset-0 bg-black opacity-40"
-              onClick={() => setShowUnsavedModal(false)}
-            />
-            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 pt-12 z-10 text-center mx-auto">
-              <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-25">
-                <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
-                  <img
-                    src="/idea.png"
-                    alt="Unsaved changes"
-                    className="w-16 h-16"
-                  />
-                </div>
-              </div>
-              <h3 className="text-lg font-semibold mt-5 mb-2 text-center text-gray-900">
-                You're being redirected to Toppings
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Would you like to save your changes before leaving? You can edit
-                the cake afterwards.
-              </p>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  disabled={modalSaving}
-                  className="bg-green-400 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
-                  onClick={async () => {
-                    setModalSaving(true);
-                    try {
-                      await createCake(cake);
-                      setModalSaving(false);
-                      setShowUnsavedModal(false);
-                      navigate("/admin/toppings");
-                    } catch (err) {
-                      setModalSaving(false);
-                      alert("Failed to save changes: " + (err.message || err));
-                    }
-                  }}
-                >
-                  {modalSaving ? "Saving..." : "Save and Leave"}
-                </button>
-                <button
-                  type="button"
-                  className="bg-red-500 text-white px-4 py-2 rounded-md"
-                  onClick={() => {
-                    // discard and go to toppings
-                    setShowUnsavedModal(false);
-                    navigate("/admin/toppings");
-                  }}
-                >
-                  Discard and Leave
-                </button>
-                <button
-                  type="button"
-                  className="bg-pink-100 text-gray-700 px-4 py-2 rounded-md border"
-                  onClick={() => setShowUnsavedModal(false)}
-                >
-                  Stay on this page
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <UnsavedChangesModal
+          show={showUnsavedModal}
+          saving={modalSaving}
+          onClose={() => setShowUnsavedModal(false)}
+          onSave={async () => {
+            setModalSaving(true);
+            try {
+              await createCake(cake);
+              setModalSaving(false);
+              setShowUnsavedModal(false);
+              navigate("/admin/toppings");
+            } catch (err) {
+              setModalSaving(false);
+              alert("Failed to save changes: " + (err.message || err));
+            }
+          }}
+          onDiscard={() => {
+            setShowUnsavedModal(false);
+            navigate("/admin/toppings");
+          }}
+          title={"You're being redirected to Toppings"}
+          description={
+            "Would you like to save your changes before leaving? You can edit the cake afterwards."
+          }
+          imageSrc="/idea.png"
+        />
 
         <label className="font-medium text-pink-700">Prices:</label>
         {showCustomCategory && !cake.priceBasedPricing ? (

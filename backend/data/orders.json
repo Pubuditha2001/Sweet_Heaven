@@ -1,0 +1,809 @@
+[
+  {
+    "_id": "ord_1756316595250_oxla",
+    "status": "requested",
+    "clientCartId": "anon_g9ka4eh",
+    "items": [
+      {
+        "_id": "68aed115e4e66dfb1fa48523",
+        "id": "68aed115e4e66dfb1fa48523",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 1700,
+        "price": 1700,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "5kg",
+          "price": 1700,
+          "_id": "68a39976cb6c93eb21f1dd75"
+        },
+        "sizeIndex": 6,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b114",
+            "toppingId": "68a4573a5a4a988ad0c3b114",
+            "name": "Mango Cubes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11b",
+              "size": "5Kg",
+              "price": 1300
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b113",
+              "size": "5Kg",
+              "price": 1550
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b123",
+              "size": "5Kg",
+              "price": 1000
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:13.488Z"
+      },
+      {
+        "_id": "68aed11ae4e66dfb1fa48533",
+        "id": "68aed11ae4e66dfb1fa48533",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 650,
+        "price": 650,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "1.5kg",
+          "price": 650,
+          "_id": "68a39976cb6c93eb21f1dd71"
+        },
+        "sizeIndex": 2,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b114",
+            "toppingId": "68a4573a5a4a988ad0c3b114",
+            "name": "Mango Cubes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b117",
+              "size": "1.5Kg",
+              "price": 400
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b10f",
+              "size": "1.5Kg",
+              "price": 470
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11f",
+              "size": "1.5Kg",
+              "price": 310
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:18.881Z"
+      },
+      {
+        "_id": "68aed121e4e66dfb1fa4854c",
+        "id": "68aed121e4e66dfb1fa4854c",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 650,
+        "price": 650,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "1.5kg",
+          "price": 650,
+          "_id": "68a39976cb6c93eb21f1dd71"
+        },
+        "sizeIndex": 2,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b10f",
+              "size": "1.5Kg",
+              "price": 470
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11f",
+              "size": "1.5Kg",
+              "price": 310
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:25.491Z"
+      },
+      {
+        "_id": "68aede47e4e66dfb1fa48983",
+        "id": "68aede47e4e66dfb1fa48983",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 1,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 250,
+        "price": 250,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "500g",
+          "price": 250,
+          "_id": "68a39976cb6c93eb21f1dd6f"
+        },
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T10:30:31.427Z"
+      },
+      {
+        "_id": "68aee701e4e66dfb1fa48aa1",
+        "id": "68aee701e4e66dfb1fa48aa1",
+        "itemId": "68a25a3d1a30dcfe0d2d1b6b",
+        "productType": "accessory",
+        "productCategory": "accessory",
+        "qty": 18,
+        "name": "Birthday Candle Set",
+        "image": "./accessories/candles.webp",
+        "unitPrice": 100,
+        "price": 100,
+        "cake": null,
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T12:45:28.891Z"
+      },
+      {
+        "_id": "68aefdb4e4e66dfb1fa48c6b",
+        "id": "68aefdb4e4e66dfb1fa48c6b",
+        "itemId": "68a25a3d1a30dcfe0d2d1b6c",
+        "productType": "accessory",
+        "productCategory": "accessory",
+        "qty": 9,
+        "name": "Cake Topper - Happy Birthday",
+        "image": "./accessories/happy-birthday-topper.png",
+        "unitPrice": 250,
+        "price": 250,
+        "cake": null,
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T12:46:58.225Z"
+      }
+    ],
+    "subtotal": 30730,
+    "note": "",
+    "createdAt": "2025-08-27T17:43:15.178Z"
+  },
+  {
+    "_id": "ord_1756326860207_8vcd",
+    "status": "requested",
+    "clientCartId": "anon_g9ka4eh",
+    "items": [
+      {
+        "_id": "68aed115e4e66dfb1fa48523",
+        "id": "68aed115e4e66dfb1fa48523",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 1700,
+        "price": 1700,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "5kg",
+          "price": 1700,
+          "_id": "68a39976cb6c93eb21f1dd75"
+        },
+        "sizeIndex": 6,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b114",
+            "toppingId": "68a4573a5a4a988ad0c3b114",
+            "name": "Mango Cubes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11b",
+              "size": "5Kg",
+              "price": 1300
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b113",
+              "size": "5Kg",
+              "price": 1550
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b123",
+              "size": "5Kg",
+              "price": 1000
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:13.488Z"
+      },
+      {
+        "_id": "68aed11ae4e66dfb1fa48533",
+        "id": "68aed11ae4e66dfb1fa48533",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 650,
+        "price": 650,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "1.5kg",
+          "price": 650,
+          "_id": "68a39976cb6c93eb21f1dd71"
+        },
+        "sizeIndex": 2,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b114",
+            "toppingId": "68a4573a5a4a988ad0c3b114",
+            "name": "Mango Cubes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b117",
+              "size": "1.5Kg",
+              "price": 400
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b10f",
+              "size": "1.5Kg",
+              "price": 470
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11f",
+              "size": "1.5Kg",
+              "price": 310
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:18.881Z"
+      },
+      {
+        "_id": "68aed121e4e66dfb1fa4854c",
+        "id": "68aed121e4e66dfb1fa4854c",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 3,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 650,
+        "price": 650,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "1.5kg",
+          "price": 650,
+          "_id": "68a39976cb6c93eb21f1dd71"
+        },
+        "sizeIndex": 2,
+        "toppings": [
+          {
+            "_id": "68a4573a5a4a988ad0c3b10c",
+            "toppingId": "68a4573a5a4a988ad0c3b10c",
+            "name": "Pistachio Dust",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b10f",
+              "size": "1.5Kg",
+              "price": 470
+            }
+          },
+          {
+            "_id": "68a4573a5a4a988ad0c3b11c",
+            "toppingId": "68a4573a5a4a988ad0c3b11c",
+            "name": "Coconut Flakes",
+            "price": {
+              "_id": "68a4573a5a4a988ad0c3b11f",
+              "size": "1.5Kg",
+              "price": 310
+            }
+          }
+        ],
+        "accessories": [],
+        "addedAt": "2025-08-27T09:34:25.491Z"
+      },
+      {
+        "_id": "68aede47e4e66dfb1fa48983",
+        "id": "68aede47e4e66dfb1fa48983",
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "productType": "cake",
+        "productCategory": "cake",
+        "qty": 1,
+        "name": "Vanilla Dream",
+        "image": "./cakes/normal-cakes/vanila-cake.jpg",
+        "unitPrice": 250,
+        "price": 250,
+        "cake": {
+          "_id": "68a39c0c1a30dcfe0d2d1ba5",
+          "cakeName": "Vanilla Dream",
+          "cakeDescription": "Classic vanilla cake with buttercream",
+          "detailedDescription": "A timeless vanilla cake layered with rich buttercream frosting. Perfect for any occasion.",
+          "prices": [
+            {
+              "size": "500g",
+              "price": 250,
+              "_id": "68a39976cb6c93eb21f1dd6f"
+            },
+            {
+              "size": "1kg",
+              "price": 450,
+              "_id": "68a39976cb6c93eb21f1dd70"
+            },
+            {
+              "size": "1.5kg",
+              "price": 650,
+              "_id": "68a39976cb6c93eb21f1dd71"
+            },
+            {
+              "size": "2kg",
+              "price": 800,
+              "_id": "68a39976cb6c93eb21f1dd72"
+            },
+            {
+              "size": "2.5kg",
+              "price": 950,
+              "_id": "68a39976cb6c93eb21f1dd73"
+            },
+            {
+              "size": "3kg",
+              "price": 1100,
+              "_id": "68a39976cb6c93eb21f1dd74"
+            },
+            {
+              "size": "5kg",
+              "price": 1700,
+              "_id": "68a39976cb6c93eb21f1dd75"
+            }
+          ],
+          "cakeImage": "./cakes/normal-cakes/vanila-cake.jpg",
+          "category": "normal",
+          "isFeatured": true,
+          "toppingRef": "68a4573afbedb0ff56e4a911"
+        },
+        "size": {
+          "size": "500g",
+          "price": 250,
+          "_id": "68a39976cb6c93eb21f1dd6f"
+        },
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T10:30:31.427Z"
+      },
+      {
+        "_id": "68aee701e4e66dfb1fa48aa1",
+        "id": "68aee701e4e66dfb1fa48aa1",
+        "itemId": "68a25a3d1a30dcfe0d2d1b6b",
+        "productType": "accessory",
+        "productCategory": "accessory",
+        "qty": 18,
+        "name": "Birthday Candle Set",
+        "image": "./accessories/candles.webp",
+        "unitPrice": 100,
+        "price": 100,
+        "cake": null,
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T12:45:28.891Z"
+      },
+      {
+        "_id": "68aefdb4e4e66dfb1fa48c6b",
+        "id": "68aefdb4e4e66dfb1fa48c6b",
+        "itemId": "68a25a3d1a30dcfe0d2d1b6c",
+        "productType": "accessory",
+        "productCategory": "accessory",
+        "qty": 9,
+        "name": "Cake Topper - Happy Birthday",
+        "image": "./accessories/happy-birthday-topper.png",
+        "unitPrice": 250,
+        "price": 250,
+        "cake": null,
+        "sizeIndex": 0,
+        "toppings": [],
+        "accessories": [],
+        "addedAt": "2025-08-27T12:46:58.225Z"
+      }
+    ],
+    "subtotal": 30730,
+    "note": "",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "0702534086",
+      "phone2": "",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-09-08"
+    },
+    "createdAt": "2025-08-27T20:34:20.098Z"
+  }
+]

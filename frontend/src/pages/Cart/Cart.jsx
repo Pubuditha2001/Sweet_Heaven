@@ -1,5 +1,6 @@
 // Cart.jsx - Shopping cart page (modern, responsive, theme-matching)
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CartItemEditor from "../../components/CartItemEditor";
 import CartItem from "../../components/CartItem";
 import { fetchAccessoryById } from "../../api/accessory";
@@ -10,6 +11,7 @@ import {
   removeCartItem,
   clearCart,
 } from "../../api/cart";
+import { fetchToppingsByRef, fetchAllToppings } from "../../api/topping";
 
 function formatRs(n) {
   return `Rs. ${Number(n || 0).toLocaleString("en-IN")}`;
@@ -21,6 +23,7 @@ export default function Cart() {
   const [items, setItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
   const [accessoryDetails, setAccessoryDetails] = useState({});
+  const navigate = useNavigate();
 
   // fetch from backend cart API using client cartId; fallback to localStorage
   useEffect(() => {
@@ -51,49 +54,155 @@ export default function Cart() {
         );
 
         // Normalize items to the shape expected by CartItem.jsx
-        const normalized = rawItems.map((it) => {
-          const det = it.details || details[it.itemId] || {};
-          const isAccessory = it.productType === "accessory";
+        const normalized = await Promise.all(
+          rawItems.map(async (it) => {
+            const det = it.details || details[it.itemId] || {};
+            const isAccessory = it.productType === "accessory";
 
-          const name = isAccessory
-            ? det.name || det.title || "Accessory"
-            : det.cakeName || det.name || "Cake";
-          const image = isAccessory ? det.image : det.cakeImage || det.image;
+            const name = isAccessory
+              ? det.name || det.title || "Accessory"
+              : det.cakeName || det.name || "Cake";
+            const image = isAccessory ? det.image : det.cakeImage || det.image;
 
-          // For cake items, try to populate size using any sizeId stored (fallback to first price)
-          let cake = null;
-          let size = undefined;
-          if (!isAccessory) {
-            cake = det || null;
-            if (det && Array.isArray(det.prices) && det.prices.length > 0) {
-              size = det.prices[0];
+            // For cake items, try to resolve size and topping prices
+            let cake = null;
+            let size = undefined;
+            let sizeIndexLocal = 0;
+            let unitPrice = 0;
+            // helpers available in outer scope of this mapping
+            const normalize = (s) =>
+              (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
+            const numeric = (str) => {
+              const m = (str || "").toString().match(/([\d.]+)/);
+              return m ? m[1] : null;
+            };
+            let toppingsWithPrices = [];
+            if (!isAccessory) {
+              cake = det || null;
+              // determine selected size: try to match stored sizeId to a price entry
+              if (det && Array.isArray(det.prices) && det.prices.length > 0) {
+                const storedSize = it.sizeId;
+                if (storedSize) {
+                  // storedSize expected to be normalized text like '1kg' or '500g'
+                  const target = normalize(storedSize);
+                  const idx = det.prices.findIndex(
+                    (p) => normalize(p.size) === target
+                  );
+                  if (idx > -1) {
+                    size = det.prices[idx];
+                    sizeIndexLocal = idx;
+                  } else {
+                    // try numeric fallback (e.g. '1kg' vs '1')
+                    const targetNum = numeric(storedSize);
+                    if (targetNum) {
+                      const idx2 = det.prices.findIndex(
+                        (p) => numeric(p.size) === targetNum
+                      );
+                      if (idx2 > -1) {
+                        size = det.prices[idx2];
+                        sizeIndexLocal = idx2;
+                      }
+                    }
+                  }
+                }
+
+                // If we still didn't find a matching size, fall back to the first price entry
+                // (keeps existing behavior for legacy/edge cases). This is only used when
+                // there is no stored size information on the cart item.
+                if (!size) {
+                  size = det.prices[0] || null;
+                  sizeIndexLocal = 0;
+                }
+
+                // base cake price (do not include toppings here) -- use the selected size price
+                const basePrice = size?.price || 0;
+                unitPrice = basePrice;
+                if (Array.isArray(it.toppings) && it.toppings.length > 0) {
+                  // if cake has a toppingRef, fetch toppings doc once
+                  let toppingDocs = [];
+                  if (det && det.toppingRef) {
+                    const td = await fetchToppingsByRef(det.toppingRef).catch(
+                      () => ({ toppings: [] })
+                    );
+                    toppingDocs = td.toppings || [];
+                  }
+                  // fallback: if no toppingRef or toppingDocs empty, try fetching all toppings
+                  if (!toppingDocs || toppingDocs.length === 0) {
+                    const all = await fetchAllToppings().catch(() => ({
+                      toppings: [],
+                    }));
+                    toppingDocs = all.toppings || [];
+                  }
+
+                  // for each topping id in cart, find the topping doc (by _id match) and determine price
+                  for (const t of it.toppings) {
+                    const tid = String(t.toppingId || t);
+                    let toppingDoc =
+                      toppingDocs.find((x) => String(x._id) === tid) || null;
+                    if (!toppingDoc) continue;
+
+                    // find price object by matching size string first
+                    let priceObj = null;
+                    const selectedSizeName =
+                      size?.size || det.prices?.[0]?.size;
+                    if (selectedSizeName) {
+                      const target = normalize(selectedSizeName);
+                      priceObj = toppingDoc.prices.find(
+                        (p) => normalize(p.size) === target
+                      );
+                    }
+                    if (!priceObj) {
+                      const targetNum = numeric(
+                        size?.size || det.prices?.[0]?.size
+                      );
+                      if (targetNum)
+                        priceObj = toppingDoc.prices.find(
+                          (p) => numeric(p.size) === targetNum
+                        );
+                    }
+                    if (!priceObj) priceObj = toppingDoc.prices[0] || null;
+
+                    toppingsWithPrices.push({
+                      _id: tid,
+                      toppingId: tid,
+                      name: toppingDoc.name,
+                      price: priceObj || { price: 0 },
+                    });
+                  }
+                }
+              }
             }
-          }
 
-          const unitPrice = isAccessory
-            ? det.price || det.unitPrice || 0
-            : size?.price || det?.price || 0;
+            // For accessories, the accessory doc may contain a flat `price` field.
+            if (isAccessory) {
+              // prefer explicit numeric fields: det.price or det.unitPrice
+              unitPrice = Number(det.price ?? det.unitPrice ?? 0);
+            }
 
-          return {
-            // keep both _id and id aliases (components use item.id)
-            _id: it._id,
-            id: it._id,
-            itemId: it.itemId,
-            productType: it.productType,
-            productCategory: isAccessory ? "accessory" : "cake",
-            qty: it.qty || 1,
-            name,
-            image,
-            unitPrice,
-            price: unitPrice,
-            cake,
-            size,
-            sizeIndex: 0,
-            toppings: it.toppings || [],
-            accessories: it.accessories || [],
-            addedAt: it.addedAt,
-          };
-        });
+            return {
+              // keep both _id and id aliases (components use item.id)
+              _id: it._id,
+              id: it._id,
+              itemId: it.itemId,
+              productType: it.productType,
+              productCategory: isAccessory ? "accessory" : "cake",
+              qty: it.qty || 1,
+              name,
+              image,
+              unitPrice,
+              price: unitPrice,
+              cake,
+              size,
+              // expose the resolved index so editors and UI can map back to product.prices
+              sizeIndex: sizeIndexLocal,
+              toppings: toppingsWithPrices.length
+                ? toppingsWithPrices
+                : it.toppings || [],
+              accessories: it.accessories || [],
+              addedAt: it.addedAt,
+            };
+          })
+        );
 
         setItems(normalized);
         setAccessoryDetails(details);
@@ -282,18 +391,27 @@ export default function Cart() {
   };
 
   const subtotal = items.reduce((sum, it) => {
-    const itemUnit = it.unitPrice || it.price || 0;
+    const qty = it.qty || 1;
+    // unit base price
+    const base = Number(it.unitPrice ?? it.price ?? 0);
+
+    // toppings (may be objects with price.price or numeric)
+    const toppingsTotal = (it.toppings || []).reduce((s, t) => {
+      const p =
+        t && typeof t === "object"
+          ? Number(t.price?.price ?? t.price ?? 0)
+          : Number(t || 0);
+      return s + (isNaN(p) ? 0 : p);
+    }, 0);
+
+    // accessories attached to this item (each accessory may have .price)
     const accessoriesTotalPerUnit = (it.accessories || []).reduce(
-      (s, a) => s + (a.price || 0),
+      (s, a) => s + Number(a.price ?? 0),
       0
     );
-    const baseUnit = Math.max(0, itemUnit - accessoriesTotalPerUnit);
-    const itemSubtotal = baseUnit * it.qty;
-    const accessoriesSubtotal = (it.accessories || []).reduce(
-      (s, a) => s + (a.price || 0) * it.qty,
-      0
-    );
-    return sum + itemSubtotal + accessoriesSubtotal;
+
+    const itemTotal = (base + toppingsTotal + accessoriesTotalPerUnit) * qty;
+    return sum + itemTotal;
   }, 0);
   const delivery = subtotal > 0 && subtotal < 1000 ? 60 : 0; // small rule
   const discount = 0; // placeholder for promo logic
@@ -330,44 +448,78 @@ export default function Cart() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              {items.map((it) => (
-                <div key={it._id || it.id}>
-                  <CartItem
-                    item={it}
-                    onIncrease={increase}
-                    onDecrease={decrease}
-                    onRemove={remove}
-                    onEdit={openEditor}
-                  />
-                </div>
-              ))}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Cakes section */}
+              {items.filter((i) => i.productType === "cake").length > 0 && (
+                <section className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-800">Cakes</h3>
+                  {items
+                    .filter((i) => i.productType === "cake")
+                    .map((it) => (
+                      <div key={it._id || it.id}>
+                        <CartItem
+                          item={it}
+                          onIncrease={increase}
+                          onDecrease={decrease}
+                          onRemove={remove}
+                          onEdit={openEditor}
+                        />
+                      </div>
+                    ))}
+                </section>
+              )}
 
-              <div className="flex items-center justify-between gap-4">
+              {/* Accessories section */}
+              {items.filter((i) => i.productType === "accessory").length >
+                0 && (
+                <section className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    Accessories
+                  </h3>
+                  {items
+                    .filter((i) => i.productType === "accessory")
+                    .map((it) => (
+                      <div key={it._id || it.id}>
+                        <CartItem
+                          item={it}
+                          onIncrease={increase}
+                          onDecrease={decrease}
+                          onRemove={remove}
+                          onEdit={openEditor}
+                        />
+                      </div>
+                    ))}
+                </section>
+              )}
+
+              {/* <div className="flex items-center justify-between gap-4">
                 <button
                   onClick={() => clear()}
-                  className="px-4 py-2 border rounded-md text-sm hover:bg-gray-50"
+                  className="px-4 py-2 border bg-red-500 rounded-md text-sm hover:bg-gray-50"
                 >
                   Clear Cart
                 </button>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 text-center">
                   You can edit quantities or remove items before checkout.
                 </div>
-              </div>
+              </div> */}
             </div>
 
-            <aside className="rounded-lg border bg-white p-6 shadow-sm w-full lg:w-auto">
+            <aside className="rounded-lg lg:mt-11 border bg-white p-6 shadow-sm w-full lg:w-auto self-start">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="font-semibold text-gray-900">Order Summary</h4>
                 <div className="text-sm text-gray-500">
-                  {items.reduce(
-                    (c, it) => c + 1 + ((it.accessories || []).length || 0),
-                    0
-                  )}{" "}
+                  {items.reduce((count, it) => {
+                    const itemQty = Number(it.qty || 1);
+                    const accessoryQty = (it.accessories || []).reduce(
+                      (s, a) => s + Number(a.qty || 1),
+                      0
+                    );
+                    return count + itemQty + accessoryQty;
+                  }, 0)}{" "}
                   items
                 </div>
               </div>
-
               <div className="space-y-2">
                 <div className="flex justify-between text-sm text-gray-600">
                   <div>Subtotal</div>
@@ -388,16 +540,12 @@ export default function Cart() {
                   </div>
                 </div>
               </div>
-
               <button
-                onClick={() =>
-                  alert("Proceeding to checkout — integrate your flow here")
-                }
+                onClick={() => navigate("/checkout", { state: { items } })}
                 className="mt-6 w-full sm:w-full md:w-full bg-pink-600 text-white py-3 rounded-md hover:bg-pink-700 font-medium"
               >
-                Checkout
+                Request Order
               </button>
-
               <div className="mt-4 text-xs text-gray-500">
                 Secure checkout · Multiple payment options · Easy returns
               </div>

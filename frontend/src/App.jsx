@@ -7,6 +7,9 @@ import ProductView from "./pages/ProductView/ProductView.jsx";
 import CustomCake from "./pages/CustomCake/CustomCake.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
+import AccessoriesPage from "./pages/Accessories/AccessoriesPage.jsx";
+import Checkout from "./pages/Checkout/Checkout.jsx";
+import CheckoutDetails from "./pages/Checkout/CheckoutDetails.jsx";
 import Hero from "./components/Hero";
 import Dashboard from "./admin/pages/Dashboard.jsx";
 import Login from "./pages/Auth/Login.jsx";
@@ -69,9 +72,12 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home ref={homeRef} />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/accessories" element={<AccessoriesPage />} />
           <Route path="/product/:id" element={<ProductView />} />
           <Route path="/custom-cake" element={<CustomCake />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout/details" element={<CheckoutDetails />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
