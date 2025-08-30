@@ -84,6 +84,12 @@ export default function ProductView() {
       setError("");
       try {
         const data = await fetchCakeById(id);
+        if (!data) {
+          setError("Product not found");
+          setProduct(null);
+          setLoading(false);
+          return;
+        }
         setProduct(data);
 
         // Set up image URL
@@ -110,7 +116,7 @@ export default function ProductView() {
         }
         setSelectedToppings([]);
       } catch (err) {
-        setError(err.message);
+        setError(err?.message || String(err));
       }
       setLoading(false);
     }

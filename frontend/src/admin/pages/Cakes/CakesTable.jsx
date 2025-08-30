@@ -69,7 +69,11 @@ export default function CakesTable() {
                 }
               } catch {}
             }
-            return { ...cake, toppingCollectionName };
+            // If cake has a toppings array of strings (new backend shape), prefer that for display.
+            const toppingsPreview = Array.isArray(cake.toppings)
+              ? cake.toppings.join(", ")
+              : toppingCollectionName;
+            return { ...cake, toppingCollectionName, toppingsPreview };
           })
         );
         setCakes(cakesWithTopping);
@@ -221,7 +225,7 @@ export default function CakesTable() {
                   Price (Min)
                 </th>
                 <th className="px-4 py-2 text-left text-pink-600 font-semibold">
-                  Toppin Type
+                  Toppings
                 </th>
                 <th className="px-4 py-2 text-left text-pink-600 font-semibold">
                   Actions
@@ -241,7 +245,9 @@ export default function CakesTable() {
                         : "-"}
                     </td>
                     <td className="px-4 py-2">
-                      {cake.toppingCollectionName || "-"}
+                      {cake.toppingsPreview ||
+                        cake.toppingCollectionName ||
+                        "-"}
                     </td>
                     <td className="px-4 py-2">
                       <div className="flex flex-row gap-2 items-center">

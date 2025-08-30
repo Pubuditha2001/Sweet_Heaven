@@ -63,9 +63,14 @@ export default function OrderItem({ item }) {
               title={it.name}
             >
               {it.name}
+              {it.changeNote ? (
+                <span className="text-xs text-gray-500">{` (${it.changeNote})`}</span>
+              ) : null}
             </div>
             {it.size && (
-              <div className="text-sm text-gray-500">Size: {it.size.size}</div>
+              <div className="text-sm text-gray-500">
+                Size: {typeof it.size === "string" ? it.size : it.size.size}
+              </div>
             )}
             {it.note && <div className="text-sm text-gray-500">{it.note}</div>}
             {it.toppings && it.toppings.length > 0 && (

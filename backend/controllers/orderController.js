@@ -8,22 +8,123 @@ function ensureDataDir() {
   if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, "[]");
 }
 
-exports.requestOrder = (req, res) => {
+// Generate a short human-friendly order ID: e.g. SH-4F6A3B
+function generateOrderId() {
+  // Use a short base36 timestamp slice + a small random suffix.
+  // Format: SH-<3chars_ts><3chars_rand> => ~6 chars after prefix.
+  const ts = Date.now().toString(36).slice(-3).toUpperCase();
+  const rnd = Math.random().toString(36).slice(2, 5).toUpperCase();
+  return `SH-${ts}${rnd}`;
+}
+
+exports.requestOrder = async (req, res) => {
   try {
     ensureDataDir();
     const payload = req.body || {};
+
+    // Normalize items: ensure each item has a size object (label + optional id) when possible
+    if (payload.items && Array.isArray(payload.items)) {
+      payload.items = payload.items.map((it) => {
+        const copy = Object.assign({}, it);
+        // ensure we capture a human-friendly name snapshot for the item
+        copy.itemName =
+          copy.itemName ||
+          copy.name ||
+          copy.cakeName ||
+          copy.productName ||
+          (copy.cake && (copy.cake.cakeName || copy.cake.name)) ||
+          (copy.accessory && (copy.accessory.name || copy.accessory.title)) ||
+          copy.productType ||
+          "Item";
+        // keep legacy 'name' field populated for older UIs
+        copy.name = copy.name || copy.itemName;
+        // If item.size is an object (from older shape), extract the label.
+        if (copy.size && typeof copy.size === "object") {
+          copy.size = copy.size.size || String(copy.size._id || "");
+        }
+        // If sizeId exists but size is missing, set size to the label if available
+        if ((!copy.size || copy.size === "") && copy.sizeId) {
+          copy.size = String(copy.sizeId);
+        }
+        // Normalize toppings to an array of simple strings (names)
+        if (copy.toppings && Array.isArray(copy.toppings)) {
+          copy.toppings = copy.toppings.map((t) => {
+            if (typeof t === "string") return t;
+            if (!t) return String(t);
+            return (
+              t.name ||
+              t.toppingName ||
+              t.toppingId ||
+              t.id ||
+              (t.topping && (t.topping.name || String(t.topping))) ||
+              String(t)
+            );
+          });
+        } else {
+          copy.toppings = [];
+        }
+        return copy;
+      });
+    }
+
+    // Ensure a human-friendly orderId is present. Allow client to provide one
+    // (for cases like resumed carts), otherwise generate it here.
+    const orderId = payload.orderId || generateOrderId();
+    let savedId = null;
+
+    // If Mongoose model is available, try to persist to MongoDB
+    if (OrderModel) {
+      try {
+        const doc = await OrderModel.create(
+          Object.assign({ status: "requested", orderId }, payload)
+        );
+        savedId = String(doc._id);
+      } catch (dbErr) {
+        console.error(
+          "Failed to save order to MongoDB, falling back to file:",
+          dbErr
+        );
+        savedId = null;
+      }
+    }
+
+    // Always keep a file-backed copy as fallback/backup
     const orders = JSON.parse(fs.readFileSync(ORDERS_FILE, "utf8") || "[]");
-    const id =
+    const fileId =
+      savedId ||
       "ord_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-    const order = Object.assign({ _id: id, status: "requested" }, payload);
+    const order = Object.assign(
+      { _id: fileId, status: "requested", orderId },
+      payload
+    );
     orders.push(order);
     fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
 
-    // In a real app you'd notify admins (email/webhook). Here we'll just return success.
-    res.status(201).json({ ok: true, id: order._id });
+    // Prepare the order object to return/emit
+    const savedOrder = Object.assign(
+      { _id: savedId || fileId, orderId },
+      order
+    );
+
+    // Emit real-time event if Socket.IO is available
+    try {
+      const io = req.app && req.app.locals && req.app.locals.io;
+      if (io && typeof io.emit === "function") {
+        io.emit("new_order", savedOrder);
+      }
+    } catch (emitErr) {
+      console.error("Failed to emit new_order event:", emitErr);
+    }
+
+    // Return whichever id is authoritative (Mongo id if saved, else file id)
+    return res
+      .status(201)
+      .json({ ok: true, id: savedId || fileId, orderId, order: savedOrder });
   } catch (e) {
     console.error("Failed to save order request", e);
-    res.status(500).json({ ok: false, error: "Failed to request order" });
+    return res
+      .status(500)
+      .json({ ok: false, error: "Failed to request order" });
   }
 };
 

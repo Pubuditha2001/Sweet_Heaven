@@ -8,10 +8,15 @@ export async function fetchAccessories() {
   return res.json();
 }
 
+const _missingAccessoryIds = new Set();
+
 export async function fetchAccessoryById(id) {
+  if (!id) return null;
+  if (_missingAccessoryIds.has(String(id))) return null;
+
   const res = await fetch(`/api/accessories/${id}`);
   if (!res.ok) {
-    // Handle error
+    _missingAccessoryIds.add(String(id));
     return null;
   }
   return res.json();

@@ -51,9 +51,42 @@ export default function Checkout() {
   const handleRequest = async () => {
     if (!items || items.length === 0) return;
     setSubmitting(true);
+    // build a compact item list (no embedded product objects/images) to avoid large payloads
+    const compactItems = (items || []).map((it) => {
+      const sizeLabel =
+        (typeof it.size === "string" ? it.size : it.size?.size) ||
+        it.sizeId ||
+        null;
+      const itemId =
+        it.itemId ||
+        it.productId ||
+        it.id ||
+        it._id ||
+        (it.cake && (it.cake._id || it.cake.id)) ||
+        undefined;
+      return {
+        itemId,
+        name: it.name || it.cakeName || it.productName || "Item",
+        qty: Number(it.qty || 1),
+        price: Number(it.unitPrice ?? it.price ?? 0),
+        size: sizeLabel || undefined,
+        toppings: (it.toppings || []).map((t) =>
+          typeof t === "string"
+            ? t
+            : t?.name || t?.toppingName || t?.toppingId || t?.id || String(t)
+        ),
+        accessories: (it.accessories || []).map((a) => ({
+          name: a?.name || a?.accessoryName || String(a?.id || ""),
+          price: Number(a?.price ?? 0),
+        })),
+        productType: it.productType || it.productCategory || undefined,
+        note: it.note || undefined,
+      };
+    });
+
     const payload = {
       clientCartId: localStorage.getItem("client_cart_id") || null,
-      items,
+      items: compactItems,
       subtotal,
       note,
       createdAt: new Date().toISOString(),
@@ -79,9 +112,33 @@ export default function Checkout() {
   const requestOrderWithDetails = async () => {
     if (!items || items.length === 0) return;
     setSubmitting(true);
+    const compactItems = (items || []).map((it) => {
+      const sizeLabel =
+        (typeof it.size === "string" ? it.size : it.size?.size) ||
+        it.sizeId ||
+        null;
+      return {
+        name: it.name || it.cakeName || it.productName || "Item",
+        qty: Number(it.qty || 1),
+        price: Number(it.unitPrice ?? it.price ?? 0),
+        size: sizeLabel || undefined,
+        toppings: (it.toppings || []).map((t) => ({
+          name:
+            typeof t === "object" ? t.name || t.toppingId || t.id : String(t),
+          price: Number(t?.price?.price ?? t?.price ?? 0),
+        })),
+        accessories: (it.accessories || []).map((a) => ({
+          name: a?.name || a?.accessoryName || String(a?.id || ""),
+          price: Number(a?.price ?? 0),
+        })),
+        productType: it.productType || it.productCategory || undefined,
+        note: it.note || undefined,
+      };
+    });
+
     const payload = {
       clientCartId: localStorage.getItem("client_cart_id") || null,
-      items,
+      items: compactItems,
       subtotal,
       note,
       clientDetails,
@@ -111,7 +168,9 @@ export default function Checkout() {
           <div className="space-y-4">
             {step === 1 && (
               <div>
-                <h3 className="text-lg font-medium p-2">Confirm items</h3>
+                <h3 className="text-lg font-medium p-2 text-gray-700">
+                  Confirm items
+                </h3>
                 <div className="space-y-2 p-2">
                   {(items || []).map((it) => (
                     <OrderItem key={it.id || it._id} item={it} />

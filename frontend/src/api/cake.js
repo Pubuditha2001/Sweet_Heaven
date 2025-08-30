@@ -5,9 +5,18 @@ export async function fetchCakes() {
   return res.json();
 }
 
+const _missingCakeIds = new Set();
+
 export async function fetchCakeById(id) {
+  if (!id) return null;
+  if (_missingCakeIds.has(String(id))) return null;
+
   const res = await fetch(`/api/cakes/${id}`);
-  if (!res.ok) throw new Error("Product not found");
+  if (!res.ok) {
+    // Track missing ids so we don't repeatedly call the server for the same missing product
+    _missingCakeIds.add(String(id));
+    return null;
+  }
   return res.json();
 }
 // Admin Cake API helpers

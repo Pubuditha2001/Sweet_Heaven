@@ -83,3 +83,16 @@ npm start
 ---
 
 For more details, see code comments in each file.
+
+## Create an admin user (local setup)
+
+1. Ensure you have a `.env` file at the project root (copy from `.env.example`).
+2. Install dependencies and run the create script:
+
+```bash
+cd backend
+npm install
+node scripts/createAdmin.js admin_username admin_password
+```
+
+This script connects to the MongoDB defined in `MONGO_URI` and creates an admin user that you can use to login to the admin UI.

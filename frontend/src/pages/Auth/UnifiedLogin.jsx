@@ -1,11 +1,19 @@
 import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./auth.css";
 
-export default function Login({ onLogin }) {
+export default function UnifiedLogin({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // decide mode: admin if ?admin=1 or path includes /admin/login
+  const params = new URLSearchParams(location.search);
+  const isAdmin =
+    params.get("admin") === "1" || location.pathname.includes("/admin");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,9 +27,19 @@ export default function Login({ onLogin }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
-      if (!data.user.isAdmin) throw new Error("Not an admin account");
-      localStorage.setItem("adminToken", data.token);
+
+      if (isAdmin) {
+        if (!data.user || !data.user.isAdmin)
+          throw new Error("Not an admin account");
+        localStorage.setItem("adminToken", data.token);
+      } else {
+        localStorage.setItem("token", data.token);
+      }
+
       if (onLogin) onLogin(data.user);
+      // redirect back where applicable
+      const next = params.get("next") || (isAdmin ? "/admin" : "/");
+      navigate(next);
     } catch (err) {
       setError(err.message);
     }
@@ -31,7 +49,7 @@ export default function Login({ onLogin }) {
   return (
     <div className="auth-container">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Admin Login</h2>
+        <h2>{isAdmin ? "Admin Login" : "Login"}</h2>
         <input
           type="text"
           placeholder="Username"

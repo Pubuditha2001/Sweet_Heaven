@@ -35,6 +35,14 @@ export default function EditCakePage() {
       setError("");
       try {
         const data = await fetchCakeById(id);
+        // If the cake was not found on the server, fetchCakeById returns null
+        if (!data) {
+          setError("Product not found");
+          setCake(null);
+          setInitialCake(null);
+          setLoading(false);
+          return;
+        }
         // If cake has toppingRef, fetch that topping doc to get collectionName
         const updatedCake = { ...data };
         // normalize toppingRef to string when present

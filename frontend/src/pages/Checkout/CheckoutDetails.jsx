@@ -46,9 +46,42 @@ export default function CheckoutDetails() {
   const requestOrderWithDetails = async () => {
     if (!items || items.length === 0) return;
     setSubmitting(true);
+    // build compact items (avoid sending embedded product objects/images)
+    const compactItems = (items || []).map((it) => {
+      const sizeLabel =
+        (typeof it.size === "string" ? it.size : it.size?.size) ||
+        it.sizeId ||
+        null;
+      const itemId =
+        it.itemId ||
+        it.productId ||
+        it.id ||
+        it._id ||
+        (it.cake && (it.cake._id || it.cake.id)) ||
+        undefined;
+      return {
+        itemId,
+        name: it.name || it.cakeName || it.productName || "Item",
+        qty: Number(it.qty || 1),
+        price: Number(it.unitPrice ?? it.price ?? 0),
+        size: sizeLabel || undefined,
+        toppings: (it.toppings || []).map((t) =>
+          typeof t === "string"
+            ? t
+            : t?.name || t?.toppingName || t?.toppingId || t?.id || String(t)
+        ),
+        accessories: (it.accessories || []).map((a) => ({
+          name: a?.name || a?.accessoryName || String(a?.id || ""),
+          price: Number(a?.price ?? 0),
+        })),
+        productType: it.productType || it.productCategory || undefined,
+        note: it.note || undefined,
+      };
+    });
+
     const payload = {
       clientCartId: localStorage.getItem("client_cart_id") || null,
-      items,
+      items: compactItems,
       subtotal,
       note,
       clientDetails,
@@ -57,9 +90,16 @@ export default function CheckoutDetails() {
     };
 
     try {
-      await requestOrder(payload);
+      const res = await requestOrder(payload);
       localStorage.removeItem("cart");
-      navigate("/", { replace: true, state: { orderRequested: true } });
+      navigate("/order-requested", {
+        replace: true,
+        state: {
+          id: res.id,
+          contactMethod: clientDetails?.confirmationMethod,
+          order: { items: compactItems, subtotal, note },
+        },
+      });
     } catch (e) {
       console.error(e);
       alert("Failed to send order request. Please try again later.");
@@ -111,7 +151,7 @@ export default function CheckoutDetails() {
                   <textarea
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="w-full border rounded bg-white p-2 mt-1"
+                    className="w-full border text-gray-700 rounded bg-white p-2 mt-1"
                     rows={3}
                   />
                 </div>
