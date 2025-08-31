@@ -21,6 +21,11 @@ exports.requestOrder = async (req, res) => {
   try {
     ensureDataDir();
     const payload = req.body || {};
+    console.log("requestOrder payload (short):", {
+      items: Array.isArray(payload.items) ? payload.items.length : 0,
+      hasClientDetails: !!payload.clientDetails,
+      subtotal: payload.subtotal,
+    });
 
     // Normalize items: ensure each item has a size object (label + optional id) when possible
     if (payload.items && Array.isArray(payload.items)) {
@@ -89,22 +94,34 @@ exports.requestOrder = async (req, res) => {
     }
 
     // Always keep a file-backed copy as fallback/backup
-    const orders = JSON.parse(fs.readFileSync(ORDERS_FILE, "utf8") || "[]");
+    let orders = [];
+    try {
+      orders = JSON.parse(fs.readFileSync(ORDERS_FILE, "utf8") || "[]");
+    } catch (rfErr) {
+      console.error("Failed to read orders file, will recreate:", rfErr);
+      orders = [];
+    }
     const fileId =
       savedId ||
       "ord_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
-    const order = Object.assign(
+    const orderObj = Object.assign(
       { _id: fileId, status: "requested", orderId },
       payload
     );
-    orders.push(order);
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+    orders.push(orderObj);
+    try {
+      fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+    } catch (wfErr) {
+      console.error("Failed to write orders file:", wfErr);
+      throw wfErr;
+    }
 
     // Prepare the order object to return/emit
     const savedOrder = Object.assign(
       { _id: savedId || fileId, orderId },
-      order
+      orderObj
     );
+    console.log("Saved order (returned):", JSON.stringify(savedOrder, null, 2));
 
     // Emit real-time event if Socket.IO is available
     try {

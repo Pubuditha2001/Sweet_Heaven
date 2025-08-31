@@ -51,85 +51,47 @@ export async function generateOrderPdf(order) {
       );
     y += 18;
 
-    // Client details
+    // --- Use OrderView logic for extracting customer details ---
     doc.setFont("helvetica", "bold");
     doc.text("Customer", left, y);
     doc.setFont("helvetica", "normal");
     y += 14;
-    // normalize client details: various servers use different keys and nesting
-    const client =
-      src.clientDetails ||
-      src.client ||
-      src.customer ||
-      src.client_detail ||
-      src.item?.clientDetails ||
-      {};
 
-    // fallback: try to find a client-like object anywhere in src (limited depth)
-    function findClient(obj, depth = 0) {
-      if (!obj || depth > 3) return null;
-      if (typeof obj !== "object") return null;
-      const hasName = obj.name && typeof obj.name === "string";
-      const hasPhone = obj.phone || obj.phone2 || obj.phone_2;
-      const hasEmail = obj.email;
-      const hasAddress = obj.address;
-      if (hasName && (hasPhone || hasEmail || hasAddress)) return obj;
-      for (const k of Object.keys(obj)) {
-        try {
-          const v = obj[k];
-          if (v && typeof v === "object") {
-            const found = findClient(v, depth + 1);
-            if (found) return found;
-          }
-        } catch (e) {
-          // ignore
-        }
-      }
-      return null;
+    // --- Use the exact logic from OrderView.jsx for extracting customer details ---
+    // Prefer clientDetails, fallback to top-level fields if missing
+    const details = src.clientDetails || {};
+
+    function displayField(label, value) {
+      doc.text(`${label}: ${value ?? "-"}`, left, y);
+      y += 14;
     }
 
-    const resolvedClient = Object.keys(client || {}).length
-      ? client
-      : findClient(src) || {};
-    if (resolvedClient.name) {
-      doc.text(`Name: ${resolvedClient.name}`, left, y);
-      y += 14;
-    }
-    if (resolvedClient.phone) {
-      doc.text(`Phone: ${resolvedClient.phone}`, left, y);
-      y += 14;
-    }
-    const secondaryPhone =
-      resolvedClient.phone2 ||
-      resolvedClient.phone_2 ||
-      resolvedClient.secondaryPhone ||
-      resolvedClient.secondary_phone ||
-      resolvedClient.secondary ||
-      resolvedClient.secondaryPhoneNumber ||
-      resolvedClient.secondaryPhoneNumber ||
-      null;
-    // always show secondary phone; display 'None' when empty
-    const secondaryPhoneDisplay = secondaryPhone
-      ? String(secondaryPhone)
-      : "None";
-    doc.text(`Secondary phone: ${secondaryPhoneDisplay}`, left, y);
-    y += 14;
-    if (resolvedClient.email) {
-      doc.text(`Email: ${resolvedClient.email}`, left, y);
-      y += 14;
-    }
-    if (resolvedClient.scheduledDate) {
-      doc.text(`Scheduled: ${resolvedClient.scheduledDate}`, left, y);
-      y += 14;
-    }
-    if (resolvedClient.address) {
+    displayField("Name", details.name || src.name);
+    displayField("Primary phone", details.phone || src.phone);
+    displayField(
+      "Secondary phone",
+      details.phone2 ||
+        details.secondaryPhone ||
+        src.phone2 ||
+        src.secondaryPhone
+    );
+    displayField("Email", details.email || src.email);
+    displayField(
+      "Confirmation method",
+      details.confirmationMethod || src.confirmationMethod
+    );
+    displayField("Scheduled Date", details.scheduledDate || src.scheduledDate);
+    if (details.address || src.address) {
       const addrLines = doc.splitTextToSize(
-        `Address: ${resolvedClient.address}`,
+        `Address: ${details.address || src.address}`,
         right - left
       );
       doc.text(addrLines, left, y);
       y += addrLines.length * 12 + 4;
+    } else {
+      displayField("Address", undefined);
     }
+    displayField("Note", src.note || src.notes);
 
     y += 4;
     doc.setLineWidth(0.5);
@@ -275,11 +237,10 @@ export async function generateOrderPdf(order) {
       y += noteLines.length * 12 + 8;
     }
 
-    // contact / confirmation method - use client first then top-level fallback
+    // contact / confirmation method - use clientDetails first then top-level fallback
     const confirmationMethod =
-      client.confirmationMethod ||
+      (src.clientDetails && src.clientDetails.confirmationMethod) ||
       src.confirmationMethod ||
-      src.clientDetails?.confirmationMethod ||
       src.item?.confirmationMethod ||
       null;
     if (confirmationMethod) {

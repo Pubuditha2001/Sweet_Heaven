@@ -51,6 +51,7 @@ export default function UnifiedLogin({ onLogin }) {
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>{isAdmin ? "Admin Login" : "Login"}</h2>
         <input
+          className="bg-gray-100 border border-gray-300 rounded p-2 mb-4 w-full"
           type="text"
           placeholder="Username"
           value={username}
@@ -58,6 +59,7 @@ export default function UnifiedLogin({ onLogin }) {
           required
         />
         <input
+          className="bg-gray-100 border border-gray-300 rounded p-2 mb-4 w-full"
           type="password"
           placeholder="Password"
           value={password}

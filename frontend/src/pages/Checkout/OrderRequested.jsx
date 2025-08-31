@@ -7,32 +7,28 @@ export default function OrderRequested() {
   const navigate = useNavigate();
   const state = location.state || {};
 
-  // Accept either { order: { ... } } or { item: { ... } } or the order itself
-  const order = state.order || state.item || state;
-  const orderId = order?.orderId || state.id || null;
+  // Use the same unwrapping logic as OrderView.jsx
+  let order = state && (state.item || state.order || state);
+  // Deeply unwrap if there are multiple wrapper layers
+  while (order && order.item) order = order.item;
+  const orderId = order?.orderId || order?.id || null;
   const contactMethod =
-    state.contactMethod || order?.clientDetails?.confirmationMethod || null;
+    order?.clientDetails?.confirmationMethod ||
+    order?.confirmationMethod ||
+    null;
 
   const download = async () => {
     try {
-      // Use the same call pattern as admin OrderView: pass the full order when
-      // available, otherwise pass a minimal object containing orderId/contactMethod.
+      // Always pass the fully unwrapped order object
       await generateOrderPdf(order || { orderId, contactMethod });
     } catch (e) {
       console.error(e);
-      // fallback: download JSON
-      const blob = new Blob(
-        [
-          JSON.stringify(
-            order
-              ? { ...order, orderId, contactMethod }
-              : { orderId, contactMethod },
-            null,
-            2
-          ),
-        ],
-        { type: "application/json" }
-      );
+      // fallback: download JSON with all order fields (including customer details)
+      const fullOrder =
+        order && typeof order === "object" ? order : { orderId, contactMethod };
+      const blob = new Blob([JSON.stringify(fullOrder, null, 2)], {
+        type: "application/json",
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

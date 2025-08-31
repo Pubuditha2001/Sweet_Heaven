@@ -92,12 +92,18 @@ export default function CheckoutDetails() {
     try {
       const res = await requestOrder(payload);
       localStorage.removeItem("cart");
+      // Prefer backend returned order (res.order) so it includes saved clientDetails
+      const returnedOrder = (res && (res.order || res.item)) || {
+        items: compactItems,
+        subtotal,
+        note,
+      };
       navigate("/order-requested", {
         replace: true,
         state: {
           id: res.id,
           contactMethod: clientDetails?.confirmationMethod,
-          order: { items: compactItems, subtotal, note },
+          order: returnedOrder,
         },
       });
     } catch (e) {
