@@ -27,20 +27,25 @@ export async function generateOrderPdf(order) {
     doc.line(left, y, right, y);
     y += 12;
 
-    // Order meta - detect id from several possible fields and make it more visible
+    // Unwrap server wrapper if present: some responses are { ok:true, item: { ... } }
+    let src = (order && order.item) || order;
+    // deeply unwrap if there are multiple wrapper layers (e.g., { item: { item: { ... } } })
+    while (src && src.item) src = src.item;
+
+    // Order meta - detect id from several possible fields and prefer orderId
     const id =
-      (order &&
-        (order.id ||
-          order._id ||
-          order.orderId ||
-          order._id?._str ||
-          order._id?.toString())) ||
+      (src &&
+        (src.orderId ||
+          src.id ||
+          src._id ||
+          src._id?._str ||
+          (src._id && src._id.toString && src._id.toString()))) ||
       "-";
     doc.setFontSize(11);
     doc.text(`Order id: ${id}`, left, y);
-    if (order.createdAt)
+    if (src && src.createdAt)
       doc.text(
-        `Created: ${new Date(order.createdAt).toLocaleString()}`,
+        `Created: ${new Date(src.createdAt).toLocaleString()}`,
         right - 150,
         y
       );
@@ -51,23 +56,57 @@ export async function generateOrderPdf(order) {
     doc.text("Customer", left, y);
     doc.setFont("helvetica", "normal");
     y += 14;
-    const client = order.clientDetails || {};
-    if (client.name) {
-      doc.text(`Name: ${client.name}`, left, y);
+    // normalize client details: various servers use different keys and nesting
+    const client =
+      src.clientDetails ||
+      src.client ||
+      src.customer ||
+      src.client_detail ||
+      src.item?.clientDetails ||
+      {};
+
+    // fallback: try to find a client-like object anywhere in src (limited depth)
+    function findClient(obj, depth = 0) {
+      if (!obj || depth > 3) return null;
+      if (typeof obj !== "object") return null;
+      const hasName = obj.name && typeof obj.name === "string";
+      const hasPhone = obj.phone || obj.phone2 || obj.phone_2;
+      const hasEmail = obj.email;
+      const hasAddress = obj.address;
+      if (hasName && (hasPhone || hasEmail || hasAddress)) return obj;
+      for (const k of Object.keys(obj)) {
+        try {
+          const v = obj[k];
+          if (v && typeof v === "object") {
+            const found = findClient(v, depth + 1);
+            if (found) return found;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+      return null;
+    }
+
+    const resolvedClient = Object.keys(client || {}).length
+      ? client
+      : findClient(src) || {};
+    if (resolvedClient.name) {
+      doc.text(`Name: ${resolvedClient.name}`, left, y);
       y += 14;
     }
-    if (client.phone) {
-      doc.text(`Phone: ${client.phone}`, left, y);
+    if (resolvedClient.phone) {
+      doc.text(`Phone: ${resolvedClient.phone}`, left, y);
       y += 14;
     }
     const secondaryPhone =
-      client.phone2 ||
-      client.phone_2 ||
-      client.secondaryPhone ||
-      client.secondary_phone ||
-      client.secondary ||
-      client.secondaryPhoneNumber ||
-      client.secondaryPhoneNumber ||
+      resolvedClient.phone2 ||
+      resolvedClient.phone_2 ||
+      resolvedClient.secondaryPhone ||
+      resolvedClient.secondary_phone ||
+      resolvedClient.secondary ||
+      resolvedClient.secondaryPhoneNumber ||
+      resolvedClient.secondaryPhoneNumber ||
       null;
     // always show secondary phone; display 'None' when empty
     const secondaryPhoneDisplay = secondaryPhone
@@ -75,17 +114,17 @@ export async function generateOrderPdf(order) {
       : "None";
     doc.text(`Secondary phone: ${secondaryPhoneDisplay}`, left, y);
     y += 14;
-    if (client.email) {
-      doc.text(`Email: ${client.email}`, left, y);
+    if (resolvedClient.email) {
+      doc.text(`Email: ${resolvedClient.email}`, left, y);
       y += 14;
     }
-    if (client.scheduledDate) {
-      doc.text(`Scheduled: ${client.scheduledDate}`, left, y);
+    if (resolvedClient.scheduledDate) {
+      doc.text(`Scheduled: ${resolvedClient.scheduledDate}`, left, y);
       y += 14;
     }
-    if (client.address) {
+    if (resolvedClient.address) {
       const addrLines = doc.splitTextToSize(
-        `Address: ${client.address}`,
+        `Address: ${resolvedClient.address}`,
         right - left
       );
       doc.text(addrLines, left, y);
@@ -107,13 +146,36 @@ export async function generateOrderPdf(order) {
     y += 14;
 
     // Items list
-    const items = order.items || [];
+    // Items: accept src.items or src.item.items or src.items array; then sort cakes first
+    const rawItems = src.items || (src.item && src.item.items) || [];
+    const items = Array.isArray(rawItems)
+      ? rawItems.slice().sort((a, b) => {
+          const aType = (
+            a.productType ||
+            a.productCategory ||
+            ""
+          ).toLowerCase();
+          const bType = (
+            b.productType ||
+            b.productCategory ||
+            ""
+          ).toLowerCase();
+          // cakes first
+          if (aType === bType) return 0;
+          if (aType === "cake") return -1;
+          if (bType === "cake") return 1;
+          return 0;
+        })
+      : [];
     const pageHeight = 820;
     for (let it of items) {
-      // resolve item title
+      // resolve item title - prefer stored/display name fields when present
       let title =
+        it.itemName ||
         it.name ||
         it.cakeName ||
+        // if a product object is embedded, prefer its name/cakeName
+        (it.product && (it.product.cakeName || it.product.name)) ||
         (it.details && (it.details.cakeName || it.details.name)) ||
         it.itemId ||
         it.productType ||
@@ -196,7 +258,7 @@ export async function generateOrderPdf(order) {
     doc.setLineWidth(0.5);
     doc.line(left, y, right, y);
     y += 12;
-    const subtotal = Number(order.subtotal || 0);
+    const subtotal = Number(src.subtotal || src.item?.subtotal || 0);
     doc.setFont("helvetica", "bold");
     // place subtotal label aligned to the unit column and amount at the total column
     doc.text("Subtotal", xUnit, y, { align: "right" });
@@ -206,22 +268,22 @@ export async function generateOrderPdf(order) {
     doc.setFont("helvetica", "normal");
     y += 20;
 
-    if (order.note) {
-      const noteLines = doc.splitTextToSize(
-        `Note: ${order.note}`,
-        right - left
-      );
+    const theNote = src.note || src.item?.note || null;
+    if (theNote) {
+      const noteLines = doc.splitTextToSize(`Note: ${theNote}`, right - left);
       doc.text(noteLines, left, y);
       y += noteLines.length * 12 + 8;
     }
 
-    // contact method
-    if (order.clientDetails && order.clientDetails.confirmationMethod) {
-      doc.text(
-        `Confirmation method: ${order.clientDetails.confirmationMethod}`,
-        left,
-        y
-      );
+    // contact / confirmation method - use client first then top-level fallback
+    const confirmationMethod =
+      client.confirmationMethod ||
+      src.confirmationMethod ||
+      src.clientDetails?.confirmationMethod ||
+      src.item?.confirmationMethod ||
+      null;
+    if (confirmationMethod) {
+      doc.text(`Confirmation method: ${confirmationMethod}`, left, y);
       y += 16;
     }
 

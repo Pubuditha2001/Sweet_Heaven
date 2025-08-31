@@ -162,12 +162,12 @@ export default function CakesTable() {
           placeholder="Search by name..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
+          className="border border-pink-300 bg-white rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         />
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
+          className="border border-pink-300 bg-white rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         >
           <option value="">All Categories</option>
           {[...new Set(cakes.map((c) => c.category))].map((cat) => (
@@ -181,19 +181,19 @@ export default function CakesTable() {
           placeholder="Min Price"
           value={priceMin}
           onChange={(e) => setPriceMin(e.target.value)}
-          className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
+          className="border border-pink-300 bg-white rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         />
         <input
           type="number"
           placeholder="Max Price"
           value={priceMax}
           onChange={(e) => setPriceMax(e.target.value)}
-          className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
+          className="border border-pink-300 bg-white rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         />
         <select
           value={toppingFilter}
           onChange={(e) => setToppingFilter(e.target.value)}
-          className="border border-pink-300 rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
+          className="border border-pink-300 bg-white rounded-full px-4 py-2 w-full max-w-xs focus:outline-none focus:border-pink-600"
         >
           <option value="">All Topping Types</option>
           {toppings.map((t) => (

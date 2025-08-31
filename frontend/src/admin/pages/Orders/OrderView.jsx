@@ -14,6 +14,8 @@ export default function OrderView() {
   const [productMap, setProductMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // phone action menu state: stores the phone value currently showing the menu
+  const [phoneMenuFor, setPhoneMenuFor] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -140,7 +142,7 @@ export default function OrderView() {
         if (embedded) {
           const key = pid || embedded._id || embedded.id || null;
           if (key) {
-            results[key] = embedded;
+            results[String(key)] = embedded;
             continue;
           }
           continue;
@@ -155,10 +157,10 @@ export default function OrderView() {
           promises.push(
             fetchCakeById(cid)
               .then((res) => {
-                results[cid] = (res && (res.item || res)) || null;
+                results[String(cid)] = (res && (res.item || res)) || null;
               })
               .catch(() => {
-                results[cid] = null;
+                results[String(cid)] = null;
               })
           );
         }
@@ -169,10 +171,10 @@ export default function OrderView() {
           promises.push(
             fetchAccessoryById(aid)
               .then((res) => {
-                results[aid] = (res && (res.item || res)) || null;
+                results[String(aid)] = (res && (res.item || res)) || null;
               })
               .catch(() => {
-                results[aid] = null;
+                results[String(aid)] = null;
               })
           );
         }
@@ -191,9 +193,63 @@ export default function OrderView() {
     return src.replace(/^\.\/?/, "/");
   }
 
+  // normalize phone for tel: href (digits only)
+  function normalizeTel(phone) {
+    if (!phone) return "";
+    return String(phone).replace(/[^0-9+]/g, "");
+  }
+
+  // format phone for display (simple grouping for 10-digit numbers)
+  function formatPhoneForDisplay(phone) {
+    if (!phone) return phone;
+    const s = String(phone).replace(/[^0-9]/g, "");
+    if (s.length === 10) {
+      return `${s.slice(0, 3)} ${s.slice(3, 6)} ${s.slice(6)}`;
+    }
+    if (s.length === 9) {
+      return `${s.slice(0, 2)} ${s.slice(2, 5)} ${s.slice(5)}`;
+    }
+    return phone;
+  }
+
+  // prepare number for WhatsApp wa.me links: if starts with 0 replace with 94
+  function whatsappNumber(phone) {
+    if (!phone) return "";
+    let digits = String(phone).replace(/[^0-9]/g, "");
+    if (digits.length === 0) return "";
+    if (digits.startsWith("0")) {
+      // drop leading zero and add country code 94
+      return `94${digits.slice(1)}`;
+    }
+    if (digits.startsWith("94")) return digits;
+    // fallback: return digits as-is
+    return digits;
+  }
+
+  function openPhoneMenu(phoneKey) {
+    setPhoneMenuFor(phoneKey);
+  }
+
+  function closePhoneMenu() {
+    setPhoneMenuFor(null);
+  }
+
+  function performPhoneAction(phone, action) {
+    const tel = normalizeTel(phone);
+    const wa = whatsappNumber(phone);
+    if (action === "whatsapp") {
+      if (wa)
+        window.open(`https://wa.me/${wa}`, "_blank", "noopener noreferrer");
+    } else if (action === "call") {
+      if (tel) window.location.href = `tel:${tel}`;
+    }
+    closePhoneMenu();
+  }
+
   const downloadPDF = async () => {
     try {
-      await generateOrderPdf(order || { id });
+      // prefer the authoritative order object; if missing, pass orderId (not id)
+      await generateOrderPdf(order || { orderId: order?.orderId || id });
     } catch (e) {
       alert("Failed to generate PDF: " + (e.message || e));
     }
@@ -335,8 +391,26 @@ export default function OrderView() {
                   <div className="w-36 text-sm text-gray-400 ">
                     Primary phone
                   </div>
-                  <div className="flex-1 text-right text-sm text-gray-800 font-medium">
-                    {order.clientDetails?.phone || "-"}
+                  <div className="flex-1 text-right text-sm text-gray-800 font-medium selectable relative">
+                    {order.clientDetails?.phone ? (
+                      <>
+                        <button
+                          onClick={() =>
+                            openPhoneMenu({
+                              key: "primary",
+                              value: order.clientDetails?.phone,
+                            })
+                          }
+                          className="text-pink-600 no-underline"
+                          title="Choose action"
+                        >
+                          {formatPhoneForDisplay(order.clientDetails?.phone)}
+                        </button>
+                        {/* popup handled globally */}
+                      </>
+                    ) : (
+                      "-"
+                    )}
                   </div>
                 </div>
 
@@ -344,17 +418,48 @@ export default function OrderView() {
                   <div className="w-36 text-sm text-gray-400 ">
                     Secondary phone
                   </div>
-                  <div className="flex-1 text-right text-sm text-gray-800 font-medium">
+                  <div className="flex-1 text-right text-sm text-gray-800 font-medium selectable relative">
                     {order.clientDetails?.phone2 ||
-                      order.clientDetails?.secondaryPhone ||
-                      "-"}
+                    order.clientDetails?.secondaryPhone ? (
+                      <>
+                        <button
+                          onClick={() =>
+                            openPhoneMenu({
+                              key: "secondary",
+                              value:
+                                order.clientDetails?.phone2 ||
+                                order.clientDetails?.secondaryPhone,
+                            })
+                          }
+                          className="text-pink-600 no-underline"
+                          title="Choose action"
+                        >
+                          {formatPhoneForDisplay(
+                            order.clientDetails?.phone2 ||
+                              order.clientDetails?.secondaryPhone
+                          )}
+                        </button>
+                        {/* popup handled globally */}
+                      </>
+                    ) : (
+                      "-"
+                    )}
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <div className="w-36 text-sm text-gray-400 ">Email</div>
-                  <div className="flex-1 text-right text-sm text-gray-800 font-medium break-words">
-                    {order.clientDetails?.email || "-"}
+                  <div className="flex-1 text-right text-sm text-gray-800 font-medium break-words selectable">
+                    {order.clientDetails?.email ? (
+                      <a
+                        className="text-pink-600 no-underline"
+                        href={`mailto:${order.clientDetails?.email}`}
+                      >
+                        {order.clientDetails?.email}
+                      </a>
+                    ) : (
+                      "-"
+                    )}
                   </div>
                 </div>
 
@@ -452,14 +557,30 @@ export default function OrderView() {
               <h3 className="font-semibold text-pink-400">Items</h3>
               <div className="mt-3 space-y-3 rounded">
                 {orderedItems.map((it, idx) => {
-                  const pid = it.itemId || it.id || it._id;
+                  // Resolve product id using the same logic as loadProductsForOrder
+                  const explicitType = it.productType || it.type;
+                  // Try many possible id locations used across legacy and new payloads
+                  const pid =
+                    it.itemId ||
+                    it.productId ||
+                    (it.product && (it.product._id || it.product.id)) ||
+                    it.id ||
+                    it._id ||
+                    (it.cake && (it.cake._id || it.cake.id)) ||
+                    (it.accessory && (it.accessory._id || it.accessory.id)) ||
+                    null;
+
                   const embedded =
                     it.cake || it.accessory || it.product || it.item || null;
-                  let product = (pid && productMap[pid]) || embedded || null;
+                  let product = null;
+                  if (pid)
+                    product =
+                      productMap[pid] || productMap[String(pid)] || null;
+                  product = product || embedded || null;
                   if (!product && pid) {
+                    const pidStr = String(pid);
                     const found = Object.values(productMap).find((p) => {
                       if (!p) return false;
-                      const pidStr = String(pid);
                       return (
                         String(p._id || p.id || "") === pidStr ||
                         String(p._id?._str || "") === pidStr
@@ -562,6 +683,68 @@ export default function OrderView() {
           </div>
         </div>
 
+        {/* Phone action modal (centred popup) */}
+        {phoneMenuFor ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black opacity-30"
+              onClick={closePhoneMenu}
+            />
+            <div className="relative bg-white rounded-lg shadow-lg w-80 p-4 z-60">
+              <div className="text-lg font-semibold mb-2">Open with</div>
+              <div className="space-y-2">
+                <button
+                  onClick={() => performPhoneAction(phoneMenuFor.value, "call")}
+                  className="w-full px-3 py-2 bg-gray-100 rounded hover:bg-gray-200 flex items-center gap-2"
+                  aria-label="Open in phone app"
+                >
+                  <svg
+                    className="h-5 w-5 text-gray-700"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 5a2 2 0 012-2h2.6a1 1 0 01.95.684l.8 2.7a1 1 0 01-.217.92L7.4 10.6a11.042 11.042 0 005 5l2.296-2.33a1 1 0 01.92-.217l2.7.8A1 1 0 0119 17.4V20a2 2 0 01-2 2h-1C9.715 22 2 14.285 2 5V5z"
+                    />
+                  </svg>
+                  <span>Phone app</span>
+                </button>
+                <button
+                  onClick={() =>
+                    performPhoneAction(phoneMenuFor.value, "whatsapp")
+                  }
+                  className="w-full px-3 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 flex items-center gap-2"
+                  aria-label="Open in WhatsApp"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.028-.967-.271-.099-.469-.148-.668.15-.198.297-.767.967-.94 1.166-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.447-.52.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.668-1.611-.915-2.207-.242-.579-.487-.5-.668-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.075-.792.372-.271.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.356.711.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.075-.124-.271-.198-.571-.347zm-5.421 7.617h-.001a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.957.999-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.455 4.437-9.89 9.893-9.89 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.991c-.002 5.455-4.437 9.89-9.893 9.89zm8.413-18.282A11.815 11.815 0 0012.048 0C5.495 0 .16 5.335.157 11.893c0 2.096.547 4.149 1.588 5.967L0 24l6.305-1.682a11.89 11.89 0 005.719 1.463h.005c6.552 0 11.887-5.335 11.89-11.893a11.82 11.82 0 00-3.489-8.463z" />
+                  </svg>
+                  <span>WhatsApp</span>
+                </button>
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={closePhoneMenu}
+                    className="text-sm text-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <ActionResultPopUp
           show={actionModal.show}
           mode={actionModal.mode}
@@ -588,7 +771,7 @@ export default function OrderView() {
               <textarea
                 value={rejectedReason}
                 onChange={(e) => setRejectedReason(e.target.value)}
-                className="w-full border rounded p-2 text-sm"
+                className="w-full border bg-gray-100 rounded p-2 text-sm"
                 rows={4}
                 placeholder="Optional: explain why this order is rejected"
               />

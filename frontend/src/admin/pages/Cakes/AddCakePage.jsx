@@ -183,7 +183,7 @@ export default function AddCakePage() {
         <label className="font-medium text-pink-700">Name:</label>
         <input
           type="text"
-          className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
           value={cake.cakeName}
           onChange={(e) => setCake({ ...cake, cakeName: e.target.value })}
         />
@@ -258,7 +258,7 @@ export default function AddCakePage() {
               setCake({ ...cake, category: v });
             }
           }}
-          className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
         >
           <option value="">Select category</option>
           {categories.map((cat) => (
@@ -271,7 +271,7 @@ export default function AddCakePage() {
         {showCustomCategory && (
           <input
             type="text"
-            className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600 mt-2"
+            className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600 mt-2"
             value={cake.category}
             onChange={(e) => setCake({ ...cake, category: e.target.value })}
             placeholder="Enter custom category"
@@ -331,7 +331,7 @@ export default function AddCakePage() {
         <label className="font-medium text-pink-700">Description:</label>
         <input
           type="text"
-          className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
           value={cake.cakeDescription}
           onChange={(e) =>
             setCake({ ...cake, cakeDescription: e.target.value })
@@ -342,7 +342,7 @@ export default function AddCakePage() {
           Detailed Description:
         </label>
         <textarea
-          className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
           value={cake.detailedDescription || ""}
           onChange={(e) =>
             setCake({ ...cake, detailedDescription: e.target.value })
@@ -351,7 +351,7 @@ export default function AddCakePage() {
 
         <label className="font-medium text-pink-700">Topping Category:</label>
         <select
-          className="border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
           value={cake.toppingRef || ""}
           onChange={(e) => {
             const v = e.target.value;
@@ -435,7 +435,7 @@ export default function AddCakePage() {
             </span>
             <input
               type="number"
-              className="border border-pink-300 rounded-lg px-2 py-1 w-40"
+              className="bg-white border border-pink-300 rounded-lg px-2 py-1 w-40"
               value={cake.price || ""}
               onChange={(e) => setCake({ ...cake, price: e.target.value })}
               placeholder="Price"
@@ -455,7 +455,7 @@ export default function AddCakePage() {
                 </span>
                 <input
                   type="number"
-                  className="border border-pink-300 rounded-lg px-2 py-1 w-40"
+                  className="bg-white border border-pink-300 rounded-lg px-2 py-1 w-40"
                   value={cupcakePriceObj ? cupcakePriceObj.price : ""}
                   onChange={(e) => setCupcakePrice(e.target.value)}
                   placeholder="Price"
@@ -474,6 +474,7 @@ export default function AddCakePage() {
                     type="checkbox"
                     checked={available}
                     onChange={() => toggleAvailable(size)}
+                    className="!bg-white"
                   />
                   <div className="flex items-center gap-2">
                     <span className="w-20 text-sm font-medium text-gray-700 text-right">
@@ -481,7 +482,7 @@ export default function AddCakePage() {
                     </span>
                     <input
                       type="number"
-                      className="border border-pink-300 rounded-lg px-2 py-1 w-40"
+                      className="bg-white border border-pink-300 rounded-lg px-2 py-1 w-40"
                       value={priceObj ? priceObj.price : ""}
                       onChange={(e) => setPriceForSize(size, e.target.value)}
                       placeholder="Price"

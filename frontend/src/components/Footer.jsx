@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 export default function Footer() {
   return (
     <footer className="bg-white shadow-inner pt-10 pb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
           {/* Brand section */}
           <div className="flex flex-col">
             <h2
@@ -74,8 +74,8 @@ export default function Footer() {
               </li>
             </ul>
           </div> */}
-          /* Contact & Social */
-          <div>
+
+          <div className="mt-5 lg:text-right">
             <h3 className="text-gray-800 font-semibold text-lg mb-4">
               Connect With Us
             </h3>
@@ -99,7 +99,7 @@ export default function Footer() {
               </a>
             </p>
             {/* Social Media Icons */}
-            <div className="flex space-x-4 mt-4">
+            <div className="flex space-x-4 mt-2 lg:justify-end">
               {/* TikTok */}
               <a
                 href="http://tiktok.com/@_.sweet_heaven_"

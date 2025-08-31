@@ -5,22 +5,28 @@ import { generateOrderPdf } from "../../utils/pdf";
 export default function OrderRequested() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { id, contactMethod, order } = location.state || {};
+  const state = location.state || {};
+
+  // Accept either { order: { ... } } or { item: { ... } } or the order itself
+  const order = state.order || state.item || state;
+  const orderId = order?.orderId || state.id || null;
+  const contactMethod =
+    state.contactMethod || order?.clientDetails?.confirmationMethod || null;
 
   const download = async () => {
     try {
-      // ensure the PDF receives the authoritative order id returned by the server
-      const pdfOrder = order
-        ? { ...order, id, contactMethod }
-        : { id, contactMethod };
-      await generateOrderPdf(pdfOrder);
+      // Use the same call pattern as admin OrderView: pass the full order when
+      // available, otherwise pass a minimal object containing orderId/contactMethod.
+      await generateOrderPdf(order || { orderId, contactMethod });
     } catch (e) {
       console.error(e);
       // fallback: download JSON
       const blob = new Blob(
         [
           JSON.stringify(
-            order ? { ...order, id, contactMethod } : { id, contactMethod },
+            order
+              ? { ...order, orderId, contactMethod }
+              : { orderId, contactMethod },
             null,
             2
           ),
@@ -30,7 +36,7 @@ export default function OrderRequested() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `order-${id || Date.now()}.json`;
+      a.download = `order-${orderId || Date.now()}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -52,7 +58,9 @@ export default function OrderRequested() {
             Sweet Heaven will contact you via {contactMethod}.
           </p>
         )}
-        {id && <p className="text-sm text-gray-600 mb-4">Order id: {id}</p>}
+        {orderId && (
+          <p className="text-sm text-gray-600 mb-4">Order id: {orderId}</p>
+        )}
 
         <div className="flex gap-3 justify-center">
           <button

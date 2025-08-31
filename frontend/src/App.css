@@ -119,6 +119,7 @@ button:focus {
 /* Allow text selection where needed */
 p,
 span,
+a,
 h1,
 h2,
 h3,
@@ -132,4 +133,13 @@ textarea {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
+}
+
+/* Small utility to explicitly allow selection on elements (use class="selectable") */
+.selectable {
+  -webkit-user-select: text !important;
+  -khtml-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
 }
