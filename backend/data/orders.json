@@ -119,5 +119,140 @@
       "scheduledDate": "2025-09-03"
     },
     "createdAt": "2025-08-31T21:41:09.995Z"
+  },
+  {
+    "_id": "68b4ce89425ef5c08b9cf5ff",
+    "status": "requested",
+    "orderId": "SH-2FE415",
+    "clientCartId": "anon_aqtonf8",
+    "items": [
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "name": "Vanilla Dream",
+        "qty": 55,
+        "price": 250,
+        "size": "500g",
+        "toppings": [],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Vanilla Dream"
+      },
+      {
+        "itemId": "68a25a3d1a30dcfe0d2d1b6b",
+        "name": "Birthday Candle Set",
+        "qty": 41,
+        "price": 100,
+        "toppings": [],
+        "accessories": [],
+        "productType": "accessory",
+        "itemName": "Birthday Candle Set"
+      }
+    ],
+    "subtotal": 17850,
+    "note": "",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "077022055001",
+      "phone2": "0703351780",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-09-03"
+    },
+    "createdAt": "2025-08-31T22:36:57.854Z"
+  },
+  {
+    "_id": "68c8653810b9b1826c74d9f6",
+    "status": "requested",
+    "orderId": "SH-GQULST",
+    "clientCartId": "anon_aqtonf8",
+    "items": [
+      {
+        "itemId": "68a25a3d1a30dcfe0d2d1b6b",
+        "name": "Birthday Candle Set",
+        "qty": 41,
+        "price": 100,
+        "toppings": [],
+        "accessories": [],
+        "productType": "accessory",
+        "itemName": "Birthday Candle Set"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "name": "Vanilla Dream",
+        "qty": 55,
+        "price": 250,
+        "size": "500g",
+        "toppings": [
+          "Coconut Flakes",
+          "Pistachio Dust",
+          "Mango Cubes"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Vanilla Dream"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "name": "Vanilla Dream",
+        "qty": 30,
+        "price": 250,
+        "size": "500g",
+        "toppings": [
+          "Coconut Flakes",
+          "Pistachio Dust",
+          "Mango Cubes",
+          "Coconut Flakes",
+          "Mango Cubes",
+          "Pistachio Dust"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Vanilla Dream"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1baa",
+        "name": "Celebration Cake",
+        "qty": 1,
+        "price": 1000,
+        "size": "500g",
+        "toppings": [
+          "Raspberry Coulis",
+          "Hazelnut Crunch"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Celebration Cake"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1baa",
+        "name": "Celebration Cake",
+        "qty": 1,
+        "price": 1000,
+        "size": "500g",
+        "toppings": [
+          "Raspberry Coulis",
+          "Hazelnut Crunch",
+          "Raspberry Coulis",
+          "White Chocolate Shavings",
+          "Hazelnut Crunch"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Celebration Cake"
+      }
+    ],
+    "subtotal": 76580,
+    "note": "one celebration cake should be sugar free\n",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "077022055001",
+      "phone2": "0703351780",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-09-18"
+    },
+    "createdAt": "2025-09-15T19:12:56.211Z"
   }
 ]

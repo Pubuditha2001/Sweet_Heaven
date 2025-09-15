@@ -31,6 +31,7 @@ export default function AddCakePage() {
   const [initialCake, setInitialCake] = useState(emptyCake);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({});
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [modalSaving, setModalSaving] = useState(false);
 
@@ -85,10 +86,11 @@ export default function AddCakePage() {
       (p) =>
         (p && String(p.size || "")).toLowerCase() === String(size).toLowerCase()
     );
+    const numericPrice = value === "" ? "" : Number(value);
     if (idx > -1) {
-      newPrices[idx] = { ...newPrices[idx], price: value };
+      newPrices[idx] = { ...newPrices[idx], price: numericPrice };
     } else {
-      newPrices.push({ size, sizeId: size, price: value });
+      newPrices.push({ size, sizeId: size, price: numericPrice });
     }
     setCake({ ...cake, prices: newPrices });
   };
@@ -97,10 +99,15 @@ export default function AddCakePage() {
     const idx = newPrices.findIndex(
       (p) => (p && String(p.size || "")).toLowerCase() === "cupcake"
     );
+    const numericPrice = v === "" ? "" : Number(v);
     if (idx > -1) {
-      newPrices[idx] = { ...newPrices[idx], price: v };
+      newPrices[idx] = { ...newPrices[idx], price: numericPrice };
     } else {
-      newPrices.push({ size: "cupcake", sizeId: "standard", price: v });
+      newPrices.push({
+        size: "cupcake",
+        sizeId: "standard",
+        price: numericPrice,
+      });
     }
     setCake({ ...cake, prices: newPrices });
   };
@@ -161,13 +168,58 @@ export default function AddCakePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!cake.cakeName?.trim()) {
+      errors.cakeName = "Cake name is required";
+    }
+
+    if (!cake.cakeDescription?.trim()) {
+      errors.cakeDescription = "Description is required";
+    }
+
+    if (!cake.category?.trim()) {
+      errors.category = "Category is required";
+    }
+
+    const mainImage = (cake.images && cake.images[0]) || cake.cakeImage;
+    if (!mainImage?.trim()) {
+      errors.cakeImage = "Main image is required";
+    }
+
+    // Validate pricing
+    if (cake.priceBasedPricing) {
+      const validPrices = cake.prices?.filter(
+        (p) => p && p.price && !isNaN(Number(p.price))
+      );
+      if (!validPrices?.length) {
+        errors.prices = "At least one price must be set";
+      }
+    } else {
+      if (!cake.price || isNaN(Number(cake.price))) {
+        errors.price = "Price is required and must be a valid number";
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     try {
+      console.log("Submitting cake data:", cake);
       await createCake(cake);
       navigate("/admin/cakes");
     } catch (err) {
-      alert("Failed to create cake: " + (err.message || err));
+      console.error("Create cake error:", err);
+      setError("Failed to create cake: " + (err.message || err));
     }
   };
 
@@ -179,14 +231,26 @@ export default function AddCakePage() {
       <h2 className="text-2xl font-bold text-pink-600 mb-6 text-center">
         Create Cake
       </h2>
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
       <form className="flex flex-col gap-4" onSubmit={handleCreateSubmit}>
         <label className="font-medium text-pink-700">Name:</label>
         <input
           type="text"
-          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className={`bg-white border rounded-lg px-4 py-2 focus:outline-none ${
+            formErrors.cakeName
+              ? "border-red-300 focus:border-red-600"
+              : "border-pink-300 focus:border-pink-600"
+          }`}
           value={cake.cakeName}
           onChange={(e) => setCake({ ...cake, cakeName: e.target.value })}
         />
+        {formErrors.cakeName && (
+          <span className="text-red-500 text-sm">{formErrors.cakeName}</span>
+        )}
 
         <label className="font-medium text-pink-700">Main Image:</label>
         <ImageUploader
@@ -195,9 +259,12 @@ export default function AddCakePage() {
             const others =
               cake.images && cake.images.length > 1 ? cake.images.slice(1) : [];
             const images = img ? [img, ...others] : others;
-            setCake({ ...cake, images });
+            setCake({ ...cake, images, cakeImage: img || "" });
           }}
         />
+        {formErrors.cakeImage && (
+          <span className="text-red-500 text-sm">{formErrors.cakeImage}</span>
+        )}
 
         <label className="font-medium text-pink-700">Additional Photos:</label>
         <ImageUploader
@@ -215,7 +282,7 @@ export default function AddCakePage() {
               : Array.isArray(more)
               ? more
               : [more];
-            setCake({ ...cake, images });
+            setCake({ ...cake, images, cakeImage: main });
           }}
         />
 
@@ -258,7 +325,11 @@ export default function AddCakePage() {
               setCake({ ...cake, category: v });
             }
           }}
-          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className={`bg-white border rounded-lg px-4 py-2 focus:outline-none ${
+            formErrors.category
+              ? "border-red-300 focus:border-red-600"
+              : "border-pink-300 focus:border-pink-600"
+          }`}
         >
           <option value="">Select category</option>
           {categories.map((cat) => (
@@ -268,6 +339,9 @@ export default function AddCakePage() {
           ))}
           <option value="__other__">New Category</option>
         </select>
+        {formErrors.category && (
+          <span className="text-red-500 text-sm">{formErrors.category}</span>
+        )}
         {showCustomCategory && (
           <input
             type="text"
@@ -331,12 +405,21 @@ export default function AddCakePage() {
         <label className="font-medium text-pink-700">Description:</label>
         <input
           type="text"
-          className="bg-white border border-pink-300 rounded-lg px-4 py-2 focus:outline-none focus:border-pink-600"
+          className={`bg-white border rounded-lg px-4 py-2 focus:outline-none ${
+            formErrors.cakeDescription
+              ? "border-red-300 focus:border-red-600"
+              : "border-pink-300 focus:border-pink-600"
+          }`}
           value={cake.cakeDescription}
           onChange={(e) =>
             setCake({ ...cake, cakeDescription: e.target.value })
           }
         />
+        {formErrors.cakeDescription && (
+          <span className="text-red-500 text-sm">
+            {formErrors.cakeDescription}
+          </span>
+        )}
 
         <label className="font-medium text-pink-700">
           Detailed Description:
@@ -428,6 +511,12 @@ export default function AddCakePage() {
         />
 
         <label className="font-medium text-pink-700">Prices:</label>
+        {formErrors.prices && (
+          <span className="text-red-500 text-sm">{formErrors.prices}</span>
+        )}
+        {formErrors.price && (
+          <span className="text-red-500 text-sm">{formErrors.price}</span>
+        )}
         {showCustomCategory && !cake.priceBasedPricing ? (
           <div className="flex items-center gap-3">
             <span className="w-32 text-sm font-medium text-gray-700">
@@ -437,7 +526,13 @@ export default function AddCakePage() {
               type="number"
               className="bg-white border border-pink-300 rounded-lg px-2 py-1 w-40"
               value={cake.price || ""}
-              onChange={(e) => setCake({ ...cake, price: e.target.value })}
+              onChange={(e) =>
+                setCake({
+                  ...cake,
+                  price:
+                    e.target.value === "" ? undefined : Number(e.target.value),
+                })
+              }
               placeholder="Price"
             />
           </div>

@@ -21,6 +21,7 @@ function formatRs(n) {
 
 export default function Cart() {
   const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
   const [accessoryDetails, setAccessoryDetails] = useState({});
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export default function Cart() {
       localStorage.setItem(clientCartIdKey, cartId);
     }
 
+    setIsLoading(true);
     getCart(cartId)
       .then(async (data) => {
         const rawItems = data.items || [];
@@ -209,6 +211,9 @@ export default function Cart() {
       })
       .catch(() => {
         setItems([]);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -334,41 +339,71 @@ export default function Cart() {
         () => {}
       );
     } else {
-      // update the edited item (id/signature changed) — backend doesn't allow renaming id via PUT
+      // update the edited item
       const updated = { ...editingItem, ...payload, id: newId };
-      const nextItems = items.map((it) => (it.id === oldId ? updated : it));
-      setItems(nextItems);
 
-      const cartId = localStorage.getItem(clientCartIdKey);
-      // remove old then add new on backend to reflect id change
-      removeCartItem(cartId, oldId)
-        .catch(() => {})
-        .finally(() => {
-          // attempt to add updated item on backend
-          // use api helper addCartItem
-          try {
-            // Ensure updated uses itemId/productType when adding back to server
-            const addPayload = {
-              productType: updated.productType || editingItem.productType,
-              itemId: updated.itemId || editingItem.itemId,
-              qty: updated.qty || 1,
-              sizeId: updated.sizeId,
-              toppings: updated.toppings,
-            };
-            addCartItem(cartId, addPayload).catch(() => {});
-          } catch (e) {}
-        });
+      // If signature didn't change, update in-place via PUT to avoid remove+add
+      if (newId === oldId) {
+        const nextItems = items.map((it) =>
+          it.id === oldId ? { ...it, ...payload } : it
+        );
+        setItems(nextItems);
 
-      // persist locally if backend fails
-      try {
-        const raw = localStorage.getItem("cart");
-        const cart = raw && raw.length ? JSON.parse(raw) : [];
-        const idx = cart.findIndex((c) => c.id === oldId);
-        if (idx > -1) {
-          cart[idx] = { ...cart[idx], ...payload, id: newId };
-          localStorage.setItem("cart", JSON.stringify(cart));
-        }
-      } catch (e) {}
+        const cartId = localStorage.getItem(clientCartIdKey);
+        try {
+          const updatePayload = {
+            productType: updated.productType || editingItem.productType,
+            itemId: updated.itemId || editingItem.itemId,
+            qty: updated.qty || 1,
+            sizeId: updated.sizeId,
+            toppings: updated.toppings,
+          };
+          updateCartItem(cartId, oldId, updatePayload).catch(() => {});
+        } catch (e) {}
+
+        // persist locally if backend fails
+        try {
+          const raw = localStorage.getItem("cart");
+          const cart = raw && raw.length ? JSON.parse(raw) : [];
+          const idx = cart.findIndex((c) => c.id === oldId);
+          if (idx > -1) {
+            cart[idx] = { ...cart[idx], ...payload, id: newId };
+            localStorage.setItem("cart", JSON.stringify(cart));
+          }
+        } catch (e) {}
+      } else {
+        // signature changed: remove old then add new on backend to reflect id change
+        const nextItems = items.map((it) => (it.id === oldId ? updated : it));
+        setItems(nextItems);
+
+        const cartId = localStorage.getItem(clientCartIdKey);
+        removeCartItem(cartId, oldId)
+          .catch(() => {})
+          .finally(() => {
+            // attempt to add updated item on backend
+            try {
+              const addPayload = {
+                productType: updated.productType || editingItem.productType,
+                itemId: updated.itemId || editingItem.itemId,
+                qty: updated.qty || 1,
+                sizeId: updated.sizeId,
+                toppings: updated.toppings,
+              };
+              addCartItem(cartId, addPayload).catch(() => {});
+            } catch (e) {}
+          });
+
+        // persist locally if backend fails
+        try {
+          const raw = localStorage.getItem("cart");
+          const cart = raw && raw.length ? JSON.parse(raw) : [];
+          const idx = cart.findIndex((c) => c.id === oldId);
+          if (idx > -1) {
+            cart[idx] = { ...cart[idx], ...payload, id: newId };
+            localStorage.setItem("cart", JSON.stringify(cart));
+          }
+        } catch (e) {}
+      }
     }
     setEditingItem(null);
   };
@@ -422,7 +457,12 @@ export default function Cart() {
       <div className="max-w-6xl mx-auto w-full">
         <h2 className="text-3xl font-bold text-pink-600 mb-6">Your Cart</h2>
 
-        {items.length === 0 ? (
+        {isLoading ? (
+          <div className="rounded-lg border bg-white p-8 flex flex-col items-center gap-4 text-center">
+            <img src="/loading.png" alt="loading" className="w-24 h-24" />
+            <div className="text-gray-700">Loading cart...</div>
+          </div>
+        ) : items.length === 0 ? (
           <div className="rounded-lg border bg-white p-8 flex flex-col items-center gap-6 text-center">
             <img
               src="/fallback.jpg"
@@ -453,19 +493,20 @@ export default function Cart() {
               {items.filter((i) => i.productType === "cake").length > 0 && (
                 <section className="space-y-4">
                   <h3 className="text-xl font-semibold text-gray-800">Cakes</h3>
-                  {items
-                    .filter((i) => i.productType === "cake")
-                    .map((it) => (
-                      <div key={it._id || it.id}>
+                  <div className="space-y-2 mt-2">
+                    {items
+                      .filter((i) => i.productType === "cake")
+                      .map((it) => (
                         <CartItem
+                          key={it._id || it.id}
                           item={it}
                           onIncrease={increase}
                           onDecrease={decrease}
                           onRemove={remove}
                           onEdit={openEditor}
                         />
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </section>
               )}
 
@@ -476,19 +517,20 @@ export default function Cart() {
                   <h3 className="text-xl font-semibold text-gray-800">
                     Accessories
                   </h3>
-                  {items
-                    .filter((i) => i.productType === "accessory")
-                    .map((it) => (
-                      <div key={it._id || it.id}>
+                  <div className="space-y-2 mt-2">
+                    {items
+                      .filter((i) => i.productType === "accessory")
+                      .map((it) => (
                         <CartItem
+                          key={it._id || it.id}
                           item={it}
                           onIncrease={increase}
                           onDecrease={decrease}
                           onRemove={remove}
                           onEdit={openEditor}
                         />
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </section>
               )}
 

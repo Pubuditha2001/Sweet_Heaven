@@ -26,7 +26,12 @@ export async function updateCake(id, cakeData) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cakeData),
   });
-  if (!res.ok) throw new Error("Failed to update cake");
+  if (!res.ok) {
+    const errorData = await res.text();
+    throw new Error(
+      `Failed to update cake: ${res.status} ${res.statusText} - ${errorData}`
+    );
+  }
   return res.json();
 }
 
@@ -36,7 +41,12 @@ export async function createCake(cakeData) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cakeData),
   });
-  if (!res.ok) throw new Error("Failed to create cake");
+  if (!res.ok) {
+    const errorData = await res.text();
+    throw new Error(
+      `Failed to create cake: ${res.status} ${res.statusText} - ${errorData}`
+    );
+  }
   return res.json();
 }
 

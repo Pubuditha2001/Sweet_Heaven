@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import CakeSizesOptions from "./CakeSizesOptions";
 import ToppingsOptions from "./ToppingsOptions";
 import { fetchCakeById } from "../api/cake";
@@ -98,6 +98,23 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     return sel ? sel.price : 0;
   };
 
+  // compute unit price preview based on selected size and toppings
+  const unitPricePreview = useMemo(() => {
+    const base =
+      product && product.prices && product.prices[selectedSize]
+        ? product.prices[selectedSize].price
+        : product && product.prices && product.prices[0]
+        ? product.prices[0].price
+        : item.unitPrice || item.price || 0;
+
+    const toppingsTotal = (selectedToppings || []).reduce(
+      (sum, t) => sum + getToppingPrice(t, selectedSize),
+      0
+    );
+
+    return (base || 0) + (toppingsTotal || 0);
+  }, [product, selectedSize, selectedToppings, item]);
+
   const handleSave = () => {
     // If accessory, save only qty and keep productType accessory
     if (isAccessory) {
@@ -110,18 +127,10 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
       return;
     }
 
-    // Save only IDs for cake, size, toppings, and topping prices
-    const toppingsPayload = (selectedToppings || []).map((t) => {
-      // Find selected price for this topping and size
-      let priceObj = null;
-      if (t.prices && Array.isArray(t.prices)) {
-        priceObj = t.prices[selectedSize] || t.prices[0];
-      }
-      return {
-        toppingId: t._id,
-        priceId: priceObj?._id,
-      };
-    });
+    // Save only IDs for cake, size and toppings (backend expects topping ids)
+    const toppingsPayload = (selectedToppings || []).map((t) =>
+      String(t._id || t.id || t)
+    );
     // Use unified itemId and productType
     onSave &&
       onSave({
@@ -129,6 +138,7 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
         productType: "cake",
         qty,
         sizeId: product?.prices?.[selectedSize]?._id || freeSizeLabel,
+        sizeIndex: selectedSize,
         toppings: toppingsPayload,
       });
   };
@@ -193,8 +203,7 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
             <div className="flex-1">
               <div className="font-semibold text-gray-900">{item.name}</div>
               <div className="text-sm text-gray-500 mt-1">
-                Unit price: Rs.{" "}
-                {(item.unitPrice || item.price || 0).toLocaleString()}
+                Unit price: Rs. {(unitPricePreview || 0).toLocaleString()}
               </div>
 
               <div className="mt-4">

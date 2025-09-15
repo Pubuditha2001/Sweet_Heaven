@@ -135,7 +135,7 @@ export default function CartItem({
         </div>
 
         <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-0">
             <button
               onClick={() => onDecrease(item.id)}
               className="px-2 sm:px-3 py-1 rounded-md border hover:bg-gray-100 text-gray-900 font-medium"
