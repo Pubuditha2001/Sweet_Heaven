@@ -37,16 +37,19 @@ async function getToppingById(req, res) {
   }
 }
 
-// Create or update topping document for a cake category and size
+// Update topping collection by ID
 async function updateToppingsCollection(req, res) {
   try {
-    const { collectionName, toppings } = req.body;
-    const toppingDoc = await Topping.findOneAndUpdate(
-      { collectionName },
-      { toppings },
-      { upsert: true, new: true }
-    );
-    res.status(201).json(toppingDoc);
+    const { id } = req.params;
+    const updateData = req.body;
+    const toppingDoc = await Topping.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+    if (!toppingDoc) {
+      return res.status(404).json({ error: "Topping collection not found" });
+    }
+    res.json(toppingDoc);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -78,9 +81,26 @@ async function getToppings(req, res) {
 
 // Get all topping collection names
 
+// Delete a topping collection
+async function deleteToppingCollection(req, res) {
+  try {
+    const { id } = req.params;
+    const toppingDoc = await Topping.findByIdAndDelete(id);
+
+    if (!toppingDoc) {
+      return res.status(404).json({ error: "Topping collection not found" });
+    }
+
+    res.json({ message: "Topping collection deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   createTopping,
   updateToppingsCollection,
   getToppings,
   getToppingById,
+  deleteToppingCollection,
 };

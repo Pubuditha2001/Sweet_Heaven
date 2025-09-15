@@ -35,8 +35,48 @@ async function getAccessoriesById(req, res) {
   }
 }
 
+// Update an accessory
+async function updateAccessory(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, description, price, image } = req.body;
+
+    const accessory = await Accessory.findByIdAndUpdate(
+      id,
+      { name, description, price, image },
+      { new: true, runValidators: true }
+    );
+
+    if (!accessory) {
+      return res.status(404).json({ error: "Accessory not found" });
+    }
+
+    res.json(accessory);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// Delete an accessory
+async function deleteAccessory(req, res) {
+  try {
+    const { id } = req.params;
+    const accessory = await Accessory.findByIdAndDelete(id);
+
+    if (!accessory) {
+      return res.status(404).json({ error: "Accessory not found" });
+    }
+
+    res.json({ message: "Accessory deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getAccessories,
   createAccessory,
   getAccessoriesById,
+  updateAccessory,
+  deleteAccessory,
 };

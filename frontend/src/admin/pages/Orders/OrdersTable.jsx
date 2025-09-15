@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { fetchOrders, updateOrder } from "../../../api/order";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { io as ioClient } from "socket.io-client";
 import OrdersFilter from "./OrdersFilter";
 
 export default function OrdersTable() {
   const [orders, setOrders] = useState([]);
   const [query, setQuery] = useState("");
-  const [viewMode, setViewMode] = useState("sectioned"); // sectioned | requested | ongoing | actioned | all
+  const [viewMode, setViewMode] = useState("sectioned"); // sectioned | requested | ongoing | actioned | all | completed
+  const location = useLocation();
   const [sortField, setSortField] = useState("newest");
   const [sortDir, setSortDir] = useState("asc"); // asc | desc
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,18 @@ export default function OrdersTable() {
   }
 
   useEffect(() => {
+    // If URL contains ?view=..., map it to an internal view mode on mount
+    try {
+      const params = new URLSearchParams(location.search);
+      const v = (params.get("view") || "").toString().toLowerCase();
+      if (v) {
+        if (v === "confirmed" || v === "ongoing") setViewMode("ongoing");
+        else if (v === "requested") setViewMode("requested");
+        else if (v === "completed") setViewMode("completed");
+        else if (v === "all") setViewMode("all");
+      }
+    } catch (e) {}
+
     let mounted = true;
     async function load() {
       setLoading(true);
@@ -302,9 +315,18 @@ export default function OrdersTable() {
   const ongoingOrders = timeFiltered.filter(
     (o) => String(o.status || "").toLowerCase() === "confirmed"
   );
+  const completedOrders = timeFiltered.filter((o) => {
+    const s = String(o.status || "").toLowerCase();
+    return s === "completed" || s === "finished";
+  });
   const actionedOrders = timeFiltered.filter((o) => {
     const st = String(o.status || "").toLowerCase();
-    return st !== "requested" && st !== "confirmed";
+    return (
+      st !== "requested" &&
+      st !== "confirmed" &&
+      st !== "completed" &&
+      st !== "finished"
+    );
   });
 
   // sorted versions for each view
@@ -370,6 +392,20 @@ export default function OrdersTable() {
                 Ongoing ({ongoingOrders.length})
               </span>
               <span className="sm:hidden">Ong ({ongoingOrders.length})</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode("completed")}
+              className={`px-4 py-2 border text-sm font-semibold whitespace-nowrap ${
+                viewMode === "completed"
+                  ? "bg-pink-500 text-white"
+                  : "bg-white text-pink-600"
+              }`}
+            >
+              <span className="hidden sm:inline">
+                Completed ({completedOrders.length})
+              </span>
+              <span className="sm:hidden">Done ({completedOrders.length})</span>
             </button>
 
             <button
@@ -530,6 +566,44 @@ export default function OrdersTable() {
 
               <section>
                 <h3 className="text-lg font-semibold text-pink-600 mb-3">
+                  Completed Orders ({completedOrders.length})
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white rounded-xl shadow-md">
+                    <thead>
+                      <tr className="bg-pink-50">
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Order ID
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Customer
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Phone
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Date
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Subtotal
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Status
+                        </th>
+                        <th className="px-4 py-2 text-left text-pink-600 font-semibold">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-600">
+                      {renderRows(sortList(completedOrders))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-pink-600 mb-3">
                   Actioned Orders ({actionedOrders.length})
                 </h3>
                 <div className="overflow-x-auto">
@@ -612,6 +686,8 @@ export default function OrdersTable() {
                       ? renderRows(requestedSorted)
                       : viewMode === "ongoing"
                       ? renderRows(ongoingSorted)
+                      : viewMode === "completed"
+                      ? renderRows(sortList(completedOrders))
                       : renderRows(actionedSorted)}
                   </tbody>
                 </table>
