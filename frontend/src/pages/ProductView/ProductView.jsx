@@ -10,10 +10,10 @@ import {
 } from "react-icons/fa";
 import ToppingsOptions from "../../components/ToppingsOptions";
 import CakeSizesOptions from "../../components/CakeSizesOptions";
-import AccessoriesPicker from "../../components/AccessoriesPicker";
 import { fetchCakeById } from "../../api/cake";
 import { fetchToppingsByRef } from "../../api/topping";
-import { fetchAccessories } from "../../api/accessory";
+import { addCartItem } from "../../api/cart";
+import CartResultPopUp from "../../components/CartResultPopUp";
 
 const fallbackImg = "/fallback.jpg";
 
@@ -29,9 +29,54 @@ export default function ProductView() {
   const [imgUrl, setImgUrl] = useState(fallbackImg);
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [availableToppings, setAvailableToppings] = useState([]);
-  const [accessories, setAccessories] = useState([]);
-  const [selectedAccessories, setSelectedAccessories] = useState([]);
+  // accessories moved to a separate page
   const [orderHover, setOrderHover] = useState(false);
+  const [cartNotice, setCartNotice] = useState(null);
+  const [showAccessoryPopup, setShowAccessoryPopup] = useState(false);
+  const [addStatus, setAddStatus] = useState(null); // 'pending' | 'success' | 'failed'
+  const [addMessage, setAddMessage] = useState("");
+  const [lastCakeItem, setLastCakeItem] = useState(null);
+  const [lastCartId, setLastCartId] = useState(null);
+
+  // Utility to extract a plain id string from different id shapes
+  const extractId = (val) => {
+    if (val === null || val === undefined) return val;
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      // common Mongoose/_id shapes
+      if (val._id) {
+        try {
+          return typeof val._id === "string" ? val._id : val._id.toString();
+        } catch (e) {
+          return String(val._id);
+        }
+      }
+      if (val.$oid) return val.$oid;
+      try {
+        return val.toString();
+      } catch (e) {
+        return JSON.stringify(val);
+      }
+    }
+    return String(val);
+  };
+
+  const handleRetry = () => {
+    if (!lastCartId || !lastCakeItem) return;
+    setAddStatus("pending");
+    setAddMessage("Retrying...");
+    addCartItem(lastCartId, lastCakeItem)
+      .then(() => {
+        const msg = `${lastCakeItem.qty} × ${product.cakeName} added to cart`;
+        setAddStatus("success");
+        setAddMessage(msg);
+        setCartNotice(msg);
+      })
+      .catch(() => {
+        setAddStatus("failed");
+        setAddMessage("Retry failed");
+      });
+  };
 
   useEffect(() => {
     async function fetchProduct() {
@@ -39,6 +84,12 @@ export default function ProductView() {
       setError("");
       try {
         const data = await fetchCakeById(id);
+        if (!data) {
+          setError("Product not found");
+          setProduct(null);
+          setLoading(false);
+          return;
+        }
         setProduct(data);
 
         // Set up image URL
@@ -52,34 +103,26 @@ export default function ProductView() {
           setImgUrl(imageUrl);
         }
 
-        // Fetch toppings using toppingRef if available
+        // Fetch toppings using toppingRef (ObjectId of toppings list)
+        let toppingsList = [];
         if (data && data.toppingRef) {
           const toppingData = await fetchToppingsByRef(data.toppingRef);
-          setAvailableToppings(toppingData.toppings || []);
-          console.log("Fetched toppings:", toppingData.toppings);
+          toppingsList = toppingData.toppings || [];
+          setAvailableToppings(toppingsList);
+          console.log("Fetched toppings:", toppingsList);
         } else {
           setAvailableToppings([]);
           console.log("No toppingRef found in cake data.");
         }
         setSelectedToppings([]);
       } catch (err) {
-        setError(err.message);
+        setError(err?.message || String(err));
       }
       setLoading(false);
     }
 
-    async function loadAccessories() {
-      try {
-        const data = await fetchAccessories();
-        setAccessories(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
     if (id) {
       fetchProduct();
-      loadAccessories();
     }
   }, [id]);
 
@@ -89,35 +132,40 @@ export default function ProductView() {
 
   // Calculate topping price for a given size (defaults to current selectedSize)
   // Normalize size strings (case/whitespace) to make matching robust across sources
+  // availableToppings is the toppings array from the Topping document referenced by cake.toppingRef
+  // selectedToppings are objects from availableToppings
+  // getToppingPrice finds the price for the selected cake size
   const getToppingPrice = (topping, sizeIndex = selectedSize) => {
-    if (!topping || !topping.prices) return 0;
+    if (!topping || !Array.isArray(topping.prices)) return 0;
+    // Match by cake price 'size' string (e.g. '1 Kg', 'Small') first
     const selectedSizeName = product?.prices?.[sizeIndex]?.size;
-
     const normalize = (s) =>
       (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
 
-    const target = normalize(selectedSizeName);
-    let priceObj = topping.prices.find((p) => normalize(p.size) === target);
+    let priceObj = null;
+    if (selectedSizeName) {
+      const target = normalize(selectedSizeName);
+      priceObj = topping.prices.find((p) => normalize(p.size) === target);
+    }
 
-    // Fallback: match by numeric portion (e.g. '1kg' vs '1Kg' or '500g')
+    // Fallback: match by numeric portion (e.g. '1kg' vs '500g')
     if (!priceObj) {
       const numeric = (str) => {
         const m = (str || "").toString().match(/([\d.]+)/);
         return m ? m[1] : null;
       };
-      const targetNum = numeric(selectedSizeName);
+      const targetNum = numeric(product?.prices?.[sizeIndex]?.size);
       if (targetNum) {
         priceObj = topping.prices.find((p) => numeric(p.size) === targetNum);
       }
     }
 
+    // Final fallback: first price entry or zero
+    if (!priceObj) priceObj = topping.prices[0] || null;
     return priceObj ? priceObj.price : 0;
   };
 
-  // Calculate accessory price
-  const getAccessoryPrice = (accessory) => {
-    return accessory?.price || 0;
-  };
+  // accessory pricing moved to Accessories page
 
   // Calculate total price
   const getTotalPrice = () => {
@@ -126,11 +174,7 @@ export default function ProductView() {
       (sum, topping) => sum + getToppingPrice(topping),
       0
     );
-    const accessoriesPrice = selectedAccessories.reduce(
-      (sum, acc) => sum + getAccessoryPrice(acc),
-      0
-    );
-    return (basePrice + toppingsPrice + accessoriesPrice) * quantity;
+    return (basePrice + toppingsPrice) * quantity;
   };
 
   const handleToppingToggle = (topping) => {
@@ -143,27 +187,69 @@ export default function ProductView() {
     });
   };
 
-  const handleAccessoryToggle = (accessory) => {
-    setSelectedAccessories((prev) => {
-      if (prev.includes(accessory)) {
-        return prev.filter((a) => a !== accessory);
-      } else {
-        return [...prev, accessory];
-      }
-    });
-  };
+  // accessory selection/quantities handled on Accessories page
 
   const handleAddToCart = () => {
-    // Add to cart logic here
-    console.log("Adding to cart:", {
-      product: product._id,
-      size: selectedSize,
-      quantity: quantity,
-      toppings: selectedToppings.map((t) => t.name),
-      accessories: selectedAccessories.map((a) => a.name),
-      price: getTotalPrice(),
+    // Build a normalized cart item using only IDs
+    if (!product) return;
+
+    // Prepare toppings payload: array of topping id strings
+    // Backend expects an array of ids (not objects). Normalize to plain id strings.
+    const toppingsPayload = (selectedToppings || []).map((topping) => {
+      const rawId = topping && (topping._id || topping);
+      return extractId(rawId);
     });
-    // You can implement actual cart functionality here
+
+    // Prepare cake item for cart
+    const cakeItem = {
+      productType: "cake",
+      // send plain id string for itemId
+      itemId: extractId(product._id),
+      // store the size value (string) so backend can look up current price by size
+      sizeId: product.prices[selectedSize]?.size,
+      qty: quantity,
+      // only include toppings when user selected any (keep undefined when none)
+      ...(toppingsPayload && toppingsPayload.length
+        ? { toppings: toppingsPayload }
+        : {}),
+    };
+
+    // Use persistent client cartId stored in localStorage
+    const clientCartIdKey = "client_cart_id";
+    let cartId = localStorage.getItem(clientCartIdKey);
+    if (!cartId) {
+      cartId = `anon_${Math.random().toString(36).slice(2, 9)}`;
+      localStorage.setItem(clientCartIdKey, cartId);
+    }
+
+    // store for retry
+    setLastCakeItem(cakeItem);
+    setLastCartId(cartId);
+
+    // show modal and pending status immediately
+    setAddStatus("pending");
+    setAddMessage("Adding to cart...");
+    setShowAccessoryPopup(true);
+
+    // Add cake item to cart
+    addCartItem(cartId, cakeItem)
+      .then(() => {
+        const msg = `${cakeItem.qty} × ${product.cakeName} added to cart`;
+        setAddStatus("success");
+        setAddMessage(msg);
+        setCartNotice(msg);
+        // keep modal open so user can choose next action
+        window.setTimeout(() => setCartNotice(null), 3000);
+      })
+      .catch(() => {
+        const msg = "Failed to add to cart";
+        setAddStatus("failed");
+        setAddMessage(msg);
+        setCartNotice(msg);
+        window.setTimeout(() => setCartNotice(null), 3000);
+      });
+
+    // accessories are added from the Accessories page now
   };
 
   const handleOrderNow = () => {
@@ -172,7 +258,6 @@ export default function ProductView() {
       size: selectedSize,
       quantity,
       toppings: selectedToppings.map((t) => t.name),
-      accessories: selectedAccessories.map((a) => a.name),
       price: getTotalPrice(),
     };
 
@@ -336,16 +421,7 @@ export default function ProductView() {
               />
             </div>
 
-            {/* Accessories Options (compact popup to match other selectors) */}
-            {accessories && accessories.length > 0 && (
-              <AccessoriesPicker
-                accessories={accessories}
-                selectedAccessories={selectedAccessories}
-                handleAccessoryToggle={handleAccessoryToggle}
-                getAccessoryPrice={getAccessoryPrice}
-                onReset={() => setSelectedAccessories([])}
-              />
-            )}
+            {/* Accessories have been moved to their own page. */}
 
             {/* Quantity Selection */}
             <div className="space-y-4">
@@ -416,6 +492,27 @@ export default function ProductView() {
                 Customize This Cake
               </button>
             </div>
+
+            {/* transient cart notice */}
+            {cartNotice && (
+              <div className="mt-3 max-w-xl px-4 py-2 rounded-md bg-green-50 border border-green-200 text-green-800">
+                {cartNotice}
+              </div>
+            )}
+
+            {/* Modal moved to CartResultPopUP component */}
+            <CartResultPopUp
+              show={showAccessoryPopup}
+              status={addStatus}
+              message={addMessage}
+              onClose={() => setShowAccessoryPopup(false)}
+              onRetry={handleRetry}
+              onBuyAnother={() => {
+                setShowAccessoryPopup(false);
+                navigate("/menu");
+              }}
+              onAddAccessories={() => navigate("/accessories")}
+            />
 
             {/* Additional Info */}
             <div className="bg-gradient-to-r from-white to-pink-50 p-6 rounded-2xl shadow-sm border border-pink-100">

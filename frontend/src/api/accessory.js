@@ -8,11 +8,54 @@ export async function fetchAccessories() {
   return res.json();
 }
 
+const _missingAccessoryIds = new Set();
+
 export async function fetchAccessoryById(id) {
+  if (!id) return null;
+  if (_missingAccessoryIds.has(String(id))) return null;
+
   const res = await fetch(`/api/accessories/${id}`);
   if (!res.ok) {
-    // Handle error
+    _missingAccessoryIds.add(String(id));
     return null;
+  }
+  return res.json();
+}
+
+export async function createAccessory(accessoryData) {
+  const res = await fetch("/api/accessories", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(accessoryData),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to create accessory: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function updateAccessory(id, accessoryData) {
+  const res = await fetch(`/api/accessories/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(accessoryData),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to update accessory: ${res.statusText}`);
+  }
+  return res.json();
+}
+
+export async function deleteAccessory(id) {
+  const res = await fetch(`/api/accessories/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to delete accessory: ${res.statusText}`);
   }
   return res.json();
 }

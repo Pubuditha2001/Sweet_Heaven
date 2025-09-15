@@ -172,6 +172,16 @@ export default function Navbar({ homeRef }) {
               Menu
             </Link>
             <Link
+              to="/accessories"
+              className={`px-3 py-2 rounded-md font-medium transition-colors duration-200 ${
+                location.pathname === "/accessories"
+                  ? "text-pink-600 bg-pink-50 border-b-2 border-pink-600"
+                  : "text-gray-700 hover:text-pink-500"
+              }`}
+            >
+              Accessories
+            </Link>
+            <Link
               to="/custom-cake"
               className={`px-3 py-2 rounded-md font-medium transition-colors duration-200 ${
                 location.pathname === "/custom-cake"
@@ -306,6 +316,17 @@ export default function Navbar({ homeRef }) {
             onClick={toggleMenu}
           >
             Menu
+          </Link>
+          <Link
+            to="/accessories"
+            className={`block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 ${
+              location.pathname === "/accessories"
+                ? "text-pink-600 bg-pink-50 border-l-4 border-pink-600"
+                : "text-gray-700 hover:text-pink-500 hover:bg-pink-50"
+            }`}
+            onClick={toggleMenu}
+          >
+            Accessories
           </Link>
           <Link
             to="/custom-cake"

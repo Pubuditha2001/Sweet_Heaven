@@ -22,6 +22,7 @@ const Home = forwardRef((props, ref) => {
   const [autoSlide, setAutoSlide] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [scrollPosition, setScrollPosition] = useState(0);
+  const [userInteracted, setUserInteracted] = useState(false);
 
   // Create refs for scroll targets
   const contactRef = useRef(null);
@@ -73,6 +74,7 @@ const Home = forwardRef((props, ref) => {
 
     const handleScroll = () => {
       setScrollPosition(el.scrollLeft);
+      setUserInteracted(true); // Mark that user has interacted with scrolling
     };
 
     el.addEventListener("scroll", handleScroll);
@@ -97,29 +99,32 @@ const Home = forwardRef((props, ref) => {
     const handleScroll = () => {
       setScrollPosition(el.scrollLeft);
 
-      // If we scroll to the end, jump to the beginning
-      if (el.scrollLeft + viewportWidth >= contentWidth - itemWidth / 2) {
-        // Immediately jump to the start without animation
-        el.scrollTo({ left: 0, behavior: "auto" });
-      }
+      // Only auto-jump if user hasn't interacted
+      if (!userInteracted) {
+        // If we scroll to the end, jump to the beginning
+        if (el.scrollLeft + viewportWidth >= contentWidth - itemWidth / 2) {
+          // Immediately jump to the start without animation
+          el.scrollTo({ left: 0, behavior: "auto" });
+        }
 
-      // If we scroll to the beginning (backward), jump to the end
-      if (el.scrollLeft === 0 && scrollPosition > itemWidth) {
-        // Immediately jump to near the end without animation
-        el.scrollTo({
-          left: contentWidth - viewportWidth - itemWidth,
-          behavior: "auto",
-        });
+        // If we scroll to the beginning (backward), jump to the end
+        if (el.scrollLeft === 0 && scrollPosition > itemWidth) {
+          // Immediately jump to near the end without animation
+          el.scrollTo({
+            left: contentWidth - viewportWidth - itemWidth,
+            behavior: "auto",
+          });
+        }
       }
     };
 
     el.addEventListener("scroll", handleScroll);
     return () => el.removeEventListener("scroll", handleScroll);
-  }, [scrollPosition, featuredCakes.length, isMobile]);
+  }, [scrollPosition, featuredCakes.length, isMobile, userInteracted]);
 
   // Enhanced auto-slide logic for smoother infinite scrolling
   useEffect(() => {
-    if (!isScrollable || !autoSlide) return;
+    if (!isScrollable || !autoSlide || userInteracted) return;
     const el = scrollRef.current;
     if (!el) return;
 
@@ -153,11 +158,19 @@ const Home = forwardRef((props, ref) => {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isScrollable, autoSlide, featuredCakes, loading, isMobile]);
+  }, [
+    isScrollable,
+    autoSlide,
+    featuredCakes,
+    loading,
+    isMobile,
+    userInteracted,
+  ]);
 
   // Improved scroll function for manual navigation
   const scroll = (direction) => {
     stopAutoSlide();
+    setUserInteracted(true); // Mark that user has interacted
     if (scrollRef.current) {
       const el = scrollRef.current;
       // Calculate the width of a single cake item including gap
@@ -173,7 +186,10 @@ const Home = forwardRef((props, ref) => {
 
       if (direction === "right") {
         // Check if we're at the end
-        if (currentPos + viewportWidth >= totalWidth - itemWidth / 2) {
+        if (
+          currentPos + viewportWidth >= totalWidth - itemWidth / 2 &&
+          !userInteracted
+        ) {
           // Jump to beginning instantly
           el.scrollTo({ left: 0, behavior: "auto" });
           // Then after a tiny delay, start scrolling smoothly
@@ -186,7 +202,7 @@ const Home = forwardRef((props, ref) => {
         }
       } else if (direction === "left") {
         // Check if we're at the beginning
-        if (currentPos < itemWidth / 2) {
+        if (currentPos < itemWidth / 2 && !userInteracted) {
           // Jump to end instantly
           el.scrollTo({
             left: totalWidth - viewportWidth,
@@ -336,6 +352,7 @@ const Home = forwardRef((props, ref) => {
               }}
               onMouseEnter={() => setAutoSlide(false)}
               onMouseLeave={() => setAutoSlide(true)}
+              onTouchStart={() => setUserInteracted(true)}
             >
               {featuredCakes.map((cake, index) => (
                 <div
