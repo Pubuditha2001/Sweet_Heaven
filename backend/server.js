@@ -90,6 +90,7 @@ const otherProductRoutes = require("./routes/otherProductRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const authRoutes = require("./routes/authRoutes");
 const ordersRoutes = require("./routes/ordersRoutes");
+const geminiRoutes = require("./routes/geminiRoutes");
 
 app.use("/api/cakes", cakeRoutes);
 app.use("/api/toppings", toppingRoutes);
@@ -98,6 +99,7 @@ app.use("/api/other-products", otherProductRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", ordersRoutes);
+app.use("/api/gemini", geminiRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Sweet Heaven API!");
