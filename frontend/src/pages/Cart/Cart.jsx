@@ -38,7 +38,9 @@ export default function Cart() {
     setIsLoading(true);
     getCart(cartId)
       .then(async (data) => {
+        console.log("Cart data received:", data); // Debug log
         const rawItems = data.items || [];
+        console.log("Raw items:", rawItems); // Debug log
 
         // Fetch missing accessory details for items where backend didn't return details
         const details = { ...accessoryDetails };
@@ -61,9 +63,19 @@ export default function Cart() {
             const det = it.details || details[it.itemId] || {};
             const isAccessory = it.productType === "accessory";
 
-            const name = isAccessory
-              ? det.name || det.title || "Accessory"
-              : det.cakeName || det.name || "Cake";
+            // Check if item is available (not hidden/deleted) - do this first
+            let isAvailable = true;
+            if (!det || det.isHidden === true) {
+              isAvailable = false;
+            }
+
+            const name = isAvailable
+              ? isAccessory
+                ? det.name || det.title || "Accessory"
+                : det.cakeName || det.name || "Cake"
+              : isAccessory
+              ? "Unavailable Accessory"
+              : "Unavailable Cake";
             const image = isAccessory ? det.image : det.cakeImage || det.image;
 
             // For cake items, try to resolve size and topping prices
@@ -81,6 +93,7 @@ export default function Cart() {
             let toppingsWithPrices = [];
             if (!isAccessory) {
               cake = det || null;
+
               // determine selected size: try to match stored sizeId to a price entry
               if (det && Array.isArray(det.prices) && det.prices.length > 0) {
                 const storedSize = it.sizeId;
@@ -202,14 +215,17 @@ export default function Cart() {
                 : it.toppings || [],
               accessories: it.accessories || [],
               addedAt: it.addedAt,
+              isAvailable: isAvailable,
             };
           })
         );
 
+        console.log("Normalized items:", normalized); // Debug log
         setItems(normalized);
         setAccessoryDetails(details);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Error loading cart:", error); // Debug log
         setItems([]);
       })
       .finally(() => {
@@ -426,6 +442,9 @@ export default function Cart() {
   };
 
   const subtotal = items.reduce((sum, it) => {
+    // Skip unavailable items from total calculation
+    if (it.isAvailable === false) return sum;
+
     const qty = it.qty || 1;
     // unit base price
     const base = Number(it.unitPrice ?? it.price ?? 0);
@@ -532,6 +551,24 @@ export default function Cart() {
                       ))}
                   </div>
                 </section>
+              )}
+
+              {/* Notice for unavailable items */}
+              {items.some((item) => item.isAvailable === false) && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <div>
+                      <h4 className="text-orange-800 font-medium">
+                        ⚠️ Items Not Available
+                      </h4>
+                      <p className="text-orange-700 text-sm mt-1">
+                        Some items in your cart are currently unavailable and
+                        won't be included in your order total. You can remove
+                        them or contact us for alternatives.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {/* <div className="flex items-center justify-between gap-4">

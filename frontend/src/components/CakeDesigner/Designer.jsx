@@ -4,6 +4,7 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import CakeBase from "./CakeBase";
 import Controls from "./Controls";
+import { generateCakeImage, transformCakeDataForAPI } from "../../api/gemini";
 
 function Scene({ config, onCanvasReady }) {
   const { gl } = useThree();
@@ -60,6 +61,11 @@ export default function Designer() {
   const [shapeKey, setShapeKey] = useState("circle");
   const glRef = useRef(null);
 
+  // AI Generation states
+  const [aiGeneratedImage, setAiGeneratedImage] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState(null);
+
   const sizeMap = useMemo(
     () => ({
       small: { radius: 2, height: 1.5 },
@@ -101,6 +107,36 @@ export default function Designer() {
     };
   }, [sizeKey, shapeKey, frosting, topIcing, sideIcing, config.size]);
 
+  // AI Image Generation function
+  const handleGenerateAIImage = useCallback(async () => {
+    try {
+      setIsGenerating(true);
+      setGenerationError(null);
+
+      const cakeData = getCakeData();
+      const apiData = transformCakeDataForAPI(cakeData, {
+        // Add any additional selections from the controls if available
+        flavor: "vanilla",
+        theme: "elegant",
+        occasion: "general",
+        style: "realistic",
+      });
+
+      const result = await generateCakeImage(apiData);
+
+      if (result.success && result.data) {
+        setAiGeneratedImage(result.data);
+      } else {
+        throw new Error(result.message || "Failed to generate image");
+      }
+    } catch (error) {
+      console.error("AI Generation failed:", error);
+      setGenerationError(error.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [getCakeData]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* 3D Preview */}
@@ -131,6 +167,69 @@ export default function Designer() {
             />
           </Canvas>
         </div>
+
+        {/* AI Generated Image Display */}
+        {aiGeneratedImage && (
+          <div className="p-4 border-t bg-gradient-to-r from-purple-50 to-pink-50">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-gray-800">
+                🤖 AI Generated Cake
+              </h4>
+              {aiGeneratedImage.service && (
+                <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                  {aiGeneratedImage.service}
+                </span>
+              )}
+            </div>
+            <div className="relative">
+              {aiGeneratedImage.imageUrl ? (
+                <div>
+                  <img
+                    src={aiGeneratedImage.imageUrl}
+                    alt="AI Generated Cake"
+                    className="w-full h-64 object-cover rounded-lg shadow-lg border-2 border-purple-200"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                      ✨ FREE
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow flex items-center justify-center border-2 border-dashed border-purple-300">
+                  <div className="text-center text-gray-600">
+                    <p className="font-medium">AI Enhanced Prompt Generated</p>
+                    <p className="text-sm mt-1">
+                      Image generation in progress...
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="mt-3 text-xs text-gray-600 space-y-1">
+                <div className="flex justify-between">
+                  <span>Generated:</span>
+                  <span className="font-medium">
+                    {new Date(aiGeneratedImage.generatedAt).toLocaleString()}
+                  </span>
+                </div>
+                {aiGeneratedImage.cost !== undefined && (
+                  <div className="flex justify-between">
+                    <span>Cost:</span>
+                    <span className="font-medium text-green-600">
+                      ${aiGeneratedImage.cost.toFixed(3)} (FREE!)
+                    </span>
+                  </div>
+                )}
+                {aiGeneratedImage.note && (
+                  <div className="text-center mt-2 p-2 bg-blue-50 rounded text-blue-700 text-xs">
+                    {aiGeneratedImage.note}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Controls Panel */}
@@ -148,6 +247,9 @@ export default function Designer() {
           onSideIcingChange={setSideIcing}
           onExport={handleExport}
           getCakeData={getCakeData}
+          onGenerateAI={handleGenerateAIImage}
+          isGenerating={isGenerating}
+          generationError={generationError}
         />
       </div>
     </div>

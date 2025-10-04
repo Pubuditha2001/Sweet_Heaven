@@ -5,6 +5,12 @@ export async function fetchCakes() {
   return res.json();
 }
 
+export async function fetchHiddenCakes() {
+  const res = await fetch("/api/cakes/hidden/all");
+  if (!res.ok) throw new Error("Failed to fetch hidden cakes");
+  return res.json();
+}
+
 const _missingCakeIds = new Set();
 
 export async function fetchCakeById(id) {
@@ -55,5 +61,15 @@ export async function deleteCake(id) {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete cake");
+  return res.json();
+}
+
+export async function hideCake(id, isHidden = true) {
+  const res = await fetch(`/api/cakes/${id}/hide`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isHidden }),
+  });
+  if (!res.ok) throw new Error("Failed to hide/unhide cake");
   return res.json();
 }

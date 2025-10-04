@@ -298,13 +298,17 @@ export default function Dashboard() {
             tabIndex={0}
             aria-label="Cakes"
             onClick={() => navigate("/admin/cakes")}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/admin/cakes")}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && navigate("/admin/cakes")
+            }
             className="bg-white rounded-2xl shadow p-6 sm:p-8 text-center border-t-4 border-pink-400 hover:scale-102 transition-transform duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-200"
           >
             <h2 className="text-2xl sm:text-3xl font-extrabold text-pink-600 mb-1 sm:mb-2">
               {loading ? "..." : cakesCount}
             </h2>
-            <span className="text-gray-500 text-sm sm:text-base font-semibold">Cakes</span>
+            <span className="text-gray-500 text-sm sm:text-base font-semibold">
+              Cakes
+            </span>
           </div>
 
           <div
@@ -312,13 +316,18 @@ export default function Dashboard() {
             tabIndex={0}
             aria-label="Toppings"
             onClick={() => navigate("/admin/toppings")}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/admin/toppings")}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") &&
+              navigate("/admin/toppings")
+            }
             className="bg-white rounded-2xl shadow p-6 sm:p-8 text-center border-t-4 border-indigo-400 hover:scale-102 transition-transform duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200"
           >
             <h2 className="text-2xl sm:text-3xl font-extrabold text-indigo-600 mb-1 sm:mb-2">
               {loading ? "..." : toppingsCount}
             </h2>
-            <span className="text-gray-500 text-sm sm:text-base font-semibold">Toppings</span>
+            <span className="text-gray-500 text-sm sm:text-base font-semibold">
+              Toppings
+            </span>
           </div>
 
           <div
@@ -326,13 +335,18 @@ export default function Dashboard() {
             tabIndex={0}
             aria-label="Accessories"
             onClick={() => navigate("/admin/accessories")}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/admin/accessories")}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") &&
+              navigate("/admin/accessories")
+            }
             className="bg-white rounded-2xl shadow p-6 sm:p-8 text-center border-t-4 border-pink-400 hover:scale-102 transition-transform duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-200"
           >
             <h2 className="text-2xl sm:text-3xl font-extrabold text-pink-600 mb-1 sm:mb-2">
               {loading ? "..." : accessoriesCount}
             </h2>
-            <span className="text-gray-500 text-sm sm:text-base font-semibold">Accessories</span>
+            <span className="text-gray-500 text-sm sm:text-base font-semibold">
+              Accessories
+            </span>
           </div>
         </section>
       </main>

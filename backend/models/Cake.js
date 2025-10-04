@@ -53,6 +53,10 @@ const cakeSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isHidden: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Ensure each price subdocument _id is the lowercase size string before validation/save.

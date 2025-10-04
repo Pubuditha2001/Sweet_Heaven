@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const toppingSchema = new mongoose.Schema({
   collectionName: { type: String, required: true },
+  isHidden: { type: Boolean, default: false },
   toppings: [
     {
       _id: { type: mongoose.Schema.Types.ObjectId, auto: true },

@@ -9,6 +9,12 @@ export async function fetchAllToppings() {
   }
 }
 
+export async function fetchHiddenToppings() {
+  const res = await fetch("/api/toppings/hidden/all");
+  if (!res.ok) throw new Error("Failed to fetch hidden toppings");
+  return res.json();
+}
+
 // Topping related API helpers
 export async function fetchToppingsByRef(ref) {
   // Avoid calling the backend for missing or invalid refs.
@@ -78,5 +84,15 @@ export async function deleteToppingCollection(id) {
   if (!res.ok) {
     throw new Error(`Failed to delete topping collection: ${res.statusText}`);
   }
+  return res.json();
+}
+
+export async function hideToppingCollection(id, isHidden = true) {
+  const res = await fetch(`/api/toppings/${id}/hide`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isHidden }),
+  });
+  if (!res.ok) throw new Error("Failed to hide/unhide topping collection");
   return res.json();
 }

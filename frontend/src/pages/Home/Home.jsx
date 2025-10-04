@@ -281,27 +281,25 @@ const Home = forwardRef((props, ref) => {
           sweetness to your celebrations.
         </p>
       </div>
-      {/* Call to Action - Improved mobile styling with FAQ button */}
-      <div className="grid grid-cols-2 gap-2 px-4 sm:px-8 py-3 mt-2 sm:flex sm:justify-center sm:gap-5 md:gap-10 lg:gap-16">
-        <button
-          onClick={() => (window.location.href = "/menu")}
-          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm"
-          type="button"
+      {/* Call to Action - always 2 columns (mobile and up), larger on md/lg */}
+      <div className="grid grid-cols-2 gap-6 px-4 sm:px-8 py-6 mt-4 max-w-5xl mx-auto">
+        <Link
+          to="/menu"
+          className="w-full flex items-center justify-center rounded-lg h-14 md:h-16 lg:h-15 py-0 px-6 md:px-8 lg:px-12 bg-pink-600 text-white text-lg lg:text-xl font-semibold hover:bg-pink-700 transition-colors shadow-md"
         >
           Menu
-        </button>
+        </Link>
 
-        <button
-          onClick={() => (window.location.href = "/custom-cake")}
-          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm"
-          type="button"
+        <Link
+          to="/cart"
+          className="w-full flex items-center justify-center rounded-lg h-14 md:h-16 lg:h-15 py-0 px-6 md:px-8 lg:px-12 bg-pink-600 text-white text-lg lg:text-xl font-semibold hover:bg-pink-700 transition-colors shadow-md"
         >
-          Custom Cakes
-        </button>
+          View Cart
+        </Link>
 
         <button
           onClick={scrollToContact}
-          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm col-span-1"
+          className="w-full flex items-center justify-center rounded-lg h-14 md:h-16 lg:h-15 py-0 px-6 md:px-8 lg:px-12 bg-pink-600 text-white text-lg lg:text-xl font-semibold hover:bg-pink-700 transition-colors shadow-md"
           type="button"
         >
           Contact
@@ -309,7 +307,7 @@ const Home = forwardRef((props, ref) => {
 
         <button
           onClick={scrollToFAQ}
-          className="flex items-center justify-center rounded-lg py-2 px-2 sm:px-4 bg-pink-600 text-white text-xs sm:text-sm md:text-base font-medium hover:bg-pink-700 transition-colors shadow-sm col-span-1"
+          className="w-full flex items-center justify-center rounded-lg h-14 md:h-16 lg:h-15 py-0 px-6 md:px-8 lg:px-12 bg-pink-600 text-white text-lg lg:text-xl font-semibold hover:bg-pink-700 transition-colors shadow-md"
           type="button"
         >
           FAQ

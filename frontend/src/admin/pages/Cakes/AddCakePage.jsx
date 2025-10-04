@@ -4,6 +4,7 @@ import { createCake, fetchCakes } from "../../../api/cake";
 import ImageUploader from "../../../components/ImageUploader";
 import { fetchAllToppings } from "../../../api/topping";
 import UnsavedChangesModal from "../../components/UnsavedChangesModal";
+import FeedbackModal from "../../components/FeedbackModal";
 
 export default function AddCakePage() {
   const [toppingOptions, setToppingOptions] = useState([]);
@@ -34,6 +35,12 @@ export default function AddCakePage() {
   const [formErrors, setFormErrors] = useState({});
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [modalSaving, setModalSaving] = useState(false);
+  const [feedback, setFeedback] = useState({
+    show: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   // whether the form has unsaved changes compared to the initial loaded cake
   const hasChanges = useMemo(() => {
@@ -44,6 +51,10 @@ export default function AddCakePage() {
       return true;
     }
   }, [initialCake, cake]);
+
+  const showFeedback = (type, title, message) => {
+    setFeedback({ show: true, type, title, message });
+  };
 
   // Pricing helpers moved to component scope to avoid declaring statements inside JSX
   const SIZE_OPTIONS = [
@@ -210,15 +221,33 @@ export default function AddCakePage() {
     e.preventDefault();
 
     if (!validateForm()) {
+      showFeedback(
+        "error",
+        "Validation Failed",
+        "Please fix the errors in the form before submitting."
+      );
       return;
     }
 
     try {
       console.log("Submitting cake data:", cake);
       await createCake(cake);
-      navigate("/admin/cakes");
+      showFeedback(
+        "success",
+        "Cake Created",
+        `"${cake.cakeName}" has been successfully created!`
+      );
+      // Delay navigation to show the success message
+      setTimeout(() => {
+        navigate("/admin/cakes");
+      }, 2000);
     } catch (err) {
       console.error("Create cake error:", err);
+      showFeedback(
+        "error",
+        "Creation Failed",
+        `Failed to create cake: ${err.message || err}`
+      );
       setError("Failed to create cake: " + (err.message || err));
     }
   };
@@ -615,6 +644,13 @@ export default function AddCakePage() {
           </button>
         </div>
       </form>
+      <FeedbackModal
+        show={feedback.show}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+        onClose={() => setFeedback({ ...feedback, show: false })}
+      />
     </div>
   );
 }

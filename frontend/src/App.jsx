@@ -4,7 +4,7 @@ import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home/Home.jsx";
 import Menu from "./pages/Menu/Menu.jsx";
 import ProductView from "./pages/ProductView/ProductView.jsx";
-import CustomCake from "./pages/CustomCake/CustomCake.jsx";
+// import CustomCake from "./pages/CustomCake/CustomCake.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import Contact from "./pages/Contact/Contact.jsx";
 import AccessoriesPage from "./pages/Accessories/AccessoriesPage.jsx";
@@ -34,6 +34,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Create a wrapper component that decides when to show Hero
 function AppContent() {
@@ -41,6 +42,7 @@ function AppContent() {
   const isHomePage = location.pathname === "/";
   const isAdminRoute = location.pathname.startsWith("/admin");
   const homeRef = useRef(null);
+  const navigate = useNavigate();
 
   // Handle scroll to element if URL has hash
   useEffect(() => {
@@ -54,6 +56,26 @@ function AppContent() {
       }, 300);
     }
   }, [location, isHomePage]);
+
+  // If user accesses an admin route but is not logged in as admin, redirect to admin login
+  useEffect(() => {
+    try {
+      const hasAdminToken = Boolean(localStorage.getItem("adminToken"));
+      if (
+        isAdminRoute &&
+        !hasAdminToken &&
+        !location.pathname.includes("/admin/login")
+      ) {
+        // preserve next param so login can return
+        const next = encodeURIComponent(
+          location.pathname + location.search + location.hash || ""
+        );
+        navigate(`/admin/login?next=${next}`);
+      }
+    } catch {
+      // localStorage may be unavailable in some environments; silently ignore
+    }
+  }, [isAdminRoute, location, navigate]);
 
   if (isAdminRoute) {
     return (
@@ -94,7 +116,7 @@ function AppContent() {
           <Route path="/menu" element={<Menu />} />
           <Route path="/accessories" element={<AccessoriesPage />} />
           <Route path="/product/:id" element={<ProductView />} />
-          <Route path="/custom-cake" element={<CustomCake />} />
+          {/* <Route path="/custom-cake" element={<CustomCake />} /> */}
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/checkout/details" element={<CheckoutDetails />} />

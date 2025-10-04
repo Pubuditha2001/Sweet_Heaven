@@ -6,6 +6,7 @@ import { fetchCakes } from "../../api/cake";
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [cakes, setCakes] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,6 +24,16 @@ export default function Menu() {
     }
     loadCakes();
   }, []);
+
+  // derive unique categories from fetched cakes (same strategy as EditCakePage)
+  useEffect(() => {
+    if (!Array.isArray(cakes)) {
+      setCategories([]);
+      return;
+    }
+    const cats = [...new Set(cakes.map((c) => c.category).filter(Boolean))];
+    setCategories(cats);
+  }, [cakes]);
 
   // Group cakes by category
   const cakesByCategory = {
@@ -46,66 +57,32 @@ export default function Menu() {
         Our Cakes
       </h2>
 
-      {/* Category tabs */}
-      <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex overflow-x-auto whitespace-nowrap pb-2 mb-6 gap-2 no-scrollbar">
+      {/* Category tabs (dynamically derived from cake data) */}
+      <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex overflow-x-auto whitespace-nowrap pt-2 pb-2 mb-6 gap-2 no-scrollbar">
         <button
           onClick={() => setActiveCategory("all")}
           className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "all" ? "bg-pink-500 text-white" : "bg-pink-400"
+            activeCategory === "all"
+              ? "bg-pink-500 text-white"
+              : "bg-gray-300 text-white"
           }`}
         >
           All Cakes
         </button>
-        <button
-          onClick={() => setActiveCategory("featured")}
-          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "featured"
-              ? "bg-pink-500 text-white"
-              : "bg-pink-400"
-          }`}
-        >
-          Featured
-        </button>
-        <button
-          onClick={() => setActiveCategory("birthday")}
-          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "birthday"
-              ? "bg-pink-500 text-white"
-              : "bg-pink-400"
-          }`}
-        >
-          Birthday
-        </button>
-        <button
-          onClick={() => setActiveCategory("cupcakes")}
-          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "cupcakes"
-              ? "bg-pink-500 text-white"
-              : "bg-pink-400"
-          }`}
-        >
-          Cupcakes
-        </button>
-        <button
-          onClick={() => setActiveCategory("specialty")}
-          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "specialty"
-              ? "bg-pink-500 text-white"
-              : "bg-pink-400"
-          }`}
-        >
-          Specialty
-        </button>
-        <button
-          onClick={() => setActiveCategory("normal")}
-          className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
-            activeCategory === "normal"
-              ? "bg-pink-500 text-white"
-              : "bg-pink-400"
-          }`}
-        >
-          Normal
-        </button>
+
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`flex-shrink-0 px-4 py-3 text-base rounded-xl transition ${
+              activeCategory === cat
+                ? "bg-pink-500 text-white"
+                : "bg-gray-300 text-white"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       {/* Loading/Error */}

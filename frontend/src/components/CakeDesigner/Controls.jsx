@@ -47,6 +47,9 @@ export default function Controls({
   onSideIcingChange,
   onExport,
   getCakeData,
+  onGenerateAI,
+  isGenerating,
+  generationError,
 }) {
   const [customSelections, setCustomSelections] = useState({
     cakeType: false,
@@ -586,6 +589,50 @@ export default function Controls({
               readOnly
             />
           </div>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="font-semibold text-gray-800 mb-2">
+          AI Image Generation
+        </h3>
+        <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border">
+          <p className="text-sm text-gray-600">
+            Generate a realistic cake image based on your design selections
+          </p>
+
+          {generationError && (
+            <div className="p-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+              Error: {generationError}
+            </div>
+          )}
+
+          <button
+            onClick={onGenerateAI}
+            disabled={isGenerating}
+            className={`w-full px-4 py-2 rounded-lg border transition flex items-center justify-center gap-2 ${
+              isGenerating
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-600 hover:from-purple-700 hover:to-pink-700"
+            }`}
+          >
+            {isGenerating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                Generating...
+              </>
+            ) : (
+              <>
+                <span>✨</span>
+                Generate AI Image
+                <span>✨</span>
+              </>
+            )}
+          </button>
+          <p className="text-xs text-gray-500">
+            Uses advanced AI to create a photorealistic cake based on your
+            design
+          </p>
         </div>
       </section>
 

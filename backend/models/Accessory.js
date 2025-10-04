@@ -5,6 +5,7 @@ const accessorySchema = new mongoose.Schema({
   description: { type: String },
   price: { type: Number, required: true },
   image: { type: String },
+  isHidden: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("Accessory", accessorySchema);

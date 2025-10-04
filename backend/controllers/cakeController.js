@@ -14,6 +14,7 @@ async function createCake(req, res) {
       images,
       category,
       isFeatured,
+      isHidden,
       toppingRef,
     } = req.body;
     // prefer images array, but keep cakeImage for backward compatibility
@@ -53,7 +54,20 @@ async function createCake(req, res) {
 // Get all cakes
 async function getCakes(req, res) {
   try {
-    const cakes = await Cake.find();
+    // Filter out hidden cakes (isHidden: true)
+    const cakes = await Cake.find({
+      $or: [{ isHidden: { $ne: true } }, { isHidden: { $exists: false } }],
+    });
+    res.json(cakes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+// Get hidden cakes
+async function getHiddenCakes(req, res) {
+  try {
+    const cakes = await Cake.find({ isHidden: true });
     res.json(cakes);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -65,6 +79,12 @@ async function getCakeById(req, res) {
   try {
     const cake = await Cake.findById(req.params.id);
     if (!cake) return res.status(404).json({ error: "Cake not found" });
+
+    // Check if cake is hidden
+    if (cake.isHidden === true) {
+      return res.status(404).json({ error: "Cake not available" });
+    }
+
     res.json(cake);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -85,6 +105,7 @@ async function updateCake(req, res) {
       images,
       category,
       isFeatured,
+      isHidden,
       toppingRef,
     } = req.body;
     const normalizedCakeImage =
@@ -98,6 +119,7 @@ async function updateCake(req, res) {
       images: Array.isArray(images) ? images : images ? [images] : undefined,
       category,
       isFeatured,
+      isHidden,
       toppingRef,
     };
 
@@ -122,6 +144,22 @@ async function updateCake(req, res) {
   }
 }
 
+// Hide/unhide a cake
+async function hideCake(req, res) {
+  try {
+    const { isHidden } = req.body;
+    const cake = await Cake.findByIdAndUpdate(
+      req.params.id,
+      { isHidden: isHidden === true },
+      { new: true }
+    );
+    if (!cake) return res.status(404).json({ error: "Cake not found" });
+    res.json({ message: isHidden ? "Cake hidden" : "Cake unhidden", cake });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 // Delete a cake
 async function deleteCake(req, res) {
   try {
@@ -136,7 +174,9 @@ async function deleteCake(req, res) {
 module.exports = {
   createCake,
   getCakes,
+  getHiddenCakes,
   getCakeById,
   updateCake,
+  hideCake,
   deleteCake,
 };
