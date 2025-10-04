@@ -30,9 +30,9 @@ a {
   /* color: #ff64fa; */
   text-decoration: inherit;
 }
-a:hover {
-  /* color: #e253f2; */
-}
+/* a:hover {
+  color: #e253f2;
+} */
 
 body {
   margin: 0;

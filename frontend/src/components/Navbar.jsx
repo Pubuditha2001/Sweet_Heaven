@@ -137,7 +137,7 @@ export default function Navbar({ homeRef }) {
               <img
                 src={headerLogo}
                 alt="Sweet Heaven"
-                className="h-10 w-auto"
+                className="h-12 w-auto"
               />
             </Link>
           </div>
