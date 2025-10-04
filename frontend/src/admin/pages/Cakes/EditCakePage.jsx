@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchCakeById, updateCake, fetchCakes } from "../../../api/cake";
 import ImageUploader from "../../../components/ImageUploader";
 import { fetchAllToppings, fetchToppingsByRef } from "../../../api/topping";
+import FeedbackModal from "../../components/FeedbackModal";
 
 export default function EditCakePage() {
   // toppingOptions will be an array of { id, collectionName }
@@ -18,6 +19,12 @@ export default function EditCakePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formErrors, setFormErrors] = useState({});
+  const [feedback, setFeedback] = useState({
+    show: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   // whether the form has unsaved changes compared to the initial loaded cake
   const hasChanges = useMemo(() => {
@@ -29,6 +36,10 @@ export default function EditCakePage() {
       return true;
     }
   }, [initialCake, cake]);
+
+  const showFeedback = (type, title, message) => {
+    setFeedback({ show: true, type, title, message });
+  };
 
   useEffect(() => {
     async function loadCakeAndToppings() {
@@ -197,6 +208,11 @@ export default function EditCakePage() {
     e.preventDefault();
 
     if (!validateForm()) {
+      showFeedback(
+        "error",
+        "Validation Failed",
+        "Please fix the errors in the form before submitting."
+      );
       return;
     }
 
@@ -238,9 +254,22 @@ export default function EditCakePage() {
 
       console.log("Submitting normalized cake data:", payload);
       await updateCake(cake._id, payload);
-      navigate("/admin/cakes");
+      showFeedback(
+        "success",
+        "Cake Updated",
+        `"${cake.cakeName}" has been successfully updated!`
+      );
+      // Delay navigation to show the success message
+      setTimeout(() => {
+        navigate("/admin/cakes");
+      }, 2000);
     } catch (err) {
       console.error("Update cake error:", err);
+      showFeedback(
+        "error",
+        "Update Failed",
+        `Failed to update cake: ${err.message || err}`
+      );
       setError("Failed to update cake: " + (err.message || err));
     }
   };
@@ -759,6 +788,13 @@ export default function EditCakePage() {
           </button>
         </div>
       </form>
+      <FeedbackModal
+        show={feedback.show}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+        onClose={() => setFeedback({ ...feedback, show: false })}
+      />
     </div>
   );
 }

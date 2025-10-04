@@ -1,3 +1,15 @@
+/* Custom hero height for large screens */
+.hero-lg-height {
+  height: 450px;
+  max-height: 100vh;
+}
+
+@media (max-width: 1023px) {
+  .hero-lg-height {
+    height: auto;
+    max-height: none;
+  }
+}
 :root {
   font-family: "Handlee", cursive;
   line-height: 1.5;
@@ -15,11 +27,11 @@
 
 a {
   font-weight: 500;
-  color: #ff64fa;
+  /* color: #ff64fa; */
   text-decoration: inherit;
 }
 a:hover {
-  color: #e253f2;
+  /* color: #e253f2; */
 }
 
 body {
@@ -78,10 +90,9 @@ h6 {
 }
 
 /* Special style for logo image */
-img[alt="Sweet Heaven"] {
-  /* Add any specific styles for the logo image if needed */
+/* img[alt="Sweet Heaven"] {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
+} */
 
 /* Brand accent text for any decorative text elements */
 .brand-accent {
@@ -111,7 +122,7 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5) !important;
+  /* box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5) !important; */
 }
 
 /* Remove all default focus ring colors */
@@ -134,10 +145,195 @@ textarea:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
+  /* a:hover {
     color: #747bff;
-  }
+  } */
   button {
     background-color: transparent;
   }
+}
+
+/* Logo radial gradient: colored center fading to transparent outer */
+.logo-gradient {
+  background: radial-gradient(
+    circle at center,
+    rgb(255, 239, 242) 0%,
+    rgba(255, 239, 242, 0.6) 40%,
+    rgba(255, 239, 242, 0.12) 70%,
+    rgba(255, 239, 242, 0) 100%
+  );
+}
+
+/* Custom color overrides - Replace Tailwind pink shades with custom color variations */
+/* Pink-50 - Very light */
+.text-pink-50 {
+  color: rgba(253, 242, 244, 1) !important;
+}
+.bg-pink-50 {
+  background-color: rgba(253, 242, 244, 1) !important;
+}
+.border-pink-50 {
+  border-color: rgba(253, 242, 244, 1) !important;
+}
+
+/* Pink-100 - Light */
+.text-pink-100 {
+  color: rgba(251, 225, 229, 1) !important;
+}
+.bg-pink-100 {
+  background-color: rgba(251, 225, 229, 1) !important;
+}
+.border-pink-100 {
+  border-color: rgba(251, 225, 229, 1) !important;
+}
+
+/* Pink-200 */
+.text-pink-200 {
+  color: rgba(246, 195, 203, 1) !important;
+}
+.bg-pink-200 {
+  background-color: rgba(246, 195, 203, 1) !important;
+}
+.border-pink-200 {
+  border-color: rgba(246, 195, 203, 1) !important;
+}
+
+/* Pink-300 */
+.text-pink-300 {
+  color: rgba(241, 165, 177, 1) !important;
+}
+.bg-pink-300 {
+  background-color: rgba(241, 165, 177, 1) !important;
+}
+.border-pink-300 {
+  border-color: rgba(241, 165, 177, 1) !important;
+}
+
+/* Pink-400 */
+.text-pink-400 {
+  color: rgba(236, 135, 151, 1) !important;
+}
+.bg-pink-400 {
+  background-color: rgba(236, 135, 151, 1) !important;
+}
+.border-pink-400 {
+  border-color: rgba(236, 135, 151, 1) !important;
+}
+
+/* Pink-500 */
+.text-pink-500 {
+  color: rgba(232, 112, 129, 1) !important;
+}
+.bg-pink-500 {
+  background-color: rgba(232, 112, 129, 1) !important;
+}
+.border-pink-500 {
+  border-color: rgba(232, 112, 129, 1) !important;
+}
+
+/* Pink-600 - Your base color */
+.text-pink-600 {
+  color: rgba(229, 89, 104, 1) !important;
+}
+.bg-pink-600 {
+  background-color: rgba(229, 89, 104, 1) !important;
+}
+.border-pink-600 {
+  border-color: rgba(229, 89, 104, 1) !important;
+}
+
+/* Pink-700 - Darker */
+.text-pink-700 {
+  color: rgba(206, 80, 94, 1) !important;
+}
+.bg-pink-700 {
+  background-color: rgba(206, 80, 94, 1) !important;
+}
+.border-pink-700 {
+  border-color: rgba(206, 80, 94, 1) !important;
+}
+
+/* Pink-800 */
+.text-pink-800 {
+  color: rgba(183, 71, 84, 1) !important;
+}
+.bg-pink-800 {
+  background-color: rgba(183, 71, 84, 1) !important;
+}
+.border-pink-800 {
+  border-color: rgba(183, 71, 84, 1) !important;
+}
+
+/* Pink-900 - Very dark */
+.text-pink-900 {
+  color: rgba(160, 62, 74, 1) !important;
+}
+.bg-pink-900 {
+  background-color: rgba(160, 62, 74, 1) !important;
+}
+.border-pink-900 {
+  border-color: rgba(160, 62, 74, 1) !important;
+}
+
+/* Pink-950 - Darkest */
+.text-pink-950 {
+  color: rgba(131, 51, 61, 1) !important;
+}
+.bg-pink-950 {
+  background-color: rgba(131, 51, 61, 1) !important;
+}
+.border-pink-950 {
+  border-color: rgba(131, 51, 61, 1) !important;
+}
+
+/* Additional utility classes for rings, fills, and strokes */
+.ring-pink-500 {
+  --tw-ring-color: rgba(232, 112, 129, 1) !important;
+}
+.ring-pink-600 {
+  --tw-ring-color: rgba(229, 89, 104, 1) !important;
+}
+.ring-pink-700 {
+  --tw-ring-color: rgba(206, 80, 94, 1) !important;
+}
+
+.fill-pink-500 {
+  fill: rgba(232, 112, 129, 1) !important;
+}
+.fill-pink-600 {
+  fill: rgba(229, 89, 104, 1) !important;
+}
+.fill-pink-700 {
+  fill: rgba(206, 80, 94, 1) !important;
+}
+
+.stroke-pink-500 {
+  stroke: rgba(232, 112, 129, 1) !important;
+}
+.stroke-pink-600 {
+  stroke: rgba(229, 89, 104, 1) !important;
+}
+.stroke-pink-700 {
+  stroke: rgba(206, 80, 94, 1) !important;
+}
+
+/* Hover states */
+.hover\:text-pink-500:hover {
+  color: rgba(232, 112, 129, 1) !important;
+}
+.hover\:text-pink-600:hover {
+  color: rgba(229, 89, 104, 1) !important;
+}
+.hover\:text-pink-700:hover {
+  color: rgba(206, 80, 94, 1) !important;
+}
+
+.hover\:bg-pink-500:hover {
+  background-color: rgba(232, 112, 129, 1) !important;
+}
+.hover\:bg-pink-600:hover {
+  background-color: rgba(229, 89, 104, 1) !important;
+}
+.hover\:bg-pink-700:hover {
+  background-color: rgba(206, 80, 94, 1) !important;
 }

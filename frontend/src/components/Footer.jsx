@@ -1,6 +1,7 @@
 // Footer.jsx - Sweet Heaven Footer component
 import React from "react";
 import { Link } from "react-router-dom";
+import headerLogo from "../assets/header_logo.png";
 
 export default function Footer() {
   return (
@@ -9,18 +10,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
           {/* Brand section */}
           <div className="flex flex-col">
-            <h2
-              className="text-pink-600 font-bold text-2xl mb-4 logo-text"
-              data-content="Sweet Heaven"
-            >
-              S<span className="lowercase">w</span>
-              <span className="lowercase">e</span>
-              <span className="lowercase">e</span>T H
-              <span className="lowercase">e</span>
-              <span className="lowercase">v</span>A
-              <span className="lowercase">e</span>
-              <span className="lowercase">n</span>
-            </h2>
+            <img
+              src={headerLogo}
+              alt="Sweet Heaven"
+              className="h-12 w-auto object-contain mb-4 self-start"
+            />
             <p className="text-gray-600 ">Heavenly cakes for every occasion.</p>
             <p className="text-gray-600">
               Handcrafted with love and premium ingredients.
@@ -170,17 +164,13 @@ export default function Footer() {
 
         {/* Bottom section with additional links */}
         <div className="border-t border-gray-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-sm text-gray-500 mb-2 md:mb-0">
+          <div className="text-sm text-gray-500 mb-2 md:mb-0 flex items-center">
             Made with ❤️ by{" "}
-            <span className="logo-text" data-content="Sweet Heaven">
-              S<span className="lowercase">w</span>
-              <span className="lowercase">e</span>
-              <span className="lowercase">e</span>T H
-              <span className="lowercase">e</span>A
-              <span className="lowercase">v</span>
-              <span className="lowercase">e</span>
-              <span className="lowercase">n</span>
-            </span>{" "}
+            <img
+              src={headerLogo}
+              alt="Sweet Heaven"
+              className="h-6 w-auto object-contain mx-1"
+            />
             Team
           </div>
           <div className="flex space-x-6 text-sm">

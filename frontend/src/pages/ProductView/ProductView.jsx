@@ -85,7 +85,7 @@ export default function ProductView() {
       try {
         const data = await fetchCakeById(id);
         if (!data) {
-          setError("Product not found");
+          setError("This cake is currently not available or has been removed");
           setProduct(null);
           setLoading(false);
           return;
@@ -116,7 +116,7 @@ export default function ProductView() {
         }
         setSelectedToppings([]);
       } catch (err) {
-        setError(err?.message || String(err));
+        setError("This cake is currently not available");
       }
       setLoading(false);
     }
@@ -297,6 +297,9 @@ export default function ProductView() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
         <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
           <div className="text-red-500 text-xl mb-4">😔 {error}</div>
+          <p className="text-gray-600 mb-6">
+            This cake might have been removed or is temporarily unavailable.
+          </p>
           <button
             onClick={() => navigate("/menu")}
             className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:from-pink-600 hover:to-purple-600 focus:from-pink-600 focus:to-purple-600 focus:outline-none active:from-pink-700 active:to-purple-700 transition duration-300 shadow-lg"
@@ -312,7 +315,12 @@ export default function ProductView() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
         <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
-          <div className="text-gray-500 text-xl mb-4">🍰 Product not found</div>
+          <div className="text-gray-500 text-xl mb-4">
+            🍰 Cake not available
+          </div>
+          <p className="text-gray-600 mb-6">
+            This cake is currently not available or has been removed.
+          </p>
           <button
             onClick={() => navigate("/menu")}
             className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-lg hover:from-pink-600 hover:to-purple-600 focus:from-pink-600 focus:to-purple-600 focus:outline-none active:from-pink-700 active:to-purple-700 transition duration-300 shadow-lg"

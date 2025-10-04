@@ -31,13 +31,19 @@ export default function CartItem({
   const subtotal = basePrice + toppingsTotal;
 
   return (
-    <div className="flex gap-4 items-start p-3 sm:p-4 border rounded-lg bg-white w-full">
+    <div
+      className={`flex gap-4 items-start p-3 sm:p-4 border rounded-lg w-full ${
+        item.isAvailable === false ? "bg-gray-50 opacity-75" : "bg-white"
+      }`}
+    >
       {isAccessory ? (
         item.image ? (
           <img
             src={item.image}
             alt={item.name}
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
+            className={`w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border ${
+              item.isAvailable === false ? "grayscale" : ""
+            }`}
             onError={(e) => (e.target.src = "/accessoryFallback.png")}
           />
         ) : (
@@ -47,7 +53,9 @@ export default function CartItem({
         <img
           src={cake?.cakeImage ? cake.cakeImage : "/fallback.jpg"}
           alt={item.name}
-          className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
+          className={`w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border ${
+            item.isAvailable === false ? "grayscale" : ""
+          }`}
           onError={(e) => (e.target.src = "/fallback.jpg")}
         />
       )}
@@ -57,7 +65,9 @@ export default function CartItem({
         <div className="flex flex-row justify-between items-start gap-4">
           <div className="flex-1 min-w-0">
             <div
-              className="font-semibold text-gray-900"
+              className={`font-semibold ${
+                item.isAvailable === false ? "text-gray-500" : "text-gray-900"
+              }`}
               style={{
                 overflow: "hidden",
                 display: "-webkit-box",
@@ -67,6 +77,11 @@ export default function CartItem({
               title={item.name}
             >
               {item.name}
+              {item.isAvailable === false && (
+                <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                  Not Available
+                </span>
+              )}
             </div>
             {item.size && (
               <div className="text-sm text-gray-500">
@@ -137,23 +152,41 @@ export default function CartItem({
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-0">
             <button
-              onClick={() => onDecrease(item.id)}
-              className="px-2 sm:px-3 py-1 rounded-md border hover:bg-gray-100 text-gray-900 font-medium"
-              style={{ color: "#111827" }}
+              onClick={() => item.isAvailable !== false && onDecrease(item.id)}
+              disabled={item.isAvailable === false}
+              className={`px-2 sm:px-3 py-1 rounded-md border font-medium ${
+                item.isAvailable === false
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-100 text-gray-900"
+              }`}
+              style={{
+                color: item.isAvailable === false ? "#9CA3AF" : "#111827",
+              }}
               aria-label="decrease"
             >
               −
             </button>
             <div
-              className="px-2 sm:px-3 py-1 border rounded-md min-w-[40px] sm:min-w-[48px] text-center text-gray-900 font-medium"
-              style={{ color: "#111827" }}
+              className={`px-2 sm:px-3 py-1 border rounded-md min-w-[40px] sm:min-w-[48px] text-center font-medium ${
+                item.isAvailable === false ? "text-gray-400" : "text-gray-900"
+              }`}
+              style={{
+                color: item.isAvailable === false ? "#9CA3AF" : "#111827",
+              }}
             >
               {item.qty}
             </div>
             <button
-              onClick={() => onIncrease(item.id)}
-              className="px-2 sm:px-3 py-1 rounded-md border hover:bg-gray-100 text-gray-900 font-medium"
-              style={{ color: "#111827" }}
+              onClick={() => item.isAvailable !== false && onIncrease(item.id)}
+              disabled={item.isAvailable === false}
+              className={`px-2 sm:px-3 py-1 rounded-md border font-medium ${
+                item.isAvailable === false
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "hover:bg-gray-100 text-gray-900"
+              }`}
+              style={{
+                color: item.isAvailable === false ? "#9CA3AF" : "#111827",
+              }}
               aria-label="increase"
             >
               +
@@ -167,12 +200,14 @@ export default function CartItem({
             >
               Remove
             </button>
-            <button
-              onClick={() => onEdit && onEdit(item)}
-              className="text-sm text-gray-500 hover:text-pink-600"
-            >
-              Edit
-            </button>
+            {item.isAvailable !== false && (
+              <button
+                onClick={() => onEdit && onEdit(item)}
+                className="text-sm text-gray-500 hover:text-pink-600"
+              >
+                Edit
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 // Navbar.jsx - Main navigation bar
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
+import headerLogo from "../assets/header_logo.png";
 
 export default function Navbar({ homeRef }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -133,19 +134,11 @@ export default function Navbar({ homeRef }) {
               className="flex items-center"
               onClick={handleHomeClick}
             >
-              {/* You can replace this with an actual logo image */}
-              <span
-                className="text-pink-600 font-bold text-2xl logo-text"
-                data-content="Sweet Heaven"
-              >
-                S<span className="lowercase">w</span>
-                <span className="lowercase">e</span>
-                <span className="lowercase">e</span>T H
-                <span className="lowercase">e</span>A
-                <span className="lowercase">v</span>
-                <span className="lowercase">e</span>
-                <span className="lowercase">n</span>
-              </span>
+              <img
+                src={headerLogo}
+                alt="Sweet Heaven"
+                className="h-10 w-auto"
+              />
             </Link>
           </div>
           {/* Desktop Navigation Links */}
@@ -181,7 +174,7 @@ export default function Navbar({ homeRef }) {
             >
               Accessories
             </Link>
-            <Link
+            {/* <Link
               to="/custom-cake"
               className={`px-3 py-2 rounded-md font-medium transition-colors duration-200 ${
                 location.pathname === "/custom-cake"
@@ -190,7 +183,7 @@ export default function Navbar({ homeRef }) {
               }`}
             >
               Custom Cake Creator
-            </Link>
+            </Link> */}
             {/* Changed to use onClick instead of Link */}
             <a
               href="#contact-section"
@@ -328,7 +321,7 @@ export default function Navbar({ homeRef }) {
           >
             Accessories
           </Link>
-          <Link
+          {/* <Link
             to="/custom-cake"
             className={`block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 ${
               location.pathname === "/custom-cake"
@@ -338,7 +331,7 @@ export default function Navbar({ homeRef }) {
             onClick={toggleMenu}
           >
             Custom Cake Creator
-          </Link>
+          </Link> */}
           {/* Changed to use onClick instead of Link */}
           <a
             href="#contact-section"

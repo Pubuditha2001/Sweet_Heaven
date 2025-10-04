@@ -8,6 +8,12 @@ export async function fetchAccessories() {
   return res.json();
 }
 
+export async function fetchHiddenAccessories() {
+  const res = await fetch("/api/accessories/hidden/all");
+  if (!res.ok) throw new Error("Failed to fetch hidden accessories");
+  return res.json();
+}
+
 const _missingAccessoryIds = new Set();
 
 export async function fetchAccessoryById(id) {
@@ -57,5 +63,15 @@ export async function deleteAccessory(id) {
   if (!res.ok) {
     throw new Error(`Failed to delete accessory: ${res.statusText}`);
   }
+  return res.json();
+}
+
+export async function hideAccessory(id, isHidden = true) {
+  const res = await fetch(`/api/accessories/${id}/hide`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ isHidden }),
+  });
+  if (!res.ok) throw new Error("Failed to hide/unhide accessory");
   return res.json();
 }

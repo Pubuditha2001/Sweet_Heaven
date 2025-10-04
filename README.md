@@ -1,4 +1,4 @@
-# Sweet Heaven MERN Stack Project
+`# Sweet Heaven MERN Stack Project
 
 Welcome to Sweet Heaven! This is a full-stack web application for a cake-selling business, built with the MERN stack (MongoDB, Express, React, Node.js), Stripe, Cloudinary, and modern deployment tools.
 

@@ -1,9 +1,38 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 // import "../admin.css";
 
 export default function AdminNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
+    Boolean(localStorage.getItem("adminToken"))
+  );
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "adminToken") {
+        setIsAdminLoggedIn(Boolean(e.newValue));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // When the route changes (e.g. after login navigates), re-check localStorage
+  useEffect(() => {
+    setIsAdminLoggedIn(Boolean(localStorage.getItem("adminToken")));
+  }, [location]);
+
+  const handleLogout = (e) => {
+    e && e.preventDefault();
+    localStorage.removeItem("adminToken");
+    setIsAdminLoggedIn(false);
+    // close mobile menu if open
+    setMenuOpen(false);
+    navigate("/admin/login");
+  };
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
@@ -63,12 +92,21 @@ export default function AdminNavbar() {
             </Link>
           </li>
           <li>
-            <Link
-              to="/admin/logout"
-              className="px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
-            >
-              Logout
-            </Link>
+            {isAdminLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                to="/admin/login"
+                className="px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
+              >
+                Login
+              </Link>
+            )}
           </li>
         </ul>
         {/* Hamburger Icon for Mobile */}
@@ -152,13 +190,22 @@ export default function AdminNavbar() {
               </Link>
             </li>
             <li>
-              <Link
-                to="/admin/logout"
-                className="block px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
-                onClick={() => setMenuOpen(false)}
-              >
-                Logout
-              </Link>
+              {isAdminLoggedIn ? (
+                <button
+                  className="block px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors text-left w-full"
+                  onClick={(e) => handleLogout(e)}
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  to="/admin/login"
+                  className="block px-3 py-2 rounded-md font-medium text-white bg-pink-600 hover:bg-pink-700 transition-colors"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              )}
             </li>
           </ul>
         </div>
