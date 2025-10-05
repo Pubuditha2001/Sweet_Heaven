@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { logout } from "../../utils/auth";
 // import "../admin.css";
 
 export default function AdminNavbar() {
@@ -27,11 +28,10 @@ export default function AdminNavbar() {
 
   const handleLogout = (e) => {
     e && e.preventDefault();
-    localStorage.removeItem("adminToken");
+    logout(navigate, true); // Use shared logout function for admin
     setIsAdminLoggedIn(false);
     // close mobile menu if open
     setMenuOpen(false);
-    navigate("/admin/login");
   };
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -43,6 +43,15 @@ export default function AdminNavbar() {
         </div>
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-6 items-center">
+          <li>
+            <Link
+              to="/"
+              className="px-3 py-2 rounded-md font-medium text-gray-700 hover:text-pink-600 transition-colors"
+              title="Go to customer-facing landing page"
+            >
+              Customer Site
+            </Link>
+          </li>
           <li>
             <Link
               to="/admin"
@@ -135,6 +144,16 @@ export default function AdminNavbar() {
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-pink-100 shadow-lg">
           <ul className="flex flex-col gap-2 py-2 px-4">
+            <li>
+              <Link
+                to="/"
+                className="block px-3 py-2 rounded-md font-medium text-gray-700 hover:text-pink-600 transition-colors"
+                onClick={() => setMenuOpen(false)}
+                title="Go to customer-facing landing page"
+              >
+                Customer Site
+              </Link>
+            </li>
             <li>
               <Link
                 to="/admin"
