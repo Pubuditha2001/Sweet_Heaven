@@ -164,176 +164,179 @@ textarea:focus-visible {
   );
 }
 
-/* Custom color overrides - Replace Tailwind pink shades with custom color variations */
+/* Custom color overrides - Replace Tailwind pink shades with custom color variations based on rgb(231, 97, 126) */
 /* Pink-50 - Very light */
 .text-pink-50 {
-  color: rgba(253, 242, 244, 1) !important;
+  color: rgba(253, 244, 247, 1) !important;
 }
 .bg-pink-50 {
-  background-color: rgba(253, 242, 244, 1) !important;
+  background-color: rgba(253, 244, 247, 1) !important;
 }
 .border-pink-50 {
-  border-color: rgba(253, 242, 244, 1) !important;
+  border-color: rgba(253, 244, 247, 1) !important;
 }
 
 /* Pink-100 - Light */
 .text-pink-100 {
-  color: rgba(251, 225, 229, 1) !important;
+  color: rgba(251, 232, 239, 1) !important;
 }
 .bg-pink-100 {
-  background-color: rgba(251, 225, 229, 1) !important;
+  background-color: rgba(251, 232, 239, 1) !important;
 }
 .border-pink-100 {
-  border-color: rgba(251, 225, 229, 1) !important;
+  border-color: rgba(251, 232, 239, 1) !important;
 }
 
 /* Pink-200 */
 .text-pink-200 {
-  color: rgba(246, 195, 203, 1) !important;
+  color: rgba(247, 210, 223, 1) !important;
 }
 .bg-pink-200 {
-  background-color: rgba(246, 195, 203, 1) !important;
+  background-color: rgba(247, 210, 223, 1) !important;
 }
 .border-pink-200 {
-  border-color: rgba(246, 195, 203, 1) !important;
+  border-color: rgba(247, 210, 223, 1) !important;
 }
 
 /* Pink-300 */
 .text-pink-300 {
-  color: rgba(241, 165, 177, 1) !important;
+  color: rgba(243, 177, 197, 1) !important;
 }
 .bg-pink-300 {
-  background-color: rgba(241, 165, 177, 1) !important;
+  background-color: rgba(243, 177, 197, 1) !important;
 }
 .border-pink-300 {
-  border-color: rgba(241, 165, 177, 1) !important;
+  border-color: rgba(243, 177, 197, 1) !important;
 }
 
 /* Pink-400 */
 .text-pink-400 {
-  color: rgba(236, 135, 151, 1) !important;
+  color: rgba(239, 144, 170, 1) !important;
 }
 .bg-pink-400 {
-  background-color: rgba(236, 135, 151, 1) !important;
+  background-color: rgba(239, 144, 170, 1) !important;
 }
 .border-pink-400 {
-  border-color: rgba(236, 135, 151, 1) !important;
+  border-color: rgba(239, 144, 170, 1) !important;
 }
 
 /* Pink-500 */
 .text-pink-500 {
-  color: rgba(232, 112, 129, 1) !important;
+  color: rgba(235, 121, 148, 1) !important;
 }
 .bg-pink-500 {
-  background-color: rgba(232, 112, 129, 1) !important;
+  background-color: rgba(235, 121, 148, 1) !important;
 }
 .border-pink-500 {
-  border-color: rgba(232, 112, 129, 1) !important;
+  border-color: rgba(235, 121, 148, 1) !important;
 }
 
-/* Pink-600 - Your base color */
+/* Pink-600 - Your base color rgb(231, 97, 126) */
 .text-pink-600 {
-  color: rgba(229, 89, 104, 1) !important;
+  color: rgba(231, 97, 126, 1) !important;
 }
 .bg-pink-600 {
-  background-color: rgba(229, 89, 104, 1) !important;
+  background-color: rgba(231, 97, 126, 1) !important;
 }
 .border-pink-600 {
-  border-color: rgba(229, 89, 104, 1) !important;
+  border-color: rgba(231, 97, 126, 1) !important;
 }
 
 /* Pink-700 - Darker */
 .text-pink-700 {
-  color: rgba(206, 80, 94, 1) !important;
+  color: rgba(208, 87, 113, 1) !important;
 }
 .bg-pink-700 {
-  background-color: rgba(206, 80, 94, 1) !important;
+  background-color: rgba(208, 87, 113, 1) !important;
 }
 .border-pink-700 {
-  border-color: rgba(206, 80, 94, 1) !important;
+  border-color: rgba(208, 87, 113, 1) !important;
+}
+.border-pink-700 {
+  border-color: rgba(229, 99, 127, 1) !important;
 }
 
 /* Pink-800 */
 .text-pink-800 {
-  color: rgba(183, 71, 84, 1) !important;
+  color: rgba(185, 78, 101, 1) !important;
 }
 .bg-pink-800 {
-  background-color: rgba(183, 71, 84, 1) !important;
+  background-color: rgba(185, 78, 101, 1) !important;
 }
 .border-pink-800 {
-  border-color: rgba(183, 71, 84, 1) !important;
+  border-color: rgba(185, 78, 101, 1) !important;
 }
 
 /* Pink-900 - Very dark */
 .text-pink-900 {
-  color: rgba(160, 62, 74, 1) !important;
+  color: rgba(162, 68, 88, 1) !important;
 }
 .bg-pink-900 {
-  background-color: rgba(160, 62, 74, 1) !important;
+  background-color: rgba(162, 68, 88, 1) !important;
 }
 .border-pink-900 {
-  border-color: rgba(160, 62, 74, 1) !important;
+  border-color: rgba(162, 68, 88, 1) !important;
 }
 
 /* Pink-950 - Darkest */
 .text-pink-950 {
-  color: rgba(131, 51, 61, 1) !important;
+  color: rgba(116, 49, 63, 1) !important;
 }
 .bg-pink-950 {
-  background-color: rgba(131, 51, 61, 1) !important;
+  background-color: rgba(116, 49, 63, 1) !important;
 }
 .border-pink-950 {
-  border-color: rgba(131, 51, 61, 1) !important;
+  border-color: rgba(116, 49, 63, 1) !important;
 }
 
 /* Additional utility classes for rings, fills, and strokes */
 .ring-pink-500 {
-  --tw-ring-color: rgba(232, 112, 129, 1) !important;
+  --tw-ring-color: rgba(235, 121, 148, 1) !important;
 }
 .ring-pink-600 {
-  --tw-ring-color: rgba(229, 89, 104, 1) !important;
+  --tw-ring-color: rgba(231, 97, 126, 1) !important;
 }
 .ring-pink-700 {
-  --tw-ring-color: rgba(206, 80, 94, 1) !important;
+  --tw-ring-color: rgba(208, 87, 113, 1) !important;
 }
 
 .fill-pink-500 {
-  fill: rgba(232, 112, 129, 1) !important;
+  fill: rgba(235, 121, 148, 1) !important;
 }
 .fill-pink-600 {
-  fill: rgba(229, 89, 104, 1) !important;
+  fill: rgba(231, 97, 126, 1) !important;
 }
 .fill-pink-700 {
-  fill: rgba(206, 80, 94, 1) !important;
+  fill: rgba(208, 87, 113, 1) !important;
 }
 
 .stroke-pink-500 {
-  stroke: rgba(232, 112, 129, 1) !important;
+  stroke: rgba(235, 121, 148, 1) !important;
 }
 .stroke-pink-600 {
-  stroke: rgba(229, 89, 104, 1) !important;
+  stroke: rgba(231, 97, 126, 1) !important;
 }
 .stroke-pink-700 {
-  stroke: rgba(206, 80, 94, 1) !important;
+  stroke: rgba(208, 87, 113, 1) !important;
 }
 
 /* Hover states */
 .hover\:text-pink-500:hover {
-  color: rgba(232, 112, 129, 1) !important;
+  color: rgba(235, 121, 148, 1) !important;
 }
 .hover\:text-pink-600:hover {
-  color: rgba(229, 89, 104, 1) !important;
+  color: rgba(231, 97, 126, 1) !important;
 }
 .hover\:text-pink-700:hover {
-  color: rgba(206, 80, 94, 1) !important;
+  color: rgba(208, 87, 113, 1) !important;
 }
 
 .hover\:bg-pink-500:hover {
-  background-color: rgba(232, 112, 129, 1) !important;
+  background-color: rgba(235, 121, 148, 1) !important;
 }
 .hover\:bg-pink-600:hover {
-  background-color: rgba(229, 89, 104, 1) !important;
+  background-color: rgba(231, 97, 126, 1) !important;
 }
 .hover\:bg-pink-700:hover {
-  background-color: rgba(206, 80, 94, 1) !important;
+  background-color: rgba(208, 87, 113, 1) !important;
 }
