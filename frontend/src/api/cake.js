@@ -19,7 +19,8 @@ export async function fetchCakeById(id) {
   if (!id) return null;
   if (_missingCakeIds.has(String(id))) return null;
 
-  const res = await fetch(`/api/cakes/${id}`);
+  const res = await fetch(createApiUrl(`/api/cakes/${id}`));
+
   if (!res.ok) {
     // Track missing ids so we don't repeatedly call the server for the same missing product
     _missingCakeIds.add(String(id));
@@ -29,7 +30,7 @@ export async function fetchCakeById(id) {
 }
 // Admin Cake API helpers
 export async function updateCake(id, cakeData) {
-  const res = await fetch(`/api/cakes/${id}`, {
+  const res = await fetch(createApiUrl(`/api/cakes/${id}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cakeData),
@@ -44,7 +45,7 @@ export async function updateCake(id, cakeData) {
 }
 
 export async function createCake(cakeData) {
-  const res = await fetch(`/api/cakes`, {
+  const res = await fetch(createApiUrl(`/api/cakes`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(cakeData),
@@ -59,7 +60,7 @@ export async function createCake(cakeData) {
 }
 
 export async function deleteCake(id) {
-  const res = await fetch(`/api/cakes/${id}`, {
+  const res = await fetch(createApiUrl(`/api/cakes/${id}`), {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete cake");
@@ -67,7 +68,7 @@ export async function deleteCake(id) {
 }
 
 export async function hideCake(id, isHidden = true) {
-  const res = await fetch(`/api/cakes/${id}/hide`, {
+  const res = await fetch(createApiUrl(`/api/cakes/${id}/hide`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ isHidden }),

@@ -1,11 +1,13 @@
 import React from "react";
+import heroImage from "../assets/hero.jpg";
+import logoImage from "../assets/logo.png";
 
 const Hero = () => (
   <div className="px-0 pt-0 pb-0">
     <div
       className="bg-cover bg-center flex flex-col justify-center items-center overflow-hidden h-48 sm:h-64 hero-lg-height relative"
       style={{
-        backgroundImage: `url("../src/assets/hero.jpg")`,
+        backgroundImage: `url("${heroImage}")`,
       }}
     >
       <div
@@ -13,7 +15,7 @@ const Hero = () => (
         style={{ zIndex: 2 }}
       >
         <img
-          src="../src/assets/logo.png"
+          src={logoImage}
           alt="Sweet Heaven"
           className="w-40 sm:w-40 md:w-56 lg:w-64 mx-auto"
         />

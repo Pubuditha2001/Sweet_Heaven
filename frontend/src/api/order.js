@@ -1,6 +1,7 @@
+import { createApiUrl } from "../utils/apiConfig.js";
 // Order API helper
 export async function requestOrder(payload) {
-  const res = await fetch(`/api/orders/request`, {
+  const res = await fetch(createApiUrl(`/api/orders/request`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -18,7 +19,10 @@ export async function fetchOrders() {
   const token =
     localStorage.getItem("adminToken") || localStorage.getItem("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await fetch(`/api/orders`, { method: "GET", headers });
+  const res = await fetch(createApiUrl(`/api/orders`), {
+    method: "GET",
+    headers,
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const message =
@@ -32,7 +36,10 @@ export async function fetchOrderById(id) {
   const token =
     localStorage.getItem("adminToken") || localStorage.getItem("token");
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const res = await fetch(`/api/orders/${id}`, { method: "GET", headers });
+  const res = await fetch(createApiUrl(`/api/orders/${id}`), {
+    method: "GET",
+    headers,
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const message =
@@ -49,7 +56,7 @@ export async function updateOrder(id, payload) {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
-  const res = await fetch(`/api/orders/${id}`, {
+  const res = await fetch(createApiUrl(`/api/orders/${id}`), {
     method: "PUT",
     headers,
     body: JSON.stringify(payload),

@@ -1,6 +1,7 @@
+import { createApiUrl } from "../utils/apiConfig.js";
 // Helper for accessory related API calls
 export async function fetchAccessories() {
-  const res = await fetch("/api/accessories");
+  const res = await fetch(createApiUrl("/api/accessories"));
   if (!res.ok) {
     // Return empty array on failure to keep callers simple
     return [];
@@ -9,7 +10,7 @@ export async function fetchAccessories() {
 }
 
 export async function fetchHiddenAccessories() {
-  const res = await fetch("/api/accessories/hidden/all");
+  const res = await fetch(createApiUrl("/api/accessories/hidden/all"));
   if (!res.ok) throw new Error("Failed to fetch hidden accessories");
   return res.json();
 }
@@ -20,7 +21,7 @@ export async function fetchAccessoryById(id) {
   if (!id) return null;
   if (_missingAccessoryIds.has(String(id))) return null;
 
-  const res = await fetch(`/api/accessories/${id}`);
+  const res = await fetch(createApiUrl(`/api/accessories/${id}`));
   if (!res.ok) {
     _missingAccessoryIds.add(String(id));
     return null;
@@ -29,7 +30,7 @@ export async function fetchAccessoryById(id) {
 }
 
 export async function createAccessory(accessoryData) {
-  const res = await fetch("/api/accessories", {
+  const res = await fetch(createApiUrl("/api/accessories"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,7 +44,7 @@ export async function createAccessory(accessoryData) {
 }
 
 export async function updateAccessory(id, accessoryData) {
-  const res = await fetch(`/api/accessories/${id}`, {
+  const res = await fetch(createApiUrl(`/api/accessories/${id}`), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -57,7 +58,7 @@ export async function updateAccessory(id, accessoryData) {
 }
 
 export async function deleteAccessory(id) {
-  const res = await fetch(`/api/accessories/${id}`, {
+  const res = await fetch(createApiUrl(`/api/accessories/${id}`), {
     method: "DELETE",
   });
   if (!res.ok) {
@@ -67,7 +68,7 @@ export async function deleteAccessory(id) {
 }
 
 export async function hideAccessory(id, isHidden = true) {
-  const res = await fetch(`/api/accessories/${id}/hide`, {
+  const res = await fetch(createApiUrl(`/api/accessories/${id}/hide`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ isHidden }),

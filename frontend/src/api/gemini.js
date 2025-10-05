@@ -1,3 +1,4 @@
+import { createApiUrl } from '../utils/apiConfig.js';
 // gemini.js
 // Frontend API client for Gemini AI image generation
 

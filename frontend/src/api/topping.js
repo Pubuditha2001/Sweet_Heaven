@@ -1,7 +1,8 @@
+import { createApiUrl } from "../utils/apiConfig.js";
 // Fetch all toppings (for filter dropdown)
 export async function fetchAllToppings() {
   try {
-    const res = await fetch("/api/toppings");
+    const res = await fetch(createApiUrl("/api/toppings"));
     if (!res.ok) return { toppings: [] };
     return res.json();
   } catch (e) {
@@ -10,7 +11,7 @@ export async function fetchAllToppings() {
 }
 
 export async function fetchHiddenToppings() {
-  const res = await fetch("/api/toppings/hidden/all");
+  const res = await fetch(createApiUrl("/api/toppings/hidden/all"));
   if (!res.ok) throw new Error("Failed to fetch hidden toppings");
   return res.json();
 }
@@ -25,7 +26,7 @@ export async function fetchToppingsByRef(ref) {
   if (!isValidObjectId) return { toppings: [] };
 
   try {
-    const res = await fetch(`/api/toppings/${ref}`);
+    const res = await fetch(createApiUrl(`/api/toppings/${ref}`));
     if (!res.ok) return { toppings: [] };
     return res.json();
   } catch (e) {
@@ -38,7 +39,7 @@ export async function fetchToppingById(id) {
   if (!id) return null;
 
   try {
-    const res = await fetch(`/api/toppings/${id}`);
+    const res = await fetch(createApiUrl(`/api/toppings/${id}`));
     if (!res.ok) return null;
     return res.json();
   } catch (e) {
@@ -48,7 +49,7 @@ export async function fetchToppingById(id) {
 
 // Create new topping collection
 export async function createToppingCollection(toppingData) {
-  const res = await fetch("/api/toppings", {
+  const res = await fetch(createApiUrl("/api/toppings"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +64,7 @@ export async function createToppingCollection(toppingData) {
 
 // Update topping collection
 export async function updateToppingCollection(id, toppingData) {
-  const res = await fetch(`/api/toppings/${id}`, {
+  const res = await fetch(createApiUrl(`/api/toppings/${id}`), {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -78,7 +79,7 @@ export async function updateToppingCollection(id, toppingData) {
 
 // Delete topping collection
 export async function deleteToppingCollection(id) {
-  const res = await fetch(`/api/toppings/${id}`, {
+  const res = await fetch(createApiUrl(`/api/toppings/${id}`), {
     method: "DELETE",
   });
   if (!res.ok) {
@@ -88,7 +89,7 @@ export async function deleteToppingCollection(id) {
 }
 
 export async function hideToppingCollection(id, isHidden = true) {
-  const res = await fetch(`/api/toppings/${id}/hide`, {
+  const res = await fetch(createApiUrl(`/api/toppings/${id}/hide`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ isHidden }),
