@@ -503,7 +503,7 @@ export default function Cart() {
             </div>
             <div className="flex gap-3">
               <a
-                href="/menu"
+                href={`${import.meta.env.PROD ? "/Sweet_Heaven" : ""}/menu`}
                 className="px-5 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700"
               >
                 Shop Menu
