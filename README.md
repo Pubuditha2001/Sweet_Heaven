@@ -23,17 +23,3 @@ See the README in each folder for detailed instructions:
 
 - [Backend Setup](./backend/README.md)
 - [Frontend Setup](./frontend/README.md)
-
-## Diagrams
-
-- MERN stack architecture
-- Data flow between frontend, backend, and database
-
-## Learning Resources
-
-- Each file and folder is explained in the README and code comments.
-- Follow the step-by-step guide to learn how to build and deploy a MERN stack app.
-
----
-
-For questions or help, see the documentation in each folder.

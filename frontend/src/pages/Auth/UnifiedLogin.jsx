@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createApiUrl } from "../../utils/apiConfig";
+import { isAdminLoggedIn, hasAdminPrivileges } from "../../utils/auth";
 import "./auth.css";
 
 export default function UnifiedLogin({ onLogin }) {
@@ -16,6 +17,21 @@ export default function UnifiedLogin({ onLogin }) {
   const isAdmin =
     params.get("admin") === "1" || location.pathname.includes("/admin");
 
+  // Redirect if already logged in
+  useEffect(() => {
+    try {
+      if (isAdmin && isAdminLoggedIn()) {
+        // Only redirect if accessing admin login page
+        navigate("/admin");
+      } else if (!isAdmin && hasAdminPrivileges() && isAdminLoggedIn()) {
+        // If admin tries to access regular login, redirect to admin dashboard
+        navigate("/admin");
+      }
+    } catch {
+      // Silently ignore errors
+    }
+  }, [isAdmin, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -29,18 +45,33 @@ export default function UnifiedLogin({ onLogin }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      if (isAdmin) {
-        if (!data.user || !data.user.isAdmin)
-          throw new Error("Not an admin account");
-        localStorage.setItem("adminToken", data.token);
-      } else {
-        localStorage.setItem("token", data.token);
-      }
+      // Check if user is admin
+      const userIsAdmin = data.user && data.user.isAdmin;
 
-      if (onLogin) onLogin(data.user);
-      // redirect back where applicable
-      const next = params.get("next") || (isAdmin ? "/admin" : "/");
-      navigate(next);
+      if (isAdmin) {
+        // Admin login page - require admin user
+        if (!userIsAdmin) {
+          throw new Error("Not an admin account");
+        }
+        localStorage.setItem("adminToken", data.token);
+        if (onLogin) onLogin(data.user);
+        const next = params.get("next") || "/admin";
+        navigate(next);
+      } else {
+        // Regular login page
+        localStorage.setItem("token", data.token);
+        if (onLogin) onLogin(data.user);
+
+        // If user is admin, redirect to admin dashboard
+        if (userIsAdmin) {
+          localStorage.setItem("adminToken", data.token); // Also set admin token for admin privileges
+          navigate("/admin");
+        } else {
+          // Regular user - redirect to next page or home
+          const next = params.get("next") || "/";
+          navigate(next);
+        }
+      }
     } catch (err) {
       setError(err.message);
     }
