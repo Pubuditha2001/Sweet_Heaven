@@ -11,7 +11,21 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS for production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://pubuditha2001.github.io",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // Debug: log incoming socket.io HTTP requests (polling handshake) for troubleshooting
 app.use((req, res, next) => {
@@ -33,7 +47,11 @@ const http = require("http");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: process.env.FRONTEND_URL || "*" },
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 // Expose io to routes/controllers via app.locals
 app.locals.io = io;
