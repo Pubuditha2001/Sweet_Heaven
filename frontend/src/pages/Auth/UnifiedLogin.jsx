@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { createApiUrl } from "../../utils/apiConfig";
 import "./auth.css";
 
 export default function UnifiedLogin({ onLogin }) {
@@ -20,7 +21,7 @@ export default function UnifiedLogin({ onLogin }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(createApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { normalizeImageUrl } from "../../utils/imageUtils";
 
 export default function FeedbackModal({
   show,
@@ -29,7 +30,7 @@ export default function FeedbackModal({
           titleColor: "text-green-900",
           messageColor: "text-green-700",
           buttonColor: "bg-green-500 hover:bg-green-600",
-          icon: "/confirmed.png", // Success icon
+          icon: normalizeImageUrl("/confirmed.png"), // Success icon
         };
       case "error":
         return {
@@ -38,7 +39,7 @@ export default function FeedbackModal({
           titleColor: "text-red-900",
           messageColor: "text-red-700",
           buttonColor: "bg-red-500 hover:bg-red-600",
-          icon: "/failed.png", // Error icon
+          icon: normalizeImageUrl("/failed.png"), // Error icon
         };
       case "warning":
         return {
@@ -47,7 +48,7 @@ export default function FeedbackModal({
           titleColor: "text-yellow-900",
           messageColor: "text-yellow-700",
           buttonColor: "bg-yellow-500 hover:bg-yellow-600",
-          icon: "/idea.png", // Warning icon
+          icon: normalizeImageUrl("/idea.png"), // Warning icon
         };
       case "info":
       default:
@@ -57,7 +58,7 @@ export default function FeedbackModal({
           titleColor: "text-blue-900",
           messageColor: "text-blue-700",
           buttonColor: "bg-blue-500 hover:bg-blue-600",
-          icon: "/idea.png", // Info icon
+          icon: normalizeImageUrl("/idea.png"), // Info icon
         };
     }
   };

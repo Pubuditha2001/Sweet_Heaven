@@ -43,8 +43,9 @@ export default function Navbar({ homeRef }) {
         setIsMenuOpen(false);
       }
     } else {
-      // Navigate to home page with hash
-      window.location.href = "/#contact-section";
+      // Navigate to home page with hash - use current origin + base path
+      const basePath = import.meta.env.PROD ? "/Sweet_Heaven/" : "/";
+      window.location.href = `${window.location.origin}${basePath}#contact-section`;
     }
   };
 
@@ -60,8 +61,9 @@ export default function Navbar({ homeRef }) {
         setIsMenuOpen(false);
       }
     } else {
-      // Navigate to home page with hash
-      window.location.href = "/#faq-section";
+      // Navigate to home page with hash - use current origin + base path
+      const basePath = import.meta.env.PROD ? "/Sweet_Heaven/" : "/";
+      window.location.href = `${window.location.origin}${basePath}#faq-section`;
     }
   };
 

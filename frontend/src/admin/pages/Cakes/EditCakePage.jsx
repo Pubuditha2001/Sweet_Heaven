@@ -4,6 +4,7 @@ import { fetchCakeById, updateCake, fetchCakes } from "../../../api/cake";
 import ImageUploader from "../../../components/ImageUploader";
 import { fetchAllToppings, fetchToppingsByRef } from "../../../api/topping";
 import FeedbackModal from "../../components/FeedbackModal";
+import { normalizeImageUrl } from "../../../utils/imageUtils";
 
 export default function EditCakePage() {
   // toppingOptions will be an array of { id, collectionName }
@@ -622,7 +623,7 @@ export default function EditCakePage() {
               <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-25">
                 <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
                   <img
-                    src="/idea.png"
+                    src={normalizeImageUrl("/idea.png")}
                     alt="Unsaved changes"
                     className="w-16 h-16"
                   />

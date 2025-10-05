@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createApiUrl } from "../../utils/apiConfig";
 import "./auth.css";
 
 export default function Register() {
@@ -15,7 +16,7 @@ export default function Register() {
     setError("");
     setSuccess("");
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(createApiUrl("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, isAdmin }),

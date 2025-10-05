@@ -7,11 +7,11 @@ export default function ImageUploader({ value, onChange, multiple = false }) {
 
   if (multiple) {
     const images = Array.isArray(value) ? value : value ? [value] : [];
-    const [previews, setPreviews] = useState(images.map(normalizeSrc));
+    const [previews, setPreviews] = useState(images.map(normalizeImageUrl));
 
     useEffect(() => {
       const next = Array.isArray(value) ? value : value ? [value] : [];
-      setPreviews(next.map(normalizeSrc));
+      setPreviews(next.map(normalizeImageUrl));
     }, [value]);
 
     const handleFileChange = (e) => {

@@ -5,6 +5,7 @@ import ImageUploader from "../../../components/ImageUploader";
 import { fetchAllToppings } from "../../../api/topping";
 import UnsavedChangesModal from "../../components/UnsavedChangesModal";
 import FeedbackModal from "../../components/FeedbackModal";
+import { normalizeImageUrl } from "../../../utils/imageUtils";
 
 export default function AddCakePage() {
   const [toppingOptions, setToppingOptions] = useState([]);
@@ -536,7 +537,7 @@ export default function AddCakePage() {
           description={
             "Would you like to save your changes before leaving? You can edit the cake afterwards."
           }
-          imageSrc="/idea.png"
+          imageSrc={normalizeImageUrl("/idea.png")}
         />
 
         <label className="font-medium text-pink-700">Prices:</label>

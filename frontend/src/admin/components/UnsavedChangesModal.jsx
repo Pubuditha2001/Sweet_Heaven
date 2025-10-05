@@ -1,4 +1,5 @@
 import React from "react";
+import { normalizeImageUrl } from "../../utils/imageUtils";
 
 export default function UnsavedChangesModal({
   show,
@@ -8,7 +9,7 @@ export default function UnsavedChangesModal({
   onDiscard,
   title = "You're being redirected",
   description = "Would you like to save your changes before leaving? You can edit the item afterwards.",
-  imageSrc = "/idea.png",
+  imageSrc = normalizeImageUrl("/idea.png"),
 }) {
   if (!show) return null;
 
