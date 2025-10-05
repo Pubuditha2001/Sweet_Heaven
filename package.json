@@ -1,0 +1,13 @@
+{
+  "name": "sweet-heaven-monorepo",
+  "version": "1.0.0",
+  "description": "Sweet Heaven bakery application - backend deployment",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

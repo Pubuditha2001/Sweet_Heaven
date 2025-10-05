@@ -2,10 +2,10 @@
 nixPkgs = ['nodejs_20']
 
 [phases.install]
-cmd = 'cd backend && npm ci'
+cmd = 'npm run install'
 
 [phases.build]
-cmd = 'echo "No build step needed"'
+cmd = 'echo "Build completed"'
 
 [start]
-cmd = 'cd backend && node server.js'
+cmd = 'npm start'
