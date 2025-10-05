@@ -1,12 +1,14 @@
 // Cake related API helpers
+import { createApiUrl } from "../utils/apiConfig.js";
+
 export async function fetchCakes() {
-  const res = await fetch("/api/cakes");
+  const res = await fetch(createApiUrl("/api/cakes"));
   if (!res.ok) throw new Error("Failed to fetch cakes");
   return res.json();
 }
 
 export async function fetchHiddenCakes() {
-  const res = await fetch("/api/cakes/hidden/all");
+  const res = await fetch(createApiUrl("/api/cakes/hidden/all"));
   if (!res.ok) throw new Error("Failed to fetch hidden cakes");
   return res.json();
 }

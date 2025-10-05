@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { io as ioClient } from "socket.io-client";
 import OrdersFilter from "./OrdersFilter";
 
+import { getSocketUrl } from "../../../utils/apiConfig.js";
+
 export default function OrdersTable() {
   const [orders, setOrders] = useState([]);
   const [query, setQuery] = useState("");
@@ -73,10 +75,8 @@ export default function OrdersTable() {
 
   // Real-time: listen for new orders via Socket.IO
   useEffect(() => {
-    // In dev, the backend runs on localhost:5000; Vite proxy doesn't forward websockets reliably,
-    // so default to the backend origin unless VITE_BACKEND_URL is provided.
-    const socketUrl =
-      import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+    // Use the configured socket URL from apiConfig
+    const socketUrl = getSocketUrl();
     // Use polling transport in dev to avoid transient websocket connection errors
     // (Vite proxy or local environment sometimes cause ws handshake to fail).
     const token =
