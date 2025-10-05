@@ -1,11 +1,13 @@
+import { normalizeImageUrl } from "../utils/imageUtils";
+
 export default function AccessoryAddPopup({
   show,
   status = "pending", // 'pending' | 'success' | 'failed'
   message = "",
   onClose,
   onGoToCart,
-  imageSrcSuccess = "/cart_success.png",
-  imageSrcFailed = "/cart_failed.png",
+  imageSrcSuccess = normalizeImageUrl("cart_success.png"),
+  imageSrcFailed = normalizeImageUrl("cart_failed.png"),
 }) {
   if (!show) return null;
 
@@ -32,7 +34,7 @@ export default function AccessoryAddPopup({
           <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
             {status === "pending" ? (
               <img
-                src="/loading.png"
+                src={normalizeImageUrl("loading.png")}
                 alt="loading"
                 className="w-16 h-16 object-contain animate-spin"
               />

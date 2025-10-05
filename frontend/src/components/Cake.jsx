@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const fallbackImg = "/fallback.jpg"; // Place a fallback.jpg in public folder
+import { normalizeImageUrl, getToppingFallback } from "../utils/imageUtils";
 
 const Cake = ({ cake }) => {
   const navigate = useNavigate();
@@ -9,21 +8,13 @@ const Cake = ({ cake }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    // Images are in public folder, so use direct path
-    let imageUrl = cake.cakeImage;
-    if (!imageUrl || typeof imageUrl !== "string") {
-      setImgUrl(fallbackImg);
-      return;
-    }
-    // Ensure path starts with "/"
-    if (!imageUrl.startsWith("/")) {
-      imageUrl = "/" + imageUrl.replace(/^(\.\/|\.{2}\/)+/, "");
-    }
-    setImgUrl(imageUrl);
+    // Use the utility function to normalize the image URL
+    const imageUrl = normalizeImageUrl(cake.cakeImage);
+    setImgUrl(imageUrl || getToppingFallback());
   }, [cake.cakeImage]);
 
   const handleImageError = () => {
-    setImgUrl(fallbackImg);
+    setImgUrl(getToppingFallback());
   };
 
   const handleCakeClick = () => {

@@ -10,24 +10,35 @@ export function normalizeImageUrl(imageUrl) {
   // If it's already a full URL, return as-is
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
 
-  // If it starts with ./, convert to absolute path
-  if (trimmed.startsWith("./")) return trimmed.replace(/^\.\//, "/");
+  // Clean the path by removing ./ prefix
+  let cleanPath = trimmed.replace(/^\.\//, "");
 
-  // If it already starts with /, return as-is
-  if (trimmed.startsWith("/")) return trimmed;
+  // Ensure path starts with /
+  if (!cleanPath.startsWith("/")) {
+    cleanPath = "/" + cleanPath;
+  }
 
-  // Otherwise, assume it's a relative path and make it absolute
-  return "/" + trimmed;
+  // Use Vite's BASE_URL (which should be '/Sweet_Heaven/' in production)
+  const base = import.meta.env.BASE_URL || "/";
+
+  // If base is not just "/", prepend it
+  if (base !== "/" && !cleanPath.startsWith(base)) {
+    // Remove leading slash from cleanPath since base already has trailing slash
+    cleanPath = cleanPath.substring(1);
+    return base + cleanPath;
+  }
+
+  return cleanPath;
 }
 
 // Function to get the fallback image for accessories
 export function getAccessoryFallback() {
-  return "/accessoryFallback.png";
+  return normalizeImageUrl("accessoryFallback.png");
 }
 
 // Function to get the fallback image for toppings
 export function getToppingFallback() {
-  return "/fallback.jpg";
+  return normalizeImageUrl("fallback.jpg");
 }
 
 // Function to handle image error (set fallback)

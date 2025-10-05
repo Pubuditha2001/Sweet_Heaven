@@ -478,7 +478,11 @@ export default function Cart() {
 
         {isLoading ? (
           <div className="rounded-lg border bg-white p-8 flex flex-col items-center gap-4 text-center">
-            <img src="/loading.png" alt="loading" className="w-24 h-24" />
+            <img
+              src={normalizeImageUrl("loading.png")}
+              alt="loading"
+              className="w-24 h-24"
+            />
             <div className="text-gray-700">Loading cart...</div>
           </div>
         ) : items.length === 0 ? (

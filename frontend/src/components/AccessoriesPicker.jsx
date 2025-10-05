@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { normalizeImageUrl, handleImageError } from "../utils/imageUtils";
 
 export default function AccessoriesPicker({
   accessories,
@@ -44,42 +45,6 @@ export default function AccessoriesPicker({
       return sum;
     }
   }, 0);
-
-  // helper to normalize image paths like './accessories/foo.jpg' -> '/accessories/foo.jpg'
-  const normalizeImagePath = (p) => {
-    if (!p || typeof p !== "string") return null;
-    if (p.startsWith("/")) return p;
-    return "/" + p.replace(/^(.\.\/|\.\.\/)+/, "");
-  };
-
-  // Try alternative extensions if the image 404s (common mismatch .jpg vs .webp etc.)
-  const handleAccessoryImgError = (e) => {
-    const el = e.target;
-    try {
-      const src = el.getAttribute("src") || "";
-      // remove query params
-      const srcNoQuery = src.split("?")[0];
-      const base = srcNoQuery.replace(/\.[^/.?#]+($|\?)/, "");
-      const candidates = [".webp", ".png", ".jpg", ".jpeg"];
-      const currentExtMatch = srcNoQuery.match(/(\.[^/.?#]+)(?:$|\?)/);
-      const currentExt = currentExtMatch
-        ? currentExtMatch[1].toLowerCase()
-        : null;
-      // determine next candidate index from data attribute
-      let tried = parseInt(el.dataset.altIndex || "0", 10);
-      // build ordered list skipping current ext
-      const ordered = candidates.filter((ext) => ext !== currentExt);
-      if (tried >= ordered.length) {
-        el.style.display = "none";
-        return;
-      }
-      const next = base + ordered[tried];
-      el.dataset.altIndex = tried + 1;
-      el.src = next;
-    } catch (err) {
-      el.style.display = "none";
-    }
-  };
 
   return (
     <div className="relative" ref={wrapRef}>
@@ -215,12 +180,12 @@ export default function AccessoriesPicker({
                           onClick={() => handleAccessoryToggle(acc)}
                           className="flex items-start gap-4 flex-1 text-left bg-transparent border-0 p-3 md:p-2"
                         >
-                          {normalizeImagePath(acc.image) && (
+                          {normalizeImageUrl(acc.image) && (
                             <img
-                              src={normalizeImagePath(acc.image)}
+                              src={normalizeImageUrl(acc.image)}
                               alt={acc.name}
                               className="w-16 h-16 object-cover rounded-md flex-shrink-0"
-                              onError={handleAccessoryImgError}
+                              onError={handleImageError}
                               data-alt-index="0"
                             />
                           )}

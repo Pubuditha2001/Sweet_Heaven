@@ -1,3 +1,5 @@
+import { normalizeImageUrl } from "../utils/imageUtils";
+
 export default function CartResultPopUp({
   show,
   status = "pending", // 'pending' | 'success' | 'failed'
@@ -6,13 +8,8 @@ export default function CartResultPopUp({
   onRetry,
   onAddAccessories,
   onBuyAnother,
-  // default image shown for pending or fallback
-  // imageSrc = "/cart_confirmation.png",
-  // explicit image for pending state
-  // imageSrcPending = "/cart_pending.png",
-  // images for success and failed
-  imageSrcSuccess = "/cart_success.png",
-  imageSrcFailed = "/cart_failed.png",
+  imageSrcSuccess = normalizeImageUrl("cart_success.png"),
+  imageSrcFailed = normalizeImageUrl("cart_failed.png"),
 }) {
   if (!show) return null;
 
@@ -39,7 +36,7 @@ export default function CartResultPopUp({
             {status === "pending" ? (
               // animated image for pending
               <img
-                src="/loading.png"
+                src={normalizeImageUrl("loading.png")}
                 alt="loading"
                 className="w-16 h-16 object-contain animate-spin"
               />

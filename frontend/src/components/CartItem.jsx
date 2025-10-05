@@ -1,3 +1,10 @@
+import {
+  normalizeImageUrl,
+  getAccessoryFallback,
+  getToppingFallback,
+  handleImageError,
+} from "../utils/imageUtils";
+
 function formatRs(n) {
   return `Rs. ${Number(n || 0).toLocaleString("en-IN")}`;
 }
@@ -39,24 +46,28 @@ export default function CartItem({
       {isAccessory ? (
         item.image ? (
           <img
-            src={item.image}
+            src={normalizeImageUrl(item.image)}
             alt={item.name}
             className={`w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border ${
               item.isAvailable === false ? "grayscale" : ""
             }`}
-            onError={(e) => (e.target.src = "/accessoryFallback.png")}
+            onError={handleImageError}
           />
         ) : (
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md flex-shrink-0 border bg-gray-50" />
         )
       ) : (
         <img
-          src={cake?.cakeImage ? cake.cakeImage : "/fallback.jpg"}
+          src={
+            cake?.cakeImage
+              ? normalizeImageUrl(cake.cakeImage)
+              : normalizeImageUrl("fallback.jpg")
+          }
           alt={item.name}
           className={`w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border ${
             item.isAvailable === false ? "grayscale" : ""
           }`}
-          onError={(e) => (e.target.src = "/fallback.jpg")}
+          onError={(e) => (e.target.src = getToppingFallback())}
         />
       )}
 

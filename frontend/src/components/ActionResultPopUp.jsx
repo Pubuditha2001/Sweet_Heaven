@@ -1,4 +1,5 @@
 import React from "react";
+import { normalizeImageUrl } from "../utils/imageUtils";
 
 export default function ActionResultPopUp({
   show,
@@ -8,9 +9,9 @@ export default function ActionResultPopUp({
   onClose,
   onConfirm,
   title,
-  imageSrcSuccess = "/confirmed.png",
-  imageSrcRejected = "/rejected.png",
-  imageSrcFailed = "/failed.png",
+  imageSrcSuccess = normalizeImageUrl("confirmed.png"),
+  imageSrcRejected = normalizeImageUrl("rejected.png"),
+  imageSrcFailed = normalizeImageUrl("failed.png"),
   children,
 }) {
   if (!show) return null;
@@ -36,7 +37,7 @@ export default function ActionResultPopUp({
           <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
             {status === "pending" ? (
               <img
-                src="/loading.png"
+                src={normalizeImageUrl("loading.png")}
                 alt="loading"
                 className="w-16 h-16 object-contain animate-spin"
               />
@@ -54,7 +55,7 @@ export default function ActionResultPopUp({
               />
             ) : (
               <img
-                src="/idea.png"
+                src={normalizeImageUrl("idea.png")}
                 alt="action"
                 className="w-16 h-16 object-cover rounded"
               />

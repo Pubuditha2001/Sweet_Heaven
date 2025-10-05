@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { normalizeImageUrl } from "../utils/imageUtils";
 
 export default function ToppingsOptions({
   availableToppings,
@@ -43,13 +44,6 @@ export default function ToppingsOptions({
       return sum;
     }
   }, 0);
-
-  // helper to normalize image paths like './toppings/foo.jpg' -> '/toppings/foo.jpg'
-  const normalizeImagePath = (p) => {
-    if (!p || typeof p !== "string") return null;
-    if (p.startsWith("/")) return p;
-    return "/" + p.replace(/^(\.\.\/|\.\/)+/, "");
-  };
 
   // Try alternative extensions if the image 404s
   const handleToppingImgError = (e) => {
@@ -198,9 +192,9 @@ export default function ToppingsOptions({
                             : "border-gray-200 hover:border-pink-300 bg-white"
                         }`}
                       >
-                        {normalizeImagePath(topping.image) && (
+                        {normalizeImageUrl(topping.image) && (
                           <img
-                            src={normalizeImagePath(topping.image)}
+                            src={normalizeImageUrl(topping.image)}
                             alt={topping.name}
                             className="w-16 h-16 object-cover rounded-md flex-shrink-0"
                             onError={handleToppingImgError}

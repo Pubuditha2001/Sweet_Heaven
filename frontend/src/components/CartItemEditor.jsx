@@ -3,6 +3,11 @@ import CakeSizesOptions from "./CakeSizesOptions";
 import ToppingsOptions from "./ToppingsOptions";
 import { fetchCakeById } from "../api/cake";
 import { fetchToppingsByRef } from "../api/topping";
+import {
+  normalizeImageUrl,
+  getAccessoryFallback,
+  handleImageError,
+} from "../utils/imageUtils";
 
 export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const wrapRef = useRef(null);
@@ -186,18 +191,12 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
               src={
                 item.productCategory === "accessory" ||
                 item.productType === "accessory"
-                  ? item.image || "/accessoryFallback.png"
-                  : item.image || "/fallback.jpg"
+                  ? normalizeImageUrl(item.image || getAccessoryFallback())
+                  : normalizeImageUrl(item.image || "fallback.jpg")
               }
               alt={item.name}
               className="w-24 h-24 rounded-md object-cover border"
-              onError={(e) =>
-                (e.target.src =
-                  item.productCategory === "accessory" ||
-                  item.productType === "accessory"
-                    ? "/accessoryFallback.png"
-                    : "/fallback.jpg")
-              }
+              onError={handleImageError}
             />
 
             <div className="flex-1">

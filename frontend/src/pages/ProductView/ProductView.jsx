@@ -14,6 +14,7 @@ import { fetchCakeById } from "../../api/cake";
 import { fetchToppingsByRef } from "../../api/topping";
 import { addCartItem } from "../../api/cart";
 import CartResultPopUp from "../../components/CartResultPopUp";
+import { normalizeImageUrl, handleImageError } from "../../utils/imageUtils";
 
 const fallbackImg = "/fallback.jpg";
 
@@ -26,7 +27,7 @@ export default function ProductView() {
   const [selectedSize, setSelectedSize] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [imgUrl, setImgUrl] = useState(fallbackImg);
+  const [imgUrl, setImgUrl] = useState(normalizeImageUrl("fallback.jpg"));
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [availableToppings, setAvailableToppings] = useState([]);
   // accessories moved to a separate page
@@ -94,14 +95,7 @@ export default function ProductView() {
 
         // Set up image URL
         let imageUrl = data.cakeImage;
-        if (!imageUrl || typeof imageUrl !== "string") {
-          setImgUrl(fallbackImg);
-        } else {
-          if (!imageUrl.startsWith("/")) {
-            imageUrl = "/" + imageUrl.replace(/^(.\/|..\/)+/, "");
-          }
-          setImgUrl(imageUrl);
-        }
+        setImgUrl(normalizeImageUrl(imageUrl));
 
         // Fetch toppings using toppingRef (ObjectId of toppings list)
         let toppingsList = [];
@@ -125,10 +119,6 @@ export default function ProductView() {
       fetchProduct();
     }
   }, [id]);
-
-  const handleImageError = () => {
-    setImgUrl(fallbackImg);
-  };
 
   // Calculate topping price for a given size (defaults to current selectedSize)
   // Normalize size strings (case/whitespace) to make matching robust across sources

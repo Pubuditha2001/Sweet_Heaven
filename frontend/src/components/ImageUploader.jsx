@@ -1,19 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
+import { normalizeImageUrl } from "../utils/imageUtils";
 
 export default function ImageUploader({ value, onChange, multiple = false }) {
   const fileInputRef = useRef();
   // multiple: if false, single-image mode; if true, multi-image mode
-
-  const normalizeSrc = (s) => {
-    if (!s || typeof s !== "string") return s;
-    const trimmed = s.trim();
-    if (trimmed.startsWith("data:")) return trimmed;
-    if (/^https?:\/\//i.test(trimmed)) return trimmed;
-    if (trimmed.startsWith("./")) return trimmed.replace(/^\.\//, "/");
-    if (trimmed.startsWith("/")) return trimmed;
-    // otherwise assume relative to site root
-    return "/" + trimmed;
-  };
 
   if (multiple) {
     const images = Array.isArray(value) ? value : value ? [value] : [];
@@ -50,7 +40,7 @@ export default function ImageUploader({ value, onChange, multiple = false }) {
           {previews.map((p, idx) => (
             <div key={idx} className="relative">
               <img
-                src={normalizeSrc(p)}
+                src={normalizeImageUrl(p)}
                 alt={`Preview ${idx + 1}`}
                 className="w-24 h-24 object-cover rounded-lg border border-pink-200 shadow"
               />
@@ -124,7 +114,7 @@ export default function ImageUploader({ value, onChange, multiple = false }) {
       {preview ? (
         <div className="relative">
           <img
-            src={normalizeSrc(preview)}
+            src={normalizeImageUrl(preview)}
             alt="Preview"
             className="w-40 h-40 object-cover rounded-lg border border-pink-200 shadow"
           />

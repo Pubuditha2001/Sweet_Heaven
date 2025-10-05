@@ -5,6 +5,7 @@ import { FaShoppingCart, FaMinus, FaPlus } from "react-icons/fa";
 import CartResultPopUp from "../../components/CartResultPopUp";
 import AccessoryAddPopup from "../../components/AccessoryAddPopup";
 import { useNavigate } from "react-router-dom";
+import { normalizeImageUrl, handleImageError } from "../../utils/imageUtils";
 
 export default function AccessoriesPage() {
   const navigate = useNavigate();
@@ -34,28 +35,6 @@ export default function AccessoriesPage() {
     }
     load();
   }, []);
-
-  const basePublic = import.meta?.env?.BASE_URL || "/";
-
-  const getImageSrc = (image) => {
-    if (!image) return `${basePublic}accessoryFallback.png`;
-    if (typeof image === "string") {
-      // absolute URLs or root-relative paths are fine as-is
-      if (image.startsWith("/") || image.startsWith("http")) return image;
-      // otherwise treat as a path relative to public
-      return `${basePublic}${image}`;
-    }
-    if (typeof image === "object") {
-      // common cloudinary / upload shapes
-      return (
-        image.url ||
-        image.secure_url ||
-        image.path ||
-        `${basePublic}accessoryFallback.png`
-      );
-    }
-    return `${basePublic}accessoryFallback.png`;
-  };
 
   const setQty = (id, qty) => {
     setQuantities((q) => ({ ...q, [id]: Math.max(1, Number(qty) || 1) }));
@@ -146,27 +125,15 @@ export default function AccessoriesPage() {
             className="animate-fadeIn"
             style={{ animationDelay: `${index * 0.06}s` }}
           >
-            {/* <div className="flex flex-col h-90 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:-translate-y-2"> */}
             <div className="rounded-2xl overflow-hidden shadow-lg bg-white flex flex-col h-full hover:shadow-2xl transition-all duration-300 relative group">
               <div className="flex justify-center items-center p-2 relative">
-                {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-xl m-2 flex items-center justify-center">
-                  <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-pink-500 px-3 py-1 rounded-full text-sm">
-                    View
-                  </span>
-                </div> */}
                 <div className="w-40 h-40 rounded-xl object-cover bg-center block md:hidden">
-                  {getImageSrc(acc.image) && (
+                  {normalizeImageUrl(acc.image) && (
                     <img
-                      src={getImageSrc(acc.image)}
+                      src={normalizeImageUrl(acc.image)}
                       alt={acc.name}
                       className="w-full h-full rounded-xl object-cover bg-center"
-                      onError={(e) => {
-                        const fb = `${basePublic}accessoryFallback.png`;
-                        if (e.currentTarget.src !== fb) {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = fb;
-                        }
-                      }}
+                      onError={handleImageError}
                     />
                   )}
                 </div>
@@ -174,19 +141,13 @@ export default function AccessoriesPage() {
                   className="hidden md:block w-full"
                   style={{ aspectRatio: "1 / 1" }}
                 >
-                  {getImageSrc(acc.image) && (
+                  {normalizeImageUrl(acc.image) && (
                     <img
-                      src={getImageSrc(acc.image)}
+                      src={normalizeImageUrl(acc.image)}
                       alt={acc.name}
                       className="w-full h-full rounded-xl object-cover bg-center"
                       style={{ aspectRatio: "1 / 1" }}
-                      onError={(e) => {
-                        const fb = `${basePublic}accessoryFallback.png`;
-                        if (e.currentTarget.src !== fb) {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = fb;
-                        }
-                      }}
+                      onError={handleImageError}
                     />
                   )}
                 </div>

@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  normalizeImageUrl,
+  getAccessoryFallback,
+  handleImageError,
+} from "../utils/imageUtils";
 
 function formatRs(n) {
   return `Rs. ${Number(n || 0).toLocaleString("en-IN")}`;
@@ -12,17 +17,10 @@ export default function OrderItem({ item }) {
     String(it.id || "").startsWith("accessory:");
 
   let imgSrcRaw = isAccessory
-    ? it.image || "/accessoryFallback.png"
-    : (cake && (cake.cakeImage || cake.image)) || it.image || "/fallback.jpg";
+    ? it.image || getAccessoryFallback()
+    : (cake && (cake.cakeImage || cake.image)) || it.image || "fallback.jpg";
 
-  // ensure relative paths resolve under Vite's base URL
-  const isAbsolute =
-    /^(https?:)?\/\//i.test(imgSrcRaw) ||
-    imgSrcRaw.startsWith("/") ||
-    imgSrcRaw.startsWith("data:");
-  const imgSrc = isAbsolute
-    ? imgSrcRaw
-    : `${import.meta.env.BASE_URL || "/"}${imgSrcRaw}`;
+  const imgSrc = normalizeImageUrl(imgSrcRaw);
 
   const basePrice = Number(it.unitPrice ?? it.price ?? 0) || 0;
   const toppingsTotal = (it.toppings || []).reduce(
@@ -42,11 +40,7 @@ export default function OrderItem({ item }) {
         src={imgSrc}
         alt={it.name}
         className="w-20 h-20 sm:w-24 sm:h-24 rounded-md object-cover flex-shrink-0 border"
-        onError={(e) =>
-          (e.target.src = isAccessory
-            ? "/accessoryFallback.png"
-            : "/fallback.jpg")
-        }
+        onError={handleImageError}
       />
 
       <div className="flex-1">
