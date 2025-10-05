@@ -14,9 +14,13 @@ import { fetchCakeById } from "../../api/cake";
 import { fetchToppingsByRef } from "../../api/topping";
 import { addCartItem } from "../../api/cart";
 import CartResultPopUp from "../../components/CartResultPopUp";
-import { normalizeImageUrl, handleImageError } from "../../utils/imageUtils";
+import {
+  normalizeImageUrl,
+  handleImageError,
+  getToppingFallback,
+} from "../../utils/imageUtils";
 
-const fallbackImg = "/fallback.jpg";
+const fallbackImg = normalizeImageUrl("fallback.jpg");
 
 export default function ProductView() {
   const { id } = useParams();

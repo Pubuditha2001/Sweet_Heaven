@@ -489,7 +489,7 @@ export default function Cart() {
         ) : items.length === 0 ? (
           <div className="rounded-lg border bg-white p-8 flex flex-col items-center gap-6 text-center">
             <img
-              src="/fallback.jpg"
+              src={normalizeImageUrl("/fallback.jpg")}
               alt="empty"
               className="w-44 h-44 object-cover rounded-full shadow-sm"
             />
