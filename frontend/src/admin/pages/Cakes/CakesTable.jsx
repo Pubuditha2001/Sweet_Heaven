@@ -513,7 +513,11 @@ export default function CakesTable() {
           <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 pt-12 z-10 text-center mx-auto">
             <div className="absolute -top-20 left-1/2 transform -translate-x-1/2 z-25">
               <div className="w-32 h-32 rounded-full bg-pink-50 flex items-center justify-center shadow-lg border-4 border-white">
-                <img src="/idea.png" alt="Remove" className="w-16 h-16" />
+                <img
+                  src={normalizeImageUrl("/idea.png")}
+                  alt="Remove"
+                  className="w-16 h-16"
+                />
               </div>
             </div>
             <h3 className="text-lg font-semibold mt-5 mb-2 text-center text-gray-900">

@@ -6,6 +6,7 @@ import { fetchAccessoryById } from "../../../api/accessory";
 import OrderItem from "../../../components/OrderItem";
 import ActionResultPopUp from "../../../components/ActionResultPopUp";
 import { generateOrderPdf } from "../../../utils/pdf";
+import { normalizeImageUrl } from "../../../utils/imageUtils";
 
 export default function OrderView() {
   const { id } = useParams();
@@ -761,7 +762,7 @@ export default function OrderView() {
           }
           onClose={closeActionModal}
           onConfirm={performAction}
-          imageSrcRejected="/rejected.png"
+          imageSrcRejected={normalizeImageUrl("/rejected.png")}
         >
           {actionModal.mode === "reject" && (
             <div className="mt-2">
