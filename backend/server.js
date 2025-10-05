@@ -120,7 +120,12 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/gemini", geminiRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to Sweet Heaven API!");
+  res.json({
+    message: "Welcome to Sweet Heaven API!",
+    status: "online",
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+  });
 });
 
 // Start server
