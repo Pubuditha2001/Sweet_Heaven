@@ -121,6 +121,28 @@ app.use("/api/auth", authRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/gemini", geminiRoutes);
 
+// Add this after your existing routes, before app.get("/")
+app.get("/debug/db", async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const dbState = mongoose.connection.readyState;
+    const states = {
+      0: "disconnected",
+      1: "connected",
+      2: "connecting",
+      3: "disconnecting",
+    };
+
+    res.json({
+      status: "ok",
+      database: states[dbState] || "unknown",
+      mongoUri: process.env.MONGO_URI ? "set" : "missing",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/", (req, res) => {
   res.json({
     message: "Welcome to Sweet Heaven API!",

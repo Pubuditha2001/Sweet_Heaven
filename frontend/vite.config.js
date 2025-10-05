@@ -14,4 +14,11 @@ export default defineConfig({
     },
   },
   plugins: [react()],
+  define: {
+    __API_URL__: JSON.stringify(
+      process.env.NODE_ENV === "production"
+        ? "https://sweetheaven-production.up.railway.app"
+        : ""
+    ),
+  },
 });
