@@ -12,6 +12,7 @@ import {
   clearCart,
 } from "../../api/cart";
 import { fetchToppingsByRef, fetchAllToppings } from "../../api/topping";
+import { normalizeImageUrl } from "../../utils/imageUtils";
 
 function formatRs(n) {
   return `Rs. ${Number(n || 0).toLocaleString("en-IN")}`;

@@ -16,6 +16,8 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:4173", // Vite preview server
+  "http://localhost:4000", // Alternative preview port
   "https://pubuditha2001.github.io",
   process.env.FRONTEND_URL,
 ].filter(Boolean);

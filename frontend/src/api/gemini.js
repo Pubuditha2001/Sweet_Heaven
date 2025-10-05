@@ -1,8 +1,11 @@
-import { createApiUrl } from '../utils/apiConfig.js';
+import { createApiUrl } from "../utils/apiConfig.js";
 // gemini.js
 // Frontend API client for Gemini AI image generation
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// Use the centralized API configuration
+const API_BASE = import.meta.env.PROD
+  ? import.meta.env.VITE_API_BASE_URL
+  : import.meta.env.VITE_DEV_API_URL;
 
 /**
  * Generate AI cake image based on cake designer selections

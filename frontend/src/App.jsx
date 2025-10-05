@@ -132,7 +132,7 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
+    <Router basename="/Sweet_Heaven">
       <AppContent />
     </Router>
   );

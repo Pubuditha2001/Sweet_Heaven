@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/Sweet_Heaven/", // This should match your GitHub repository name
+  base: process.env.NODE_ENV === "production" ? "/Sweet_Heaven/" : "/",
   server: {
     proxy: {
       "/api": {
