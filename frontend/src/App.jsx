@@ -35,6 +35,7 @@ import {
 } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { hasAdminPrivileges, isAdminLoggedIn } from "./utils/auth";
 
 // Create a wrapper component that decides when to show Hero
 function AppContent() {
@@ -56,6 +57,21 @@ function AppContent() {
       }, 300);
     }
   }, [location, isHomePage]);
+
+  // If admin user accesses login page or specific pages, redirect to admin dashboard
+  useEffect(() => {
+    try {
+      if (!isAdminRoute && hasAdminPrivileges() && isAdminLoggedIn()) {
+        // Only redirect from login page and home page for admin users
+        const redirectPages = ["/login"];
+        if (redirectPages.includes(location.pathname)) {
+          navigate("/admin");
+        }
+      }
+    } catch {
+      // Silently ignore errors
+    }
+  }, [location.pathname, isAdminRoute, navigate]);
 
   // If user accesses an admin route but is not logged in as admin, redirect to admin login
   useEffect(() => {

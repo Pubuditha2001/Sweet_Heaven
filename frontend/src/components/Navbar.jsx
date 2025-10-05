@@ -1,6 +1,7 @@
 // Navbar.jsx - Main navigation bar
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { isAdminLoggedIn, isUserLoggedIn, logout } from "../utils/auth";
 import headerLogo from "../assets/header_logo.png";
 
 export default function Navbar({ homeRef }) {
@@ -8,6 +9,13 @@ export default function Navbar({ homeRef }) {
   const [showNavbar, setShowNavbar] = useState(true);
   const [activeSection, setActiveSection] = useState("home");
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check login status
+  useEffect(() => {
+    setIsLoggedIn(isUserLoggedIn() || isAdminLoggedIn());
+  }, [location]); // Re-check when location changes
   useEffect(() => {
     let lastScrollY = window.scrollY;
     const handleScroll = () => {
@@ -210,6 +218,15 @@ export default function Navbar({ homeRef }) {
             >
               FAQ
             </a>
+            {/* Admin Dashboard Link - only show if user is admin */}
+            {isAdminLoggedIn() && (
+              <Link
+                to="/admin"
+                className="px-3 py-2 rounded-md font-medium transition-colors duration-200 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+              >
+                Admin Dashboard
+              </Link>
+            )}
             <Link
               to="/cart"
               className={`px-3 py-2 rounded-md font-medium transition-colors duration-200 ${
@@ -220,13 +237,22 @@ export default function Navbar({ homeRef }) {
             >
               Cart
             </Link>
-            <Link
-              to="/login"
-              className="text-white bg-pink-600 hover:bg-pink-700 focus:bg-pink-700 focus:outline-none active:bg-pink-800 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
-              style={{ color: "white !important" }}
-            >
-              <span className="text-white">Login / Register</span>
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={() => logout(navigate, isAdminLoggedIn())}
+                className="text-white bg-red-600 hover:bg-red-700 focus:bg-red-700 focus:outline-none active:bg-red-800 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
+              >
+                <span className="text-white">Logout</span>
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="text-white bg-pink-600 hover:bg-pink-700 focus:bg-pink-700 focus:outline-none active:bg-pink-800 px-4 py-2 rounded-md font-medium transition duration-150 ease-in-out"
+                style={{ color: "white !important" }}
+              >
+                <span className="text-white">Login / Register</span>
+              </Link>
+            )}
           </div>
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
@@ -358,6 +384,16 @@ export default function Navbar({ homeRef }) {
           >
             FAQ
           </a>
+          {/* Admin Dashboard Link - Mobile - only show if user is admin */}
+          {isAdminLoggedIn() && (
+            <Link
+              to="/admin"
+              className="block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+              onClick={toggleMenu}
+            >
+              Admin Dashboard
+            </Link>
+          )}
           <Link
             to="/cart"
             className={`block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 ${
@@ -370,17 +406,29 @@ export default function Navbar({ homeRef }) {
             Cart
           </Link>
 
-          <Link
-            to="/login"
-            className={`block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 ${
-              location.pathname === "/login"
-                ? "text-pink-600 bg-pink-50 border-l-4 border-pink-600"
-                : "text-gray-700 hover:text-pink-500 hover:bg-pink-50"
-            }`}
-            onClick={toggleMenu}
-          >
-            Login / Register
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={() => {
+                logout(navigate, isAdminLoggedIn());
+                toggleMenu();
+              }}
+              className="block w-full px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 text-white bg-red-600 hover:bg-red-700"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className={`block px-3 py-2 rounded-md font-medium text-center transition-colors duration-200 ${
+                location.pathname === "/login"
+                  ? "text-pink-600 bg-pink-50 border-l-4 border-pink-600"
+                  : "text-gray-700 hover:text-pink-500 hover:bg-pink-50"
+              }`}
+              onClick={toggleMenu}
+            >
+              Login / Register
+            </Link>
+          )}
         </div>
       </div>
     </nav>
