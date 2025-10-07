@@ -162,6 +162,11 @@ export default function AddToppings() {
     }));
   };
 
+  // Image handling helper
+  const handleToppingImageChange = (toppingIndex, imageUrl) => {
+    updateTopping(toppingIndex, "image", imageUrl);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex items-center mb-6">
@@ -412,7 +417,7 @@ export default function AddToppings() {
                       <ImageUploader
                         value={topping.image}
                         onChange={(img) =>
-                          updateTopping(toppingIndex, "image", img)
+                          handleToppingImageChange(toppingIndex, img)
                         }
                       />
                     </div>

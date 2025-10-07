@@ -346,6 +346,27 @@ export default function EditCakePage() {
     setCake({ ...cake, prices: newPrices });
   };
 
+  // Image handling helpers
+  const handleMainImageChange = (img) => {
+    const others =
+      cake.images && cake.images.length > 1 ? cake.images.slice(1) : [];
+    const images = img ? [img, ...others] : others;
+    setCake({ ...cake, images, cakeImage: img || "" });
+  };
+
+  const handleAdditionalImagesChange = (more) => {
+    const main =
+      cake.images && cake.images.length ? cake.images[0] : cake.cakeImage || "";
+    const images = main
+      ? [main, ...(Array.isArray(more) ? more : [])]
+      : Array.isArray(more)
+      ? more
+      : more
+      ? [more]
+      : [];
+    setCake({ ...cake, images, cakeImage: main });
+  };
+
   if (loading) return <div className="text-gray-500">Loading cake...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   if (!cake) return null;
@@ -378,12 +399,7 @@ export default function EditCakePage() {
         <label className="font-medium text-pink-700">Main Image:</label>
         <ImageUploader
           value={(cake.images && cake.images[0]) || cake.cakeImage || ""}
-          onChange={(img) => {
-            const others =
-              cake.images && cake.images.length > 1 ? cake.images.slice(1) : [];
-            const images = img ? [img, ...others] : others;
-            setCake({ ...cake, images, cakeImage: img || "" });
-          }}
+          onChange={handleMainImageChange}
         />
         {formErrors.cakeImage && (
           <span className="text-red-500 text-sm">{formErrors.cakeImage}</span>
@@ -395,18 +411,7 @@ export default function EditCakePage() {
           value={
             cake.images && cake.images.length > 1 ? cake.images.slice(1) : []
           }
-          onChange={(more) => {
-            const main =
-              cake.images && cake.images.length
-                ? cake.images[0]
-                : cake.cakeImage || "";
-            const images = main
-              ? [main, ...(Array.isArray(more) ? more : [more])]
-              : Array.isArray(more)
-              ? more
-              : [more];
-            setCake({ ...cake, images, cakeImage: main });
-          }}
+          onChange={handleAdditionalImagesChange}
         />
         <div className="flex items-center gap-3">
           <span className="font-medium text-pink-700">Is Featured:</span>

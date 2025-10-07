@@ -95,6 +95,10 @@ export default function EditAccessories() {
     }
   };
 
+  const handleImageChange = (imageUrl) => {
+    handleChange("image", imageUrl);
+  };
+
   const handleCancel = () => {
     if (hasChanges) {
       setShowUnsavedModal(true);
@@ -245,7 +249,7 @@ export default function EditAccessories() {
                 </label>
                 <ImageUploader
                   value={accessory.image}
-                  onChange={(img) => handleChange("image", img)}
+                  onChange={handleImageChange}
                 />
               </div>
 
