@@ -4,7 +4,6 @@ import { fetchAccessories } from "../../api/accessory";
 import { fetchAllToppings } from "../../api/topping";
 import { fetchOrders } from "../../api/order";
 import { useNavigate } from "react-router-dom";
-import CloudinaryTester from "../../components/CloudinaryTester";
 // import "./dashboard.css";
 
 const stats = [
@@ -217,14 +216,6 @@ export default function Dashboard() {
             Welcome to Sweet Heaven Admin Panel
           </p>
         </section>
-
-        {/* Cloudinary Debug Tool - Only show in development or for testing */}
-        {(import.meta.env.DEV ||
-          window.location.search.includes("debug=cloudinary")) && (
-          <section className="mb-8">
-            <CloudinaryTester />
-          </section>
-        )}
 
         <section className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-6 mb-8">
           {/* Card */}

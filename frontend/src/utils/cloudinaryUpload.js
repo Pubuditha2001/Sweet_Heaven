@@ -8,15 +8,6 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
       import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || ""
     ).trim();
 
-    // Enhanced debugging for production issues
-    if (import.meta.env.DEV) {
-      console.log("🔧 Cloudinary Config:", {
-        cloudName: cloudName || "MISSING",
-        uploadPreset: uploadPreset ? "SET" : "MISSING",
-        mode: import.meta.env.MODE,
-      });
-    }
-
     if (!cloudName) {
       throw new Error(
         "VITE_CLOUDINARY_CLOUD_NAME is missing. Please check environment variables."
@@ -36,15 +27,7 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
     formData.append("file", file);
     formData.append("upload_preset", uploadPreset);
 
-    // Note: cloud_name should NOT be in FormData for Cloudinary uploads
-    // It's already in the URL
-
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-    if (import.meta.env.DEV) {
-      console.log("📤 Uploading to:", uploadUrl);
-      console.log("📁 File:", file.name, file.size, "bytes", file.type);
-    }
 
     const xhr = new XMLHttpRequest();
 
@@ -60,9 +43,6 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
         if (xhr.status === 200) {
           try {
             const response = JSON.parse(xhr.responseText);
-            if (import.meta.env.DEV) {
-              console.log("✅ Upload successful:", response.secure_url);
-            }
             resolve({
               url: response.secure_url,
               publicId: response.public_id,
@@ -72,19 +52,9 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
               bytes: response.bytes,
             });
           } catch (parseError) {
-            console.error(
-              "❌ Failed to parse upload response:",
-              xhr.responseText
-            );
             reject(new Error("Failed to parse upload response"));
           }
         } else {
-          console.error("❌ Upload failed:", {
-            status: xhr.status,
-            statusText: xhr.statusText,
-            response: xhr.responseText,
-          });
-
           // Try to parse error response for more details
           let errorMessage = `Upload failed with status: ${xhr.status}`;
           try {
@@ -101,7 +71,6 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
       });
 
       xhr.addEventListener("error", () => {
-        console.error("❌ Network error during upload");
         reject(new Error("Network error during upload"));
       });
 
@@ -109,7 +78,6 @@ export const uploadToCloudinary = async (file, onProgress = null) => {
       xhr.send(formData);
     });
   } catch (error) {
-    console.error("❌ Cloudinary upload failed:", error);
     throw new Error(`Cloudinary upload failed: ${error.message}`);
   }
 };
