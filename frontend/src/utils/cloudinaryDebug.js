@@ -3,8 +3,8 @@
 
 export const debugCloudinaryConfig = () => {
   const config = {
-    cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
-    uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+    cloudName: (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '').trim(),
+    uploadPreset: (import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '').trim(),
     apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
     mode: import.meta.env.MODE,
     dev: import.meta.env.DEV,
