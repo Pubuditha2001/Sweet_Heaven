@@ -90,10 +90,16 @@ const Cake = ({ cake }) => {
           >
             {cake.cakeDescription}
           </p>
-          {Array.isArray(cake.prices) && cake.prices.length > 0 && (
+          {(cake.priceBasedPricing === false
+            ? cake.price
+            : Array.isArray(cake.prices) && cake.prices.length > 0
+            ? Math.min(...cake.prices.map((p) => p.price))
+            : null) && (
             <div className="mt-auto text-left">
               <p className="text-pink-600 font-bold">
-                From Rs. {Math.min(...cake.prices.map((p) => p.price))}
+                {cake.priceBasedPricing === false
+                  ? `Rs. ${cake.price}`
+                  : `From Rs. ${Math.min(...cake.prices.map((p) => p.price))}`}
               </p>
             </div>
           )}

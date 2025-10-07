@@ -25,7 +25,7 @@ export default function AddCakePage() {
     toppingCategory: "",
     prices: [],
     // whether this category uses size based pricing; when false use `price`
-    priceBasedPricing: true,
+    priceBasedPricing: false,
     price: undefined,
   };
 
@@ -252,8 +252,43 @@ export default function AddCakePage() {
     }
 
     try {
-      console.log("Submitting cake data:", cake);
-      await createCake(cake);
+      // Build a normalized payload:
+      // - remove any size entries with empty price ("")
+      // - convert numeric strings to Number
+      // - ensure single-price is a Number when used
+      const normalizePrices = (prices) => {
+        if (!Array.isArray(prices)) return [];
+        return prices
+          .filter(
+            (p) =>
+              p &&
+              p.price !== "" &&
+              p.price !== null &&
+              p.price !== undefined &&
+              !isNaN(Number(p.price))
+          )
+          .map((p) => ({ ...p, price: Number(p.price) }));
+      };
+
+      const payload = { ...cake };
+
+      if (payload.priceBasedPricing === false) {
+        // single price mode: ensure price is a number
+        payload.price =
+          payload.price === "" ||
+          payload.price === undefined ||
+          payload.price === null
+            ? undefined
+            : Number(payload.price);
+        // remove size-based prices if present
+        delete payload.prices;
+      } else {
+        // size-based pricing: strip empty-size entries and normalize numbers
+        payload.prices = normalizePrices(payload.prices);
+      }
+
+      console.log("Submitting normalized cake data:", payload);
+      await createCake(payload);
       showFeedback(
         "success",
         "Cake Created",
@@ -437,6 +472,56 @@ export default function AddCakePage() {
           </div>
         )}
 
+        {!showCustomCategory && (
+          <div className="flex items-center gap-4 mt-2">
+            <span className="font-medium text-pink-700">
+              Size-based pricing?
+            </span>
+            <div className="flex items-center gap-2">
+              <label
+                className={`px-3 py-1 rounded-full cursor-pointer ${
+                  cake.priceBasedPricing
+                    ? "bg-pink-600 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="priceMode"
+                  checked={!!cake.priceBasedPricing}
+                  onChange={() =>
+                    setCake({
+                      ...cake,
+                      priceBasedPricing: true,
+                      price: undefined,
+                    })
+                  }
+                  className="hidden"
+                />{" "}
+                Yes
+              </label>
+              <label
+                className={`px-3 py-1 rounded-full cursor-pointer ${
+                  !cake.priceBasedPricing
+                    ? "bg-pink-600 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="priceMode"
+                  checked={!cake.priceBasedPricing}
+                  onChange={() =>
+                    setCake({ ...cake, priceBasedPricing: false, prices: [] })
+                  }
+                  className="hidden"
+                />{" "}
+                No
+              </label>
+            </div>
+          </div>
+        )}
+
         <label className="font-medium text-pink-700">Description:</label>
         <input
           type="text"
@@ -552,7 +637,7 @@ export default function AddCakePage() {
         {formErrors.price && (
           <span className="text-red-500 text-sm">{formErrors.price}</span>
         )}
-        {showCustomCategory && !cake.priceBasedPricing ? (
+        {!cake.priceBasedPricing ? (
           <div className="flex items-center gap-3">
             <span className="w-32 text-sm font-medium text-gray-700">
               Price

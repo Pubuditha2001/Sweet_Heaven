@@ -113,12 +113,21 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
 
   // compute unit price preview based on selected size and toppings
   const unitPricePreview = useMemo(() => {
-    const base =
-      product && product.prices && product.prices[selectedSize]
-        ? product.prices[selectedSize].price
-        : product && product.prices && product.prices[0]
-        ? product.prices[0].price
-        : item.unitPrice || item.price || 0;
+    let base = 0;
+
+    if (product && product.priceBasedPricing === false) {
+      // Single price model
+      base = product.price || 0;
+    } else if (product && product.prices && product.prices[selectedSize]) {
+      // Size-based pricing - use selected size
+      base = product.prices[selectedSize].price;
+    } else if (product && product.prices && product.prices[0]) {
+      // Fallback to first price
+      base = product.prices[0].price;
+    } else {
+      // Last resort - use item's stored price
+      base = item.unitPrice || item.price || 0;
+    }
 
     const toppingsTotal = (selectedToppings || []).reduce(
       (sum, t) => sum + getToppingPrice(t, selectedSize),
@@ -147,7 +156,10 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     });
 
     // Get the size string value, not the _id
-    const sizeValue = product?.prices?.[selectedSize]?.size || freeSizeLabel;
+    const sizeValue =
+      product?.priceBasedPricing === false
+        ? "standard"
+        : product?.prices?.[selectedSize]?.size || freeSizeLabel;
 
     // Use unified itemId and productType
     onSave &&
@@ -251,23 +263,43 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
               {!isAccessory && (
                 <>
                   <div className="mt-4">
-                    <label className="block text-sm text-gray-700 mb-1">
-                      Size / Variant
-                    </label>
-                    {product ? (
-                      <CakeSizesOptions
-                        prices={product.prices}
-                        selectedSize={selectedSize}
-                        setSelectedSize={setSelectedSize}
-                        onReset={() => setSelectedSize(0)}
-                      />
+                    {product && product.priceBasedPricing === false ? (
+                      /* Single Price Display - matching CakeSizesOptions style */
+                      <>
+                        <label className="block text-sm text-gray-700 mb-1">
+                          Price
+                        </label>
+                        <div className="w-full flex items-center justify-between px-4 py-3 h-14 border rounded-lg bg-white border-pink-500 bg-gradient-to-r from-pink-50 to-purple-50 shadow-md">
+                          <div className="text-base font-medium text-gray-900">
+                            Fixed Price
+                          </div>
+                          <div className="text-base font-semibold text-pink-600">
+                            Rs. {Number(product.price || 0).toLocaleString()}
+                          </div>
+                        </div>
+                      </>
                     ) : (
-                      <input
-                        value={freeSizeLabel}
-                        onChange={(e) => setFreeSizeLabel(e.target.value)}
-                        placeholder="e.g. Small / 6 inch"
-                        className="w-full border rounded-md px-3 py-2 text-sm"
-                      />
+                      /* Size Selection */
+                      <>
+                        <label className="block text-sm text-gray-700 mb-1">
+                          Size / Variant
+                        </label>
+                        {product ? (
+                          <CakeSizesOptions
+                            prices={product.prices}
+                            selectedSize={selectedSize}
+                            setSelectedSize={setSelectedSize}
+                            onReset={() => setSelectedSize(0)}
+                          />
+                        ) : (
+                          <input
+                            value={freeSizeLabel}
+                            onChange={(e) => setFreeSizeLabel(e.target.value)}
+                            placeholder="e.g. Small / 6 inch"
+                            className="w-full border rounded-md px-3 py-2 text-sm"
+                          />
+                        )}
+                      </>
                     )}
                   </div>
 

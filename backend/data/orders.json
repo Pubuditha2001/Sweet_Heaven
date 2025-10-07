@@ -384,5 +384,153 @@
       "scheduledDate": "2025-10-07"
     },
     "createdAt": "2025-10-05T18:23:11.793Z"
+  },
+  {
+    "_id": "68e58707502d5a14404328f9",
+    "status": "requested",
+    "orderId": "SH-8274EL",
+    "clientCartId": "anon_aqtonf8",
+    "items": [
+      {
+        "itemId": "68e57e1042275532e3b2ad66",
+        "name": "new delight",
+        "qty": 1,
+        "price": 405,
+        "size": "Standard",
+        "toppings": [],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "new delight"
+      }
+    ],
+    "subtotal": 405,
+    "note": "",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "077022055001",
+      "phone2": "0703351780",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-10-10"
+    },
+    "createdAt": "2025-10-07T21:32:55.171Z"
+  },
+  {
+    "_id": "68e587bf9009e245cdb2143e",
+    "status": "requested",
+    "orderId": "SH-6EJRBK",
+    "clientCartId": "anon_aqtonf8",
+    "items": [
+      {
+        "itemId": "68e57e1042275532e3b2ad66",
+        "name": "new delight",
+        "qty": 3,
+        "price": 405,
+        "size": "Standard",
+        "toppings": [
+          "Mango Cubes"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "new delight"
+      }
+    ],
+    "subtotal": 1635,
+    "note": "",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "077022055001",
+      "phone2": "0703351780",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-10-10"
+    },
+    "createdAt": "2025-10-07T21:35:59.626Z"
+  },
+  {
+    "_id": "68e588079ff31b7770cde417",
+    "status": "requested",
+    "orderId": "SH-PJQ4M8",
+    "clientCartId": "anon_aqtonf8",
+    "items": [
+      {
+        "itemId": "68a25a3d1a30dcfe0d2d1b6b",
+        "name": "Birthday Candle Set",
+        "qty": 49,
+        "price": 100,
+        "toppings": [],
+        "accessories": [],
+        "productType": "accessory",
+        "itemName": "Birthday Candle Set"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba7",
+        "name": "Strawberry Bliss",
+        "qty": 1,
+        "price": 1140,
+        "size": "3kg",
+        "toppings": [],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Strawberry Bliss"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "name": "Vanilla Dream",
+        "qty": 55,
+        "price": 800,
+        "size": "2kg",
+        "toppings": [
+          "Pistachio Dust",
+          "Rose Petals",
+          "Mango Cubes",
+          "Coconut Flakes"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Vanilla Dream"
+      },
+      {
+        "itemId": "68a39c0c1a30dcfe0d2d1ba5",
+        "name": "Vanilla Dream",
+        "qty": 55,
+        "price": 1700,
+        "size": "5kg",
+        "toppings": [
+          "Rose Petals",
+          "Coconut Flakes"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "Vanilla Dream"
+      },
+      {
+        "itemId": "68e57e1042275532e3b2ad66",
+        "name": "new delight",
+        "qty": 3,
+        "price": 405,
+        "size": "standard",
+        "toppings": [
+          "Mango Cubes"
+        ],
+        "accessories": [],
+        "productType": "cake",
+        "itemName": "new delight"
+      }
+    ],
+    "subtotal": 397625,
+    "note": "",
+    "clientDetails": {
+      "name": "Pubuditha Walgampaya",
+      "address": "57/29, Sapumal Mavatha\nWilgoda Road",
+      "phone": "077022055001",
+      "phone2": "0703351780",
+      "email": "pubuditha2001@gmail.com",
+      "confirmationMethod": "call",
+      "scheduledDate": "2025-10-10"
+    },
+    "createdAt": "2025-10-07T21:37:11.090Z"
   }
 ]

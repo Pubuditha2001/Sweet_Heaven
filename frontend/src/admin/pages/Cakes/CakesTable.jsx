@@ -113,7 +113,9 @@ export default function CakesTable() {
     if (categoryFilter && cake.category !== categoryFilter) return false;
     // Price range filter
     const minPrice =
-      Array.isArray(cake.prices) && cake.prices.length > 0
+      cake.priceBasedPricing === false
+        ? cake.price
+        : Array.isArray(cake.prices) && cake.prices.length > 0
         ? Math.min(...cake.prices.map((p) => p.price))
         : null;
     if (priceMin && (minPrice === null || minPrice < Number(priceMin)))
@@ -444,7 +446,9 @@ export default function CakesTable() {
                     <td className="px-4 py-2">{cake.cakeDescription}</td>
                     <td className="px-4 py-2">{cake.category}</td>
                     <td className="px-4 py-2">
-                      {Array.isArray(cake.prices) && cake.prices.length > 0
+                      {cake.priceBasedPricing === false
+                        ? cake.price || "-"
+                        : Array.isArray(cake.prices) && cake.prices.length > 0
                         ? Math.min(...cake.prices.map((p) => p.price))
                         : "-"}
                     </td>
