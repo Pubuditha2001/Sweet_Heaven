@@ -247,16 +247,40 @@ export default function ProductView() {
   };
 
   const handleOrderNow = () => {
-    const order = {
-      product: product._id,
-      size: selectedSize,
-      quantity,
-      toppings: selectedToppings.map((t) => t.name),
+    // Create item in the format expected by checkout page
+    const orderItem = {
+      itemId: extractId(product._id),
+      productId: extractId(product._id),
+      name: product.cakeName,
+      cakeName: product.cakeName,
+      productName: product.cakeName,
+      qty: quantity,
       price: getTotalPrice(),
+      unitPrice: product.prices[selectedSize]?.price || 0,
+      size: product.prices[selectedSize]?.size,
+      sizeId: product.prices[selectedSize]?.size,
+      productType: "cake",
+      productCategory: "cake",
+      toppings: selectedToppings.map((topping) => ({
+        name: topping.name || topping.toppingName,
+        toppingName: topping.name || topping.toppingName,
+        toppingId: extractId(topping._id),
+        id: extractId(topping._id),
+        price: {
+          price: getToppingPrice(topping),
+        },
+      })),
+      accessories: [], // No accessories selected from this page
+      cake: {
+        _id: extractId(product._id),
+        id: extractId(product._id),
+        cakeName: product.cakeName,
+        cakeImage: product.cakeImage,
+      },
     };
 
-    // Navigate to checkout page with the prepared order
-    navigate("/checkout", { state: { order } });
+    // Navigate to checkout page with the prepared order items
+    navigate("/checkout", { state: { items: [orderItem] } });
   };
 
   const handleShare = () => {
