@@ -3,8 +3,10 @@
 
 export const uploadToCloudinary = async (file, onProgress = null) => {
   try {
-    const cloudName = (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '').trim();
-    const uploadPreset = (import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '').trim();
+    const cloudName = (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "").trim();
+    const uploadPreset = (
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || ""
+    ).trim();
 
     // Enhanced debugging for production issues
     if (import.meta.env.DEV) {
