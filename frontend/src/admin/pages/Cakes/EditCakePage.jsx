@@ -158,45 +158,16 @@ export default function EditCakePage() {
       errors.cakeImage = "Main image is required";
     }
 
-    // Validate pricing - handle inconsistent data gracefully
-    console.log("DEBUG: Validating cake:", {
-      priceBasedPricing: cake.priceBasedPricing,
-      prices: cake.prices,
-      price: cake.price,
-      category: cake.category,
-    });
-
-    // Check if we have valid prices in the prices array
-    const validPricesInArray = cake.prices?.filter(
-      (p) => p && p.price && !isNaN(Number(p.price))
-    );
-
-    // Check if we have a valid single price
-    const hasValidSinglePrice =
-      cake.price !== undefined &&
-      cake.price !== null &&
-      cake.price !== "" &&
-      !isNaN(Number(cake.price));
-
-    console.log("DEBUG: validPricesInArray:", validPricesInArray?.length || 0);
-    console.log("DEBUG: hasValidSinglePrice:", hasValidSinglePrice);
-
-    // Validate based on what data actually exists, not just the priceBasedPricing flag
-    if (validPricesInArray?.length > 0) {
-      // Has valid prices in array - treat as size-based pricing
-      console.log(
-        "DEBUG: Using size-based validation (has valid prices array)"
+    // Validate pricing
+    if (cake.priceBasedPricing) {
+      const validPrices = cake.prices?.filter(
+        (p) => p && p.price && !isNaN(Number(p.price))
       );
-    } else if (hasValidSinglePrice) {
-      // Has valid single price - treat as single pricing
-      console.log(
-        "DEBUG: Using single price validation (has valid single price)"
-      );
-    } else {
-      // No valid pricing data found
-      if (cake.priceBasedPricing) {
+      if (!validPrices?.length) {
         errors.prices = "At least one price must be set";
-      } else {
+      }
+    } else {
+      if (!cake.price || isNaN(Number(cake.price))) {
         errors.price = "Price is required and must be a valid number";
       }
     }
@@ -532,6 +503,56 @@ export default function EditCakePage() {
             </div>
           </div>
         )}
+
+        {!showCustomCategory && (
+          <div className="flex items-center gap-4 mt-2">
+            <span className="font-medium text-pink-700">
+              Size-based pricing?
+            </span>
+            <div className="flex items-center gap-2">
+              <label
+                className={`px-3 py-1 rounded-full cursor-pointer ${
+                  cake.priceBasedPricing
+                    ? "bg-pink-600 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="priceModeEdit"
+                  checked={!!cake.priceBasedPricing}
+                  onChange={() =>
+                    setCake({
+                      ...cake,
+                      priceBasedPricing: true,
+                      price: undefined,
+                    })
+                  }
+                  className="hidden"
+                />{" "}
+                Yes
+              </label>
+              <label
+                className={`px-3 py-1 rounded-full cursor-pointer ${
+                  !cake.priceBasedPricing
+                    ? "bg-pink-600 text-white"
+                    : "bg-gray-100 text-gray-700"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="priceModeEdit"
+                  checked={!cake.priceBasedPricing}
+                  onChange={() =>
+                    setCake({ ...cake, priceBasedPricing: false, prices: [] })
+                  }
+                  className="hidden"
+                />{" "}
+                No
+              </label>
+            </div>
+          </div>
+        )}
         <label className="font-medium text-pink-700">Description:</label>
         <input
           type="text"
@@ -691,7 +712,7 @@ export default function EditCakePage() {
           <span className="text-red-500 text-sm">{formErrors.price}</span>
         )}
         {/* Fixed size options: 500g to 5kg by 500g. No size selection for cupcakes. */}
-        {showCustomCategory && !cake.priceBasedPricing ? (
+        {!cake.priceBasedPricing ? (
           <div className="flex items-center gap-3">
             <span className="w-32 text-sm font-medium text-gray-700">
               Price

@@ -166,11 +166,11 @@ export default function ProductView() {
     // Handle both pricing models
     let basePrice = 0;
 
-    if (product.priceBasedPricing === true) {
-      // Single price model - use the first price entry or fallback to product.price
-      basePrice = product.prices?.[0]?.price || product.price || 0;
+    if (product.priceBasedPricing === false) {
+      // Single price model - use the single price field
+      basePrice = product.price || 0;
     } else {
-      // Size-based pricing model (priceBasedPricing is false or undefined)
+      // Size-based pricing model (priceBasedPricing is true or undefined)
       basePrice = product.prices?.[selectedSize]?.price || 0;
     }
 
@@ -212,7 +212,7 @@ export default function ProductView() {
       // store the size value (string) so backend can look up current price by size
       // For single price model, use a default size identifier
       sizeId:
-        product.priceBasedPricing === true
+        product.priceBasedPricing === false
           ? "standard"
           : product.prices?.[selectedSize]?.size,
       qty: quantity,
@@ -271,15 +271,15 @@ export default function ProductView() {
       qty: quantity,
       price: getTotalPrice(),
       unitPrice:
-        product.priceBasedPricing === true
-          ? product.prices?.[0]?.price || product.price || 0
+        product.priceBasedPricing === false
+          ? product.price || 0
           : product.prices?.[selectedSize]?.price || 0,
       size:
-        product.priceBasedPricing === true
+        product.priceBasedPricing === false
           ? "Standard"
           : product.prices?.[selectedSize]?.size,
       sizeId:
-        product.priceBasedPricing === true
+        product.priceBasedPricing === false
           ? "standard"
           : product.prices?.[selectedSize]?.size,
       productType: "cake",
@@ -450,8 +450,17 @@ export default function ProductView() {
               </span>
             </div>
 
-            {/* Size Selection - show for size-based pricing (when priceBasedPricing is not true) */}
-            {product.priceBasedPricing !== true && (
+            {/* Price/Size Selection */}
+            {product.priceBasedPricing === false ? (
+              /* Single Price Display - matching CakeSizesOptions style */
+              <div className="w-full flex items-center justify-between px-4 py-3 h-14 border rounded-lg bg-white border-pink-500 bg-gradient-to-r from-pink-50 to-purple-50 shadow-md">
+                <div className="text-base font-medium text-gray-900">Price</div>
+                <div className="text-base font-semibold text-pink-600">
+                  Rs. {Number(product.price || 0).toLocaleString()}
+                </div>
+              </div>
+            ) : (
+              /* Size Selection - show for size-based pricing */
               <CakeSizesOptions
                 prices={product.prices}
                 selectedSize={selectedSize}
@@ -536,12 +545,12 @@ export default function ProductView() {
               </button>
 
               {/* Customize */}
-              <button
+              {/* <button
                 onClick={() => navigate("/custom-cake")}
                 className="flex-1 w-full md:w-auto border-2 border-pink-500 text-pink-500 h-14 rounded-lg font-semibold text-lg hover:bg-pink-50 transition duration-300 flex items-center justify-center"
               >
                 Customize This Cake
-              </button>
+              </button> */}
             </div>
 
             {/* transient cart notice */}
@@ -579,10 +588,9 @@ export default function ProductView() {
                   <span className="flex items-center">Serves:</span>
                   <span className="font-medium text-pink-600">
                     {(() => {
-                      if (product.priceBasedPricing === true) {
-                        // Single price model - use first price entry
-                        const basePrice =
-                          product.prices?.[0]?.price || product.price || 0;
+                      if (product.priceBasedPricing === false) {
+                        // Single price model - use single price field
+                        const basePrice = product.price || 0;
                         return `${Math.ceil(basePrice / 500)} people`;
                       } else if (
                         product.prices &&

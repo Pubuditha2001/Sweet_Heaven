@@ -95,8 +95,51 @@ export default function Cart() {
             if (!isAccessory) {
               cake = det || null;
 
-              // determine selected size: try to match stored sizeId to a price entry
-              if (det && Array.isArray(det.prices) && det.prices.length > 0) {
+              // Handle both pricing models
+              if (det && det.priceBasedPricing === false) {
+                // Single price model - use the single price field
+                unitPrice = Number(det.price || 0);
+                size = { price: unitPrice, size: "standard" };
+                sizeIndexLocal = 0;
+
+                // Handle toppings for single-price cakes
+                if (Array.isArray(it.toppings) && it.toppings.length > 0) {
+                  let toppingDocs = [];
+                  if (det && det.toppingRef) {
+                    const td = await fetchToppingsByRef(det.toppingRef).catch(
+                      () => ({ toppings: [] })
+                    );
+                    toppingDocs = td.toppings || [];
+                  }
+                  if (!toppingDocs || toppingDocs.length === 0) {
+                    const all = await fetchAllToppings().catch(() => ({
+                      toppings: [],
+                    }));
+                    toppingDocs = all.toppings || [];
+                  }
+
+                  for (const t of it.toppings) {
+                    const tid = String(t.toppingId || t);
+                    let toppingDoc =
+                      toppingDocs.find((x) => String(x._id) === tid) || null;
+                    if (!toppingDoc) continue;
+
+                    // For single-price cakes, use first topping price or zero
+                    const priceObj = toppingDoc.prices?.[0] || { price: 0 };
+                    toppingsWithPrices.push({
+                      _id: tid,
+                      toppingId: tid,
+                      name: toppingDoc.name,
+                      price: priceObj,
+                    });
+                  }
+                }
+              } else if (
+                det &&
+                Array.isArray(det.prices) &&
+                det.prices.length > 0
+              ) {
+                // Size-based pricing model (priceBasedPricing is true or undefined)
                 const storedSize = it.sizeId;
                 if (storedSize) {
                   // storedSize expected to be normalized text like '1kg' or '500g'
@@ -123,18 +166,17 @@ export default function Cart() {
                 }
 
                 // If we still didn't find a matching size, fall back to the first price entry
-                // (keeps existing behavior for legacy/edge cases). This is only used when
-                // there is no stored size information on the cart item.
                 if (!size) {
                   size = det.prices[0] || null;
                   sizeIndexLocal = 0;
                 }
 
-                // base cake price (do not include toppings here) -- use the selected size price
+                // base cake price - use the selected size price
                 const basePrice = size?.price || 0;
                 unitPrice = basePrice;
+
+                // Handle toppings for size-based pricing
                 if (Array.isArray(it.toppings) && it.toppings.length > 0) {
-                  // if cake has a toppingRef, fetch toppings doc once
                   let toppingDocs = [];
                   if (det && det.toppingRef) {
                     const td = await fetchToppingsByRef(det.toppingRef).catch(
@@ -142,7 +184,6 @@ export default function Cart() {
                     );
                     toppingDocs = td.toppings || [];
                   }
-                  // fallback: if no toppingRef or toppingDocs empty, try fetching all toppings
                   if (!toppingDocs || toppingDocs.length === 0) {
                     const all = await fetchAllToppings().catch(() => ({
                       toppings: [],
@@ -150,7 +191,6 @@ export default function Cart() {
                     toppingDocs = all.toppings || [];
                   }
 
-                  // for each topping id in cart, find the topping doc (by _id match) and determine price
                   for (const t of it.toppings) {
                     const tid = String(t.toppingId || t);
                     let toppingDoc =
