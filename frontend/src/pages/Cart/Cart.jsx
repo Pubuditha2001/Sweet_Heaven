@@ -317,111 +317,213 @@ export default function Cart() {
     setEditingItem(item);
   };
 
-  const handleEditorSave = (payload) => {
+  const handleEditorSave = async (payload) => {
     if (!editingItem) return;
     const oldId = editingItem.id;
 
     // Build normalized signature using unified itemId
     const norm = (arr) =>
       (arr || [])
-        .map((x) => (x.id || x._id || x.name || "").toString())
+        .map((x) => {
+          // Handle both string IDs and objects with toppingId
+          if (typeof x === "string") return x;
+          return (x.toppingId || x.id || x._id || x.name || "").toString();
+        })
         .filter(Boolean)
         .sort()
         .join(",");
     const toppingIds = norm(payload.toppings);
-    const accessoryIds = norm(payload.accessories);
-    const newId = `${editingItem.itemId}|type:${editingItem.productType}|size:${
+    const accessoryIds = norm(payload.accessories || []);
+    const newSignature = `${editingItem.itemId}|type:${
+      editingItem.productType
+    }|size:${
       payload.sizeIndex ?? editingItem.sizeIndex
     }|t:${toppingIds}|a:${accessoryIds}`;
 
-    // If another item already has this signature, merge quantities
-    const existingIdx = items.findIndex(
-      (i) => i.id === newId && i.id !== oldId
+    // Re-normalize toppings with price information for UI display
+    let normalizedToppings = [];
+    if (payload.toppings && payload.toppings.length > 0 && editingItem.cake) {
+      try {
+        // Get topping documents to reconstruct price information
+        let toppingDocs = [];
+        if (editingItem.cake.toppingRef) {
+          const td = await fetchToppingsByRef(
+            editingItem.cake.toppingRef
+          ).catch(() => ({ toppings: [] }));
+          toppingDocs = td.toppings || [];
+        }
+        if (!toppingDocs || toppingDocs.length === 0) {
+          const all = await fetchAllToppings().catch(() => ({ toppings: [] }));
+          toppingDocs = all.toppings || [];
+        }
+
+        // Build normalized toppings with price info
+        const selectedSizeName =
+          editingItem.cake.prices?.[payload.sizeIndex ?? editingItem.sizeIndex]
+            ?.size;
+        const normalize = (s) =>
+          (s || "").toString().toLowerCase().replace(/\s+/g, "").trim();
+        const numeric = (str) => {
+          const m = (str || "").toString().match(/([\d.]+)/);
+          return m ? m[1] : null;
+        };
+
+        for (const toppingId of payload.toppings) {
+          const toppingDoc = toppingDocs.find(
+            (x) => String(x._id) === String(toppingId)
+          );
+          if (toppingDoc) {
+            // Find price for current size
+            let priceObj = null;
+            if (selectedSizeName) {
+              const target = normalize(selectedSizeName);
+              priceObj = toppingDoc.prices.find(
+                (p) => normalize(p.size) === target
+              );
+            }
+            if (!priceObj) {
+              const targetNum = numeric(selectedSizeName);
+              if (targetNum) {
+                priceObj = toppingDoc.prices.find(
+                  (p) => numeric(p.size) === targetNum
+                );
+              }
+            }
+            if (!priceObj) priceObj = toppingDoc.prices[0] || null;
+
+            normalizedToppings.push({
+              _id: String(toppingId),
+              toppingId: String(toppingId),
+              name: toppingDoc.name,
+              price: priceObj || { price: 0 },
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error normalizing toppings:", error);
+        // Fallback to simple structure
+        normalizedToppings = payload.toppings.map((id) => ({
+          _id: String(id),
+          toppingId: String(id),
+          name: "Topping",
+          price: { price: 0 },
+        }));
+      }
+    }
+
+    // Create updated item with proper structure
+    const updatedItemData = {
+      ...editingItem,
+      qty: payload.qty || editingItem.qty,
+      sizeIndex: payload.sizeIndex ?? editingItem.sizeIndex,
+      sizeId: payload.sizeId || editingItem.sizeId,
+      toppings: normalizedToppings,
+      accessories: payload.accessories || editingItem.accessories || [],
+    };
+
+    // Update size information if product is available
+    if (
+      editingItem.cake &&
+      editingItem.cake.prices &&
+      payload.sizeIndex != null
+    ) {
+      const sizeInfo = editingItem.cake.prices[payload.sizeIndex];
+      if (sizeInfo) {
+        updatedItemData.size = sizeInfo;
+      }
+    }
+
+    // Recalculate unit price based on new size and toppings
+    const basePrice = updatedItemData.size?.price || 0;
+    const toppingsTotal = normalizedToppings.reduce(
+      (sum, t) => sum + (t.price?.price || 0),
+      0
     );
-    if (existingIdx > -1) {
-      const next = items
+    updatedItemData.unitPrice = basePrice + toppingsTotal;
+    updatedItemData.price = updatedItemData.unitPrice;
+
+    // Check if another item with the same signature already exists
+    const existingItemWithSignature = items.find(
+      (i) => i.id !== oldId && i.id === newSignature
+    );
+
+    if (existingItemWithSignature) {
+      // Merge quantities with existing item and remove the edited item
+      const updatedItems = items
         .map((it) => {
-          if (it.id === newId) {
+          if (it.id === newSignature) {
             return { ...it, qty: (it.qty || 0) + (payload.qty || 1) };
           }
           return it;
         })
         .filter((it) => it.id !== oldId);
-      setItems(next);
-      // update server: update existing item qty, and remove old item
-      updateCartItem(localStorage.getItem(clientCartIdKey), newId, {
-        qty: next[existingIdx].qty,
+
+      setItems(updatedItems);
+
+      // Update server: update existing item qty, and remove old item
+      updateCartItem(localStorage.getItem(clientCartIdKey), newSignature, {
+        qty: updatedItems.find((i) => i.id === newSignature)?.qty || 1,
       }).catch(() => {});
       removeCartItem(localStorage.getItem(clientCartIdKey), oldId).catch(
         () => {}
       );
     } else {
-      // update the edited item
-      const updated = { ...editingItem, ...payload, id: newId };
+      // Update the item in place, keeping the same position but updating the ID if signature changed
+      const updatedItems = items.map((it) => {
+        if (it.id === oldId) {
+          return { ...updatedItemData, id: newSignature };
+        }
+        return it;
+      });
 
-      // If signature didn't change, update in-place via PUT to avoid remove+add
-      if (newId === oldId) {
-        const nextItems = items.map((it) =>
-          it.id === oldId ? { ...it, ...payload } : it
-        );
-        setItems(nextItems);
+      setItems(updatedItems);
 
-        const cartId = localStorage.getItem(clientCartIdKey);
-        try {
-          const updatePayload = {
-            productType: updated.productType || editingItem.productType,
-            itemId: updated.itemId || editingItem.itemId,
-            qty: updated.qty || 1,
-            sizeId: updated.sizeId,
-            toppings: updated.toppings,
-          };
-          updateCartItem(cartId, oldId, updatePayload).catch(() => {});
-        } catch (e) {}
+      const cartId = localStorage.getItem(clientCartIdKey);
 
-        // persist locally if backend fails
-        try {
-          const raw = localStorage.getItem("cart");
-          const cart = raw && raw.length ? JSON.parse(raw) : [];
-          const idx = cart.findIndex((c) => c.id === oldId);
-          if (idx > -1) {
-            cart[idx] = { ...cart[idx], ...payload, id: newId };
-            localStorage.setItem("cart", JSON.stringify(cart));
-          }
-        } catch (e) {}
-      } else {
-        // signature changed: remove old then add new on backend to reflect id change
-        const nextItems = items.map((it) => (it.id === oldId ? updated : it));
-        setItems(nextItems);
-
-        const cartId = localStorage.getItem(clientCartIdKey);
+      // If the signature changed, we need to remove old and add new on backend
+      if (newSignature !== oldId) {
         removeCartItem(cartId, oldId)
           .catch(() => {})
           .finally(() => {
-            // attempt to add updated item on backend
+            // Add updated item on backend
             try {
               const addPayload = {
-                productType: updated.productType || editingItem.productType,
-                itemId: updated.itemId || editingItem.itemId,
-                qty: updated.qty || 1,
-                sizeId: updated.sizeId,
-                toppings: updated.toppings,
+                productType:
+                  updatedItemData.productType || editingItem.productType,
+                itemId: updatedItemData.itemId || editingItem.itemId,
+                qty: updatedItemData.qty || 1,
+                sizeId: updatedItemData.sizeId,
+                toppings: payload.toppings || [],
               };
               addCartItem(cartId, addPayload).catch(() => {});
             } catch (e) {}
           });
-
-        // persist locally if backend fails
+      } else {
+        // Signature didn't change, just update the existing item
         try {
-          const raw = localStorage.getItem("cart");
-          const cart = raw && raw.length ? JSON.parse(raw) : [];
-          const idx = cart.findIndex((c) => c.id === oldId);
-          if (idx > -1) {
-            cart[idx] = { ...cart[idx], ...payload, id: newId };
-            localStorage.setItem("cart", JSON.stringify(cart));
-          }
+          const updatePayload = {
+            productType: updatedItemData.productType || editingItem.productType,
+            itemId: updatedItemData.itemId || editingItem.itemId,
+            qty: updatedItemData.qty || 1,
+            sizeId: updatedItemData.sizeId,
+            toppings: payload.toppings || [],
+          };
+          updateCartItem(cartId, oldId, updatePayload).catch(() => {});
         } catch (e) {}
       }
+
+      // persist locally if backend fails
+      try {
+        const raw = localStorage.getItem("cart");
+        const cart = raw && raw.length ? JSON.parse(raw) : [];
+        const idx = cart.findIndex((c) => c.id === oldId);
+        if (idx > -1) {
+          cart[idx] = { ...cart[idx], ...updatedItemData, id: newSignature };
+          localStorage.setItem("cart", JSON.stringify(cart));
+        }
+      } catch (e) {}
     }
+
     setEditingItem(null);
   };
 

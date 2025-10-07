@@ -163,7 +163,17 @@ export default function ProductView() {
 
   // Calculate total price
   const getTotalPrice = () => {
-    const basePrice = product.prices[selectedSize]?.price || 0;
+    // Handle both pricing models
+    let basePrice = 0;
+
+    if (product.priceBasedPricing === false && product.price) {
+      // Single price model (like cupcakes)
+      basePrice = product.price;
+    } else {
+      // Size-based pricing model
+      basePrice = product.prices?.[selectedSize]?.price || 0;
+    }
+
     const toppingsPrice = selectedToppings.reduce(
       (sum, topping) => sum + getToppingPrice(topping),
       0
@@ -200,7 +210,11 @@ export default function ProductView() {
       // send plain id string for itemId
       itemId: extractId(product._id),
       // store the size value (string) so backend can look up current price by size
-      sizeId: product.prices[selectedSize]?.size,
+      // For single price model, use a default size identifier
+      sizeId:
+        product.priceBasedPricing === false
+          ? "standard"
+          : product.prices?.[selectedSize]?.size,
       qty: quantity,
       // only include toppings when user selected any (keep undefined when none)
       ...(toppingsPayload && toppingsPayload.length
@@ -256,9 +270,18 @@ export default function ProductView() {
       productName: product.cakeName,
       qty: quantity,
       price: getTotalPrice(),
-      unitPrice: product.prices[selectedSize]?.price || 0,
-      size: product.prices[selectedSize]?.size,
-      sizeId: product.prices[selectedSize]?.size,
+      unitPrice:
+        product.priceBasedPricing === false
+          ? product.price || 0
+          : product.prices?.[selectedSize]?.price || 0,
+      size:
+        product.priceBasedPricing === false
+          ? "Standard"
+          : product.prices?.[selectedSize]?.size,
+      sizeId:
+        product.priceBasedPricing === false
+          ? "standard"
+          : product.prices?.[selectedSize]?.size,
       productType: "cake",
       productCategory: "cake",
       toppings: selectedToppings.map((topping) => ({
@@ -427,13 +450,15 @@ export default function ProductView() {
               </span>
             </div>
 
-            {/* Size Selection */}
-            <CakeSizesOptions
-              prices={product.prices}
-              selectedSize={selectedSize}
-              setSelectedSize={setSelectedSize}
-              onReset={() => setSelectedSize(0)}
-            />
+            {/* Size Selection - only show for size-based pricing */}
+            {product.priceBasedPricing !== false && (
+              <CakeSizesOptions
+                prices={product.prices}
+                selectedSize={selectedSize}
+                setSelectedSize={setSelectedSize}
+                onReset={() => setSelectedSize(0)}
+              />
+            )}
 
             {/* Topping Options */}
             <div className="space-y-4">
@@ -553,11 +578,23 @@ export default function ProductView() {
                 <div className="flex justify-between items-center p-2 bg-white rounded-lg">
                   <span className="flex items-center">Serves:</span>
                   <span className="font-medium text-pink-600">
-                    {product.prices && product.prices[selectedSize]
-                      ? `${Math.ceil(
+                    {(() => {
+                      if (
+                        product.priceBasedPricing === false &&
+                        product.price
+                      ) {
+                        return `${Math.ceil(product.price / 500)} people`;
+                      } else if (
+                        product.prices &&
+                        product.prices[selectedSize]
+                      ) {
+                        return `${Math.ceil(
                           product.prices[selectedSize].price / 500
-                        )} people`
-                      : "Varies by size"}
+                        )} people`;
+                      } else {
+                        return "Varies by size";
+                      }
+                    })()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-white rounded-lg">

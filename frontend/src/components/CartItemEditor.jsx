@@ -16,10 +16,10 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
   const [availableToppings, setAvailableToppings] = useState([]);
   const [selectedToppings, setSelectedToppings] = useState([]);
   const [selectedSize, setSelectedSize] = useState(
-    item?.sizeIndex != null ? item.sizeIndex : item?.sizeIndex || 0
+    item?.sizeIndex != null ? item.sizeIndex : 0
   );
   const [freeSizeLabel, setFreeSizeLabel] = useState(
-    item?.sizeLabel || item?.size || ""
+    item?.sizeId || item?.size?.size || item?.sizeLabel || ""
   );
   const isAccessory =
     item?.productType === "accessory" || item?.productCategory === "accessory";
@@ -56,25 +56,33 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
           if (!mounted) return;
           setProduct(p);
           // determine selected size index
-          const idx =
-            item?.sizeIndex != null
-              ? item.sizeIndex
-              : p?.prices?.findIndex(
-                  (pr) => (pr.size || "") === (item.sizeLabel || item.size)
-                ) ?? 0;
+          const itemSizeValue = item?.sizeId || item?.size?.size;
+          const idx = itemSizeValue
+            ? p?.prices?.findIndex((pr) => pr.size === itemSizeValue) ?? 0
+            : item?.sizeIndex ?? 0;
           setSelectedSize(idx >= 0 ? idx : 0);
-          setFreeSizeLabel(item?.sizeLabel || item?.size || "");
+          setFreeSizeLabel(itemSizeValue || "");
+
           if (p?.toppingRef) {
             const tr = await fetchToppingsByRef(p.toppingRef);
             if (!mounted) return;
             setAvailableToppings(tr.toppings || []);
-            const selT = (item.toppings || []).map(
-              (t) =>
-                tr.toppings.find(
+
+            // Map existing toppings to available toppings
+            const selT = (item.toppings || [])
+              .map((itemTopping) => {
+                const toppingId =
+                  itemTopping.toppingId || itemTopping._id || itemTopping.id;
+                const found = tr.toppings.find(
                   (at) =>
-                    (at._id || at.id || at.name) === (t.id || t._id || t.name)
-                ) || t
-            );
+                    String(at._id) === String(toppingId) ||
+                    String(at.id) === String(toppingId) ||
+                    at.name === itemTopping.name
+                );
+                return found || itemTopping;
+              })
+              .filter(Boolean);
+
             setSelectedToppings(selT);
           }
         }
@@ -133,16 +141,21 @@ export default function CartItemEditor({ item, onClose, onSave, onRemove }) {
     }
 
     // Save only IDs for cake, size and toppings (backend expects topping ids)
-    const toppingsPayload = (selectedToppings || []).map((t) =>
-      String(t._id || t.id || t)
-    );
+    const toppingsPayload = (selectedToppings || []).map((t) => {
+      const rawId = t && (t._id || t.id || t);
+      return String(rawId);
+    });
+
+    // Get the size string value, not the _id
+    const sizeValue = product?.prices?.[selectedSize]?.size || freeSizeLabel;
+
     // Use unified itemId and productType
     onSave &&
       onSave({
         itemId: product?._id || item.itemId || item._id,
         productType: "cake",
         qty,
-        sizeId: product?.prices?.[selectedSize]?._id || freeSizeLabel,
+        sizeId: sizeValue, // This should be the size string like "1 Kg", "500g", etc.
         sizeIndex: selectedSize,
         toppings: toppingsPayload,
       });

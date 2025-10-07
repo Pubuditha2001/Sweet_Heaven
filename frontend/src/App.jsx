@@ -1,6 +1,7 @@
 import "./App.css";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import Home from "./pages/Home/Home.jsx";
 import Menu from "./pages/Menu/Menu.jsx";
 import ProductView from "./pages/ProductView/ProductView.jsx";
@@ -149,6 +150,7 @@ function AppContent() {
 function App() {
   return (
     <Router basename="/Sweet_Heaven">
+      <ScrollToTop />
       <AppContent />
     </Router>
   );

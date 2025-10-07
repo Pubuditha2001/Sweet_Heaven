@@ -81,48 +81,7 @@ const Home = forwardRef((props, ref) => {
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Improved infinite scroll implementation
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || featuredCakes.length === 0) return;
-
-    // Calculate the threshold based on item width
-    const cakeItem = el.querySelector('div[class*="flex-shrink-0"]');
-    const itemWidth = cakeItem
-      ? cakeItem.offsetWidth + (isMobile ? 50 : 24)
-      : 220;
-
-    // Calculate viewport width and total content width
-    const viewportWidth = el.clientWidth;
-    const contentWidth = el.scrollWidth;
-
-    const handleScroll = () => {
-      setScrollPosition(el.scrollLeft);
-
-      // Only auto-jump if user hasn't interacted
-      if (!userInteracted) {
-        // If we scroll to the end, jump to the beginning
-        if (el.scrollLeft + viewportWidth >= contentWidth - itemWidth / 2) {
-          // Immediately jump to the start without animation
-          el.scrollTo({ left: 0, behavior: "auto" });
-        }
-
-        // If we scroll to the beginning (backward), jump to the end
-        if (el.scrollLeft === 0 && scrollPosition > itemWidth) {
-          // Immediately jump to near the end without animation
-          el.scrollTo({
-            left: contentWidth - viewportWidth - itemWidth,
-            behavior: "auto",
-          });
-        }
-      }
-    };
-
-    el.addEventListener("scroll", handleScroll);
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [scrollPosition, featuredCakes.length, isMobile, userInteracted]);
-
-  // Enhanced auto-slide logic for smoother infinite scrolling
+  // Enhanced auto-slide logic for smooth scrolling (no infinite loop)
   useEffect(() => {
     if (!isScrollable || !autoSlide || userInteracted) return;
     const el = scrollRef.current;
@@ -145,12 +104,8 @@ const Home = forwardRef((props, ref) => {
       const isNearEnd = currentPos + viewportWidth >= contentWidth - itemWidth;
 
       if (isNearEnd) {
-        // Jump to beginning without animation
-        el.scrollTo({ left: 0, behavior: "auto" });
-        // After a small delay, scroll smoothly to show movement
-        setTimeout(() => {
-          el.scrollBy({ left: itemWidth / 2, behavior: "smooth" });
-        }, 50);
+        // Stop auto-slide when reaching the end
+        setAutoSlide(false);
       } else {
         // Normal scrolling
         el.scrollBy({ left: itemWidth, behavior: "smooth" });
@@ -179,43 +134,12 @@ const Home = forwardRef((props, ref) => {
         ? cakeItem.offsetWidth + (isMobile ? 16 : 24)
         : 220;
 
-      // Get total width and current position
-      const totalWidth = el.scrollWidth;
-      const currentPos = el.scrollLeft;
-      const viewportWidth = el.clientWidth;
-
       if (direction === "right") {
-        // Check if we're at the end
-        if (
-          currentPos + viewportWidth >= totalWidth - itemWidth / 2 &&
-          !userInteracted
-        ) {
-          // Jump to beginning instantly
-          el.scrollTo({ left: 0, behavior: "auto" });
-          // Then after a tiny delay, start scrolling smoothly
-          setTimeout(() => {
-            el.scrollBy({ left: itemWidth / 2, behavior: "smooth" });
-          }, 50);
-        } else {
-          // Normal scrolling
-          el.scrollBy({ left: itemWidth, behavior: "smooth" });
-        }
+        // Normal scrolling only - no jumping back to start
+        el.scrollBy({ left: itemWidth, behavior: "smooth" });
       } else if (direction === "left") {
-        // Check if we're at the beginning
-        if (currentPos < itemWidth / 2 && !userInteracted) {
-          // Jump to end instantly
-          el.scrollTo({
-            left: totalWidth - viewportWidth,
-            behavior: "auto",
-          });
-          // Then after a tiny delay, start scrolling smoothly
-          setTimeout(() => {
-            el.scrollBy({ left: -itemWidth / 2, behavior: "smooth" });
-          }, 50);
-        } else {
-          // Normal scrolling
-          el.scrollBy({ left: -itemWidth, behavior: "smooth" });
-        }
+        // Normal scrolling only - no jumping to end
+        el.scrollBy({ left: -itemWidth, behavior: "smooth" });
       }
     }
   };

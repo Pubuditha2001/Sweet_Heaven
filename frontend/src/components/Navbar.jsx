@@ -237,6 +237,7 @@ export default function Navbar({ homeRef }) {
             >
               Cart
             </Link>
+            {/* Login/Logout buttons temporarily commented out
             {isLoggedIn ? (
               <button
                 onClick={() => logout(navigate, isAdminLoggedIn())}
@@ -253,6 +254,7 @@ export default function Navbar({ homeRef }) {
                 <span className="text-white">Login / Register</span>
               </Link>
             )}
+            */}
           </div>
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
@@ -406,6 +408,7 @@ export default function Navbar({ homeRef }) {
             Cart
           </Link>
 
+          {/* Mobile Login/Logout buttons temporarily commented out
           {isLoggedIn ? (
             <button
               onClick={() => {
@@ -429,6 +432,7 @@ export default function Navbar({ homeRef }) {
               Login / Register
             </Link>
           )}
+          */}
         </div>
       </div>
     </nav>
