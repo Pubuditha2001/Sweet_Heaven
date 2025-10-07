@@ -192,6 +192,11 @@ export default function EditToppings() {
     }));
   };
 
+  // Image handling helper
+  const handleToppingImageChange = (toppingIndex, imageUrl) => {
+    updateTopping(toppingIndex, "image", imageUrl);
+  };
+
   const handleCancel = () => {
     if (hasChanges) {
       setShowUnsavedModal(true);
@@ -486,7 +491,7 @@ export default function EditToppings() {
                       <ImageUploader
                         value={topping.image}
                         onChange={(img) =>
-                          updateTopping(toppingIndex, "image", img)
+                          handleToppingImageChange(toppingIndex, img)
                         }
                       />
                     </div>
